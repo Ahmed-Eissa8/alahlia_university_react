@@ -10,7 +10,7 @@ const emptyForm = {
   email: "",
   phone: "",
   faculty_id: "",
-  department_id: "", // هنخليها اختيارية (NULL في الباك)
+  department_id: "",
   academic_rank: "",
   specialization: "",
 };
@@ -113,7 +113,7 @@ const loadRanks = async () => {
     setForm((p) => ({
       ...p,
       faculty_id: fid,
-      department_id: "", // اختياري
+      department_id: "",
     }));
 
     if (fid) {
@@ -129,7 +129,7 @@ const loadRanks = async () => {
     setForm(() => ({
       ...emptyForm,
       faculty_id: selectedFacultyId || "",
-      department_id: "", // اختياري
+      department_id: "", 
     }));
   };
 
@@ -140,7 +140,7 @@ const loadRanks = async () => {
       email: row.email || "",
       phone: row.phone || "",
       faculty_id: String(row.faculty_id || ""),
-      department_id: String(row.department_id || ""), // لو موجود في DB هنقراه، لو لا فاضي
+      department_id: String(row.department_id || ""), 
       academic_rank: row.academic_rank || "",
       specialization: row.specialization || "",
     });
@@ -159,7 +159,6 @@ const loadRanks = async () => {
         phone: form.phone.trim() || null,
         faculty_id: Number(form.faculty_id),
 
-        // ✅ القسم اختياري (لو فاضي نخليه NULL)
         department_id: form.department_id ? Number(form.department_id) : null,
 
         academic_rank: form.academic_rank.trim() || null,

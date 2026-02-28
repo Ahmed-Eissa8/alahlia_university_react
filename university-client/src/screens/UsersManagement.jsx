@@ -17,7 +17,6 @@ const allPortalTitles = [
   "المستخدمين والصلاحيات",
 ];
 
-// ====== UI Styles (Modern) ======
 const ui = {
   page: {
     fontFamily: `"Cairo", "Tajawal", system-ui, -apple-system, "Segoe UI", Arial, sans-serif`,
@@ -175,7 +174,6 @@ smallBtn: {
 
 };
 
-// دالة مساعدة لإرجاع الـ headers مع التوكن
 const getAuthHeaders = () => {
   const token = sessionStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -231,7 +229,6 @@ useEffect(() => {
         headers: getAuthHeaders(),
       });
 
-      // إذا 401 → التوكن غير صالح أو منتهي → نرجّع لصفحة اللوجن
       if (res.status === 401) {
 sessionStorage.removeItem('token');
 sessionStorage.removeItem('user');

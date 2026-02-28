@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 07, 2026 at 12:30 PM
+-- Generation Time: Feb 28, 2026 at 03:08 PM
 -- Server version: 5.5.27
 -- PHP Version: 5.4.7
 
@@ -35,8 +35,22 @@ CREATE TABLE IF NOT EXISTS `academic_periods` (
   `postgraduate_program` varchar(100) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_period` (`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=76 ;
+  UNIQUE KEY `uq_period` (`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  KEY `idx_academic_periods_academic_year` (`academic_year`),
+  KEY `idx_academic_periods_level_name` (`level_name`),
+  KEY `idx_academic_periods_term_name` (`term_name`),
+  KEY `idx_academic_periods_program_type` (`program_type`),
+  KEY `idx_academic_periods_postgraduate_program` (`postgraduate_program`),
+  KEY `idx_academic_periods_program_type_postgraduate_program` (`program_type`,`postgraduate_program`),
+  KEY `idx_ap_year` (`academic_year`),
+  KEY `idx_ap_level` (`level_name`),
+  KEY `idx_ap_term` (`term_name`),
+  KEY `idx_ap_prog_type` (`program_type`),
+  KEY `idx_ap_pg_program` (`postgraduate_program`),
+  KEY `idx_ap_prog_pg` (`program_type`,`postgraduate_program`),
+  KEY `idx_ap_year_prog_pg` (`academic_year`,`program_type`,`postgraduate_program`),
+  KEY `idx_ap_year_level_prog` (`academic_year`,`level_name`,`program_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=187 ;
 
 --
 -- Dumping data for table `academic_periods`
@@ -116,7 +130,117 @@ INSERT INTO `academic_periods` (`id`, `academic_year`, `level_name`, `term_name`
 (72, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-05 12:23:35'),
 (73, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-05 12:32:20'),
 (74, '2025/2026', 'المستوى الخامس', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 11:10:34'),
-(75, '2025/2026', 'المستوى الخامس', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 11:10:34');
+(75, '2025/2026', 'المستوى الخامس', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 11:10:34'),
+(76, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:18:18'),
+(77, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:18:18'),
+(78, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:18:44'),
+(79, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:18:44'),
+(80, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:19:18'),
+(81, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:19:18'),
+(82, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:19:49'),
+(83, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:19:49'),
+(84, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:20:15'),
+(85, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-07 15:20:15'),
+(86, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-07 15:22:18'),
+(87, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-07 15:23:11'),
+(88, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 07:03:40'),
+(89, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(90, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(91, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(92, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(93, '2026/2027', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(94, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 11:07:51'),
+(95, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(96, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(97, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(98, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(99, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(100, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(101, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(102, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(103, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(104, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(105, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(106, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(107, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(108, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(109, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(110, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(111, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(112, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(113, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(114, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(115, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(116, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(117, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(118, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(119, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(120, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(121, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(122, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(123, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(124, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(125, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(126, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(127, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(128, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(129, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(130, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(131, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(132, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 11:58:40'),
+(133, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, '2026-02-08 12:01:02'),
+(134, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:51:12'),
+(136, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(137, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(138, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(139, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(140, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(141, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(142, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(143, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(144, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(145, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(146, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(147, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(148, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(149, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(150, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(151, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(152, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(153, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(154, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(155, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(156, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(157, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(158, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(159, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(160, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(161, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(162, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(163, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(164, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(165, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(166, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(167, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(168, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(169, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(170, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(171, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(172, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(173, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, '2026-02-08 12:58:48'),
+(174, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-09 07:25:50'),
+(175, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-09 07:28:28'),
+(176, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-09 07:30:06'),
+(177, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-09 07:30:08'),
+(178, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-09 12:58:58'),
+(179, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-11 06:43:34'),
+(180, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-11 06:43:34'),
+(181, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:12:01'),
+(182, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:12:01'),
+(183, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:14:35'),
+(184, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:17:57'),
+(185, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:21:47'),
+(186, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-02-14 12:21:47');
 
 -- --------------------------------------------------------
 
@@ -187,7 +311,7 @@ CREATE TABLE IF NOT EXISTS `borrowed_books` (
   `returned_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `book_id` (`book_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
 
 --
 -- Dumping data for table `borrowed_books`
@@ -222,8 +346,29 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `postgraduate_program` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_courses_filter` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`),
-  KEY `fk_courses_department` (`department_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
+  KEY `fk_courses_department` (`department_id`),
+  KEY `idx_courses_faculty_id` (`faculty_id`),
+  KEY `idx_courses_department_id` (`department_id`),
+  KEY `idx_courses_academic_year` (`academic_year`),
+  KEY `idx_courses_level_name` (`level_name`),
+  KEY `idx_courses_term_name` (`term_name`),
+  KEY `idx_courses_program_type` (`program_type`),
+  KEY `idx_courses_postgraduate_program` (`postgraduate_program`),
+  KEY `idx_courses_course_name` (`course_name`),
+  KEY `idx_crs_faculty` (`faculty_id`),
+  KEY `idx_crs_dept` (`department_id`),
+  KEY `idx_crs_year` (`academic_year`),
+  KEY `idx_crs_level` (`level_name`),
+  KEY `idx_crs_term` (`term_name`),
+  KEY `idx_crs_prog` (`program_type`),
+  KEY `idx_crs_pg` (`postgraduate_program`),
+  KEY `idx_crs_name` (`course_name`),
+  KEY `idx_crs_fac_dept` (`faculty_id`,`department_id`),
+  KEY `idx_crs_period` (`academic_year`,`level_name`,`term_name`),
+  KEY `idx_crs_prog_pg` (`program_type`,`postgraduate_program`),
+  KEY `idx_crs_yr_lvl_term` (`academic_year`,`level_name`,`term_name`),
+  KEY `idx_crs_fac_yr_lvl` (`faculty_id`,`academic_year`,`level_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=26 ;
 
 --
 -- Dumping data for table `courses`
@@ -244,7 +389,17 @@ INSERT INTO `courses` (`id`, `faculty_id`, `department_id`, `academic_year`, `le
 (12, 1, 3, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'البرمجيات المدمجة', 'د. علي الطيب', 3.00, 100, 40, 60, '2025-12-31 13:51:49', '0000-00-00 00:00:00', 'bachelor', 'ماجستير البرمجيات المدمجة'),
 (13, 1, 3, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'هندسة برمجيات', 'د. علي الطيب', 3.00, 100, 40, 60, '2026-01-13 06:43:27', '0000-00-00 00:00:00', 'bachelor', NULL),
 (14, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'شبكات', 'د. سارة نبيل', 3.00, 100, 40, 60, '2026-02-04 11:29:48', '0000-00-00 00:00:00', 'bachelor', NULL),
-(15, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'تفاعل الانسان والحاسوب', 'د. علي الطيب', 3.00, 100, 40, 60, '2026-02-05 08:02:49', '0000-00-00 00:00:00', 'bachelor', NULL);
+(15, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'تفاعل الانسان والحاسوب', 'د. علي الطيب', 3.00, 100, 40, 60, '2026-02-05 08:02:49', '0000-00-00 00:00:00', 'bachelor', NULL),
+(16, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'test', 'د.محمد علي', 2.00, 100, 40, 60, '2026-02-07 15:22:32', '0000-00-00 00:00:00', 'bachelor', NULL),
+(17, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'test1', 'د.محمد علي', 3.00, 100, 40, 60, '2026-02-07 15:22:40', '0000-00-00 00:00:00', 'bachelor', NULL),
+(18, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'test3', 'د.محمد علي', 3.00, 100, 40, 60, '2026-02-07 15:23:22', '0000-00-00 00:00:00', 'bachelor', NULL),
+(19, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 't1', 'د.محمد علي', 2.00, 100, 40, 60, '2026-02-08 07:03:52', '0000-00-00 00:00:00', 'bachelor', NULL),
+(20, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 't2', 'د.محمد علي', 3.00, 100, 40, 60, '2026-02-08 07:03:59', '0000-00-00 00:00:00', 'bachelor', NULL),
+(21, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 't3', 'د.محمد علي', 3.00, 100, 40, 60, '2026-02-08 07:04:14', '0000-00-00 00:00:00', 'bachelor', NULL),
+(22, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 't4', 'د.محمد علي', 2.00, 100, 40, 60, '2026-02-08 07:04:25', '0000-00-00 00:00:00', 'bachelor', NULL),
+(23, 5, 12, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'تحليل', 'هاشم علي', 3.00, 100, 40, 60, '2026-02-09 07:28:38', '0000-00-00 00:00:00', 'bachelor', NULL),
+(24, 5, 12, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'كيمياء تحليليه', 'هاشم علي', 3.00, 100, 40, 60, '2026-02-09 07:28:51', '0000-00-00 00:00:00', 'bachelor', NULL),
+(25, 5, 12, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'طفيليات', 'هاشم علي', 2.00, 100, 40, 60, '2026-02-09 07:29:08', '0000-00-00 00:00:00', 'bachelor', NULL);
 
 -- --------------------------------------------------------
 
@@ -268,8 +423,14 @@ CREATE TABLE IF NOT EXISTS `course_grades` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_student_course_attempt` (`student_id`,`course_id`,`attempt_number`),
   KEY `fk_course_grades_student` (`student_id`),
-  KEY `fk_course_grades_course` (`course_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=104 ;
+  KEY `fk_course_grades_course` (`course_id`),
+  KEY `idx_course_grades_student_id` (`student_id`),
+  KEY `idx_course_grades_course_id` (`course_id`),
+  KEY `idx_course_grades_attempt_number` (`attempt_number`),
+  KEY `idx_course_grades_student_id_course_id` (`student_id`,`course_id`),
+  KEY `idx_grd_std_course` (`student_id`,`course_id`),
+  KEY `idx_grd_attempt` (`attempt_number`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=148 ;
 
 --
 -- Dumping data for table `course_grades`
@@ -323,7 +484,51 @@ INSERT INTO `course_grades` (`id`, `course_id`, `student_id`, `attempt_number`, 
 (100, 3, 8, 1, 40.00, 50.00, 90.00, 'A', 4.00, 0, '2026-02-05 11:23:05', '0000-00-00 00:00:00'),
 (101, 3, 1, 1, 30.00, 30.00, 60.00, 'C+', 2.50, 0, '2026-02-05 11:23:05', '0000-00-00 00:00:00'),
 (102, 3, 7, 1, 40.00, 10.00, 50.00, 'C', 2.00, 0, '2026-02-05 11:23:05', '0000-00-00 00:00:00'),
-(103, 3, 4, 1, 20.00, 30.00, 50.00, 'C', 2.00, 0, '2026-02-05 11:23:05', '0000-00-00 00:00:00');
+(103, 3, 4, 1, 20.00, 30.00, 50.00, 'C', 2.00, 0, '2026-02-05 11:23:05', '0000-00-00 00:00:00'),
+(104, 16, 21, 1, 40.00, 40.00, 80.00, 'B+', 3.50, 0, '2026-02-07 15:49:22', '0000-00-00 00:00:00'),
+(105, 16, 22, 1, 30.00, 30.00, 60.00, 'C+', 2.50, 0, '2026-02-07 15:49:22', '0000-00-00 00:00:00'),
+(106, 16, 23, 1, 25.00, 25.00, 50.00, 'C', 2.00, 0, '2026-02-07 15:49:22', '0000-00-00 00:00:00'),
+(107, 16, 24, 1, 20.00, 20.00, 40.00, 'F', 0.00, 0, '2026-02-07 15:49:22', '0000-00-00 00:00:00'),
+(108, 16, 25, 1, 15.00, 15.00, 30.00, 'F', 0.00, 0, '2026-02-07 15:49:22', '0000-00-00 00:00:00'),
+(109, 16, 20, 1, 20.00, 15.00, 35.00, 'F', 0.00, 0, '2026-02-07 15:49:23', '0000-00-00 00:00:00'),
+(110, 17, 21, 1, 40.00, 40.00, 80.00, 'B+', 3.50, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(111, 17, 22, 1, 40.00, 30.00, 70.00, 'B', 3.00, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(112, 17, 23, 1, 30.00, 30.00, 60.00, 'C+', 2.50, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(113, 17, 24, 1, 25.00, 20.00, 45.00, 'F', 0.00, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(114, 17, 25, 1, 20.00, 15.00, 35.00, 'F', 0.00, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(115, 17, 20, 1, 20.00, 15.00, 35.00, 'F', 0.00, 0, '2026-02-07 15:50:10', '2026-02-08 07:40:10'),
+(116, 18, 21, 1, 40.00, 60.00, 100.00, 'A', 4.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(117, 18, 22, 1, 40.00, 55.00, 95.00, 'A', 4.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(118, 18, 23, 1, 40.00, 50.00, 90.00, 'A', 4.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(119, 18, 24, 1, 20.00, 25.00, 45.00, 'F', 0.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(120, 18, 25, 1, 25.00, 15.00, 40.00, 'F', 0.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(121, 18, 20, 1, 40.00, 25.00, 65.00, 'B', 3.00, 0, '2026-02-07 15:51:07', '2026-02-08 09:36:05'),
+(122, 19, 21, 1, 40.00, 55.00, 95.00, 'A', 4.00, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(123, 19, 22, 1, 30.00, 45.00, 75.00, 'B+', 3.50, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(124, 19, 23, 1, 20.00, 35.00, 55.00, 'C+', 2.50, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(125, 19, 24, 1, 15.00, 25.00, 40.00, 'F', 0.00, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(126, 19, 25, 1, 15.00, 20.00, 35.00, 'F', 0.00, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(127, 19, 20, 1, 15.00, 15.00, 30.00, 'F', 0.00, 0, '2026-02-08 07:05:45', '0000-00-00 00:00:00'),
+(128, 20, 21, 1, 35.00, 45.00, 80.00, 'B+', 3.50, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(129, 20, 22, 1, 35.00, 35.00, 70.00, 'B', 3.00, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(130, 20, 23, 1, 35.00, 25.00, 60.00, 'C+', 2.50, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(131, 20, 24, 1, 25.00, 20.00, 45.00, 'F', 0.00, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(132, 20, 25, 1, 25.00, 15.00, 40.00, 'F', 0.00, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(133, 20, 20, 1, 25.00, 35.00, 60.00, 'C+', 2.50, 0, '2026-02-08 07:06:37', '0000-00-00 00:00:00'),
+(134, 21, 21, 1, 40.00, 20.00, 60.00, 'C+', 2.50, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(135, 21, 22, 1, 30.00, 35.00, 65.00, 'B', 3.00, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(136, 21, 23, 1, 35.00, 55.00, 90.00, 'A', 4.00, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(137, 21, 24, 1, 25.00, 20.00, 45.00, 'F', 0.00, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(138, 21, 25, 1, 25.00, 35.00, 60.00, 'C+', 2.50, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(139, 21, 20, 1, 25.00, 20.00, 45.00, 'F', 0.00, 0, '2026-02-08 07:07:18', '0000-00-00 00:00:00'),
+(140, 22, 21, 1, 40.00, 60.00, 100.00, 'A', 4.00, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(141, 22, 22, 1, 35.00, 55.00, 90.00, 'A', 4.00, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(142, 22, 23, 1, 35.00, 45.00, 80.00, 'B+', 3.50, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(143, 22, 24, 1, 2.00, 35.00, 37.00, 'F', 0.00, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(144, 22, 25, 1, 25.00, 25.00, 50.00, 'C', 2.00, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(145, 22, 20, 1, 25.00, 20.00, 45.00, 'F', 0.00, 0, '2026-02-08 07:08:02', '2026-02-08 09:35:41'),
+(146, 19, 24, 2, 25.00, 25.00, 50.00, 'C*', 2.00, 1, '2026-02-08 10:46:36', '0000-00-00 00:00:00'),
+(147, 20, 24, 2, 25.00, 30.00, 55.00, 'C*', 2.00, 1, '2026-02-08 11:19:16', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -337,8 +542,10 @@ CREATE TABLE IF NOT EXISTS `departments` (
   `department_name` varchar(200) CHARACTER SET utf8 NOT NULL,
   `levels_count` int(11) DEFAULT '4',
   PRIMARY KEY (`id`),
-  KEY `faculty_id` (`faculty_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
+  KEY `faculty_id` (`faculty_id`),
+  KEY `idx_departments_faculty_id` (`faculty_id`),
+  KEY `idx_departments_department_name` (`department_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
 
 --
 -- Dumping data for table `departments`
@@ -355,7 +562,8 @@ INSERT INTO `departments` (`id`, `faculty_id`, `department_name`, `levels_count`
 (8, 3, 'إدارة أعمال', 4),
 (9, 3, 'اقتصاد', 4),
 (10, 4, 'باطني', 4),
-(11, 4, 'جراحه', 4);
+(11, 4, 'جراحه', 4),
+(12, 5, 'الطفيليات', 4);
 
 -- --------------------------------------------------------
 
@@ -366,19 +574,91 @@ INSERT INTO `departments` (`id`, `faculty_id`, `department_name`, `levels_count`
 CREATE TABLE IF NOT EXISTS `faculties` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `faculty_name` varchar(200) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+  `faculty_type` enum('theoretical','practical') NOT NULL DEFAULT 'theoretical',
+  PRIMARY KEY (`id`),
+  KEY `idx_faculties_faculty_name` (`faculty_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
 --
 -- Dumping data for table `faculties`
 --
 
-INSERT INTO `faculties` (`id`, `faculty_name`) VALUES
-(1, 'كلية علوم الحاسوب'),
-(2, 'كلية الهندسة'),
-(3, 'كلية الاقتصاد'),
-(4, 'كلية علوم التمريض'),
-(5, 'كلية المختبرات الطبية');
+INSERT INTO `faculties` (`id`, `faculty_name`, `faculty_type`) VALUES
+(1, 'كلية علوم الحاسوب', 'practical'),
+(2, 'كلية الهندسة', 'practical'),
+(3, 'كلية الاقتصاد', 'theoretical'),
+(4, 'كلية علوم التمريض', 'practical'),
+(5, 'كلية المختبرات الطبية', 'practical'),
+(6, 'دراسات قرانيه', 'theoretical');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fees`
+--
+
+CREATE TABLE IF NOT EXISTS `fees` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `student_id` int(11) DEFAULT NULL,
+  `academic_year` varchar(20) NOT NULL,
+  `level_name` varchar(60) NOT NULL,
+  `term_name` varchar(30) NOT NULL,
+  `program_type` enum('diploma','bachelor','postgraduate') NOT NULL DEFAULT 'bachelor',
+  `postgraduate_program` varchar(100) DEFAULT NULL,
+  `department_id` int(11) DEFAULT NULL,
+  `registration_fee` decimal(10,2) DEFAULT NULL,
+  `tuition_fee` decimal(10,2) DEFAULT NULL,
+  `late_fee` decimal(10,2) DEFAULT NULL,
+  `scholarship_type` varchar(100) DEFAULT 'لا منحة',
+  `scholarship_percentage` decimal(5,2) DEFAULT '0.00' COMMENT 'نسبة الخصم',
+  `payment_start_date` date DEFAULT NULL,
+  `payment_end_date` date DEFAULT NULL,
+  `installment_1` decimal(10,2) DEFAULT NULL,
+  `installment_1_start` date DEFAULT NULL,
+  `installment_1_end` date DEFAULT NULL,
+  `installment_2` decimal(10,2) DEFAULT NULL,
+  `installment_2_start` date DEFAULT NULL,
+  `installment_2_end` date DEFAULT NULL,
+  `installment_3` decimal(10,2) DEFAULT NULL,
+  `installment_3_start` date DEFAULT NULL,
+  `installment_3_end` date DEFAULT NULL,
+  `installment_4` decimal(10,2) DEFAULT NULL,
+  `installment_4_start` date DEFAULT NULL,
+  `installment_4_end` date DEFAULT NULL,
+  `installment_5` decimal(10,2) DEFAULT NULL,
+  `installment_5_start` date DEFAULT NULL,
+  `installment_5_end` date DEFAULT NULL,
+  `installment_6` decimal(10,2) DEFAULT NULL,
+  `installment_6_start` date DEFAULT NULL,
+  `installment_6_end` date DEFAULT NULL,
+  `registrar` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `freeze_fee` decimal(10,2) DEFAULT '0.00',
+  `unfreeze_fee` decimal(10,2) DEFAULT '0.00',
+  `repeat_discount` int(11) DEFAULT '50',
+  `is_paid` tinyint(1) DEFAULT '0' COMMENT '0 = غير مدفوع, 1 = مدفوع',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  UNIQUE KEY `uq_default_period` (`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  KEY `fk_fees_student` (`student_id`),
+  KEY `fk_fees_department` (`department_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=11 ;
+
+--
+-- Dumping data for table `fees`
+--
+
+INSERT INTO `fees` (`id`, `student_id`, `academic_year`, `level_name`, `term_name`, `program_type`, `postgraduate_program`, `department_id`, `registration_fee`, `tuition_fee`, `late_fee`, `scholarship_type`, `scholarship_percentage`, `payment_start_date`, `payment_end_date`, `installment_1`, `installment_1_start`, `installment_1_end`, `installment_2`, `installment_2_start`, `installment_2_end`, `installment_3`, `installment_3_start`, `installment_3_end`, `installment_4`, `installment_4_start`, `installment_4_end`, `installment_5`, `installment_5_start`, `installment_5_end`, `installment_6`, `installment_6_start`, `installment_6_end`, `registrar`, `created_at`, `updated_at`, `freeze_fee`, `unfreeze_fee`, `repeat_discount`, `is_paid`) VALUES
+(1, NULL, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, 8, 2500.00, 3500.00, 500.00, 'لا منحة', 0.00, '2026-04-04', '2026-05-05', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-19 11:49:07', '2026-02-21 12:58:00', 0.00, 0.00, 50, 0),
+(2, 3, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, NULL, 152000.00, 9000.00, 0.00, 'تخفيضات المدير', 20.00, '2026-02-16', '2026-03-12', 5000.00, NULL, NULL, 4000.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, '', '2026-02-19 11:53:38', '2026-02-23 10:34:16', 0.00, 0.00, 50, 0),
+(3, 12, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, NULL, 2500.00, 3500.00, 500.00, 'منحة أشقاء', 0.00, '2026-02-22', '2026-03-31', 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, '', '2026-02-22 12:17:23', '2026-02-22 12:17:23', 0.00, 0.00, 50, 0),
+(4, NULL, '2026/2027', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, 5, 55000.00, 60000.00, 0.00, 'لا منحة', 0.00, '2026-02-23', '2026-03-23', 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, 0.00, NULL, NULL, '', '2026-02-23 10:58:34', '2026-02-23 10:58:34', 0.00, 0.00, 50, 0),
+(5, NULL, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, 5, 1500.00, 3500.00, 0.00, 'لا منحة', 0.00, '2026-02-23', '2026-02-28', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-23 12:55:35', '2026-02-23 12:55:35', 0.00, 0.00, 50, 0),
+(6, 3, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, NULL, 1500.00, 1750.00, 0.00, 'أخرى', 50.00, '2026-02-22', '2026-02-27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-25 11:09:13', '2026-02-25 11:09:13', 0.00, 0.00, 50, 0),
+(7, 2, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'منحة أبناء عاملين', 75.00, '2026-02-22', '2026-02-27', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-25 11:59:50', '2026-02-25 11:59:50', 0.00, 0.00, 50, 0),
+(9, 9, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'لا منحة', 0.00, NULL, NULL, 2375.00, '2026-02-22', '2026-03-22', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-25 12:51:07', '2026-02-26 10:37:52', 0.00, 0.00, 50, 0),
+(10, NULL, '2026/2027', 'المستوى الأول', '', 'bachelor', NULL, 10, 15000.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '2026-02-26 11:03:49', '2026-02-26 11:03:49', 0.00, 0.00, 50, 0);
 
 -- --------------------------------------------------------
 
@@ -402,8 +682,12 @@ CREATE TABLE IF NOT EXISTS `grading_rules` (
   `updated_at` datetime NOT NULL,
   `faculty_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_grading_rules_faculty` (`faculty_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=164 ;
+  KEY `idx_grading_rules_faculty` (`faculty_id`),
+  KEY `idx_grading_rules_faculty_id` (`faculty_id`),
+  KEY `idx_grading_rules_rule_type` (`rule_type`),
+  KEY `idx_grading_rules_faculty_id_rule_type` (`faculty_id`,`rule_type`),
+  KEY `idx_grd_fac_type` (`faculty_id`,`rule_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=180 ;
 
 --
 -- Dumping data for table `grading_rules`
@@ -457,7 +741,23 @@ INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_va
 (160, 'gpa_classification', 'general', 'ممتاز', 3.50, 4.00, NULL, NULL, NULL, NULL, 1, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (161, 'gpa_classification', 'general', 'جيد جداً', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (162, 'gpa_classification', 'general', 'جيد', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
-(163, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1);
+(163, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
+(164, 'gpa_settings', NULL, '{"total_mark":100,"final_exam_max":60,"coursework_max":40,"rounding_decimals":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(165, 'grade_scale', NULL, 'A', 85.00, 100.00, 4.00, NULL, NULL, NULL, 1, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(166, 'grade_scale', NULL, 'B+', 75.00, 85.00, 3.50, NULL, NULL, NULL, 2, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(167, 'grade_scale', NULL, 'B', 65.00, 75.00, 3.00, NULL, NULL, NULL, 3, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(168, 'grade_scale', NULL, 'C+', 55.00, 65.00, 2.50, NULL, NULL, NULL, 4, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(169, 'grade_scale', NULL, 'C', 50.00, 55.00, 2.00, NULL, NULL, NULL, 5, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(170, 'grade_scale', NULL, 'C*', -1.00, -1.00, 2.00, NULL, NULL, NULL, 6, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(171, 'grade_scale', NULL, 'F', 49.00, 0.00, 0.00, NULL, NULL, NULL, 7, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(172, 'gpa_classification', 'honors', 'مرتبة الشرف الأولى', 3.50, 4.00, NULL, NULL, NULL, NULL, 1, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(173, 'gpa_classification', 'honors', 'مرتبة الشرف الثانية (القسم الأول)', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(174, 'gpa_classification', 'honors', 'مرتبة الشرف الثانية (القسم الثاني)', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(175, 'gpa_classification', 'honors', 'مرتبة الشرف الثالثة', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(176, 'gpa_classification', 'general', 'ممتاز', 3.50, 4.00, NULL, NULL, NULL, NULL, 1, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(177, 'gpa_classification', 'general', 'جيد جداً', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(178, 'gpa_classification', 'general', 'جيد', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(179, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4);
 
 -- --------------------------------------------------------
 
@@ -508,7 +808,7 @@ CREATE TABLE IF NOT EXISTS `staff_members` (
   UNIQUE KEY `uq_staff_email` (`email`),
   KEY `idx_staff_faculty` (`faculty_id`),
   KEY `idx_staff_department` (`department_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 --
 -- Dumping data for table `staff_members`
@@ -523,7 +823,8 @@ INSERT INTO `staff_members` (`id`, `full_name`, `staff_code`, `email`, `phone`, 
 (6, 'د. نادر حسن', 'STF-006', 'n.hassan@uni.edu', '0912345683', 3, 8, 'محاضر', 'إدارة', 'active', '2025-12-28 11:20:32', '2025-12-28 11:20:32'),
 (7, 'أ. خالد صالح', 'STF-007', 'k.saleh@uni.edu', '0912345684', 3, 7, 'محاضر', 'محاسبة', 'active', '2025-12-28 11:20:32', '2025-12-28 11:20:32'),
 (8, 'أ. ريم عمر', 'STF-008', 'r.omar@uni.edu', '0912345685', 3, 9, 'محاضر', 'اقتصاد', 'active', '2025-12-28 11:20:32', '2026-02-05 12:36:18'),
-(10, 'د.محمد علي', NULL, NULL, '09090909', 4, NULL, 'أستاذ مساعد', 'جراحة', 'active', '2025-12-29 13:50:45', '0000-00-00 00:00:00');
+(10, 'د.محمد علي', NULL, NULL, '09090909', 4, NULL, 'أستاذ مساعد', 'جراحة', 'active', '2025-12-29 13:50:45', '0000-00-00 00:00:00'),
+(11, 'هاشم علي', NULL, NULL, NULL, 5, NULL, 'محاضر', 'مختبرات', 'active', '2026-02-09 07:26:18', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -548,8 +849,12 @@ CREATE TABLE IF NOT EXISTS `students` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_students_full_name` (`full_name`),
-  KEY `fk_students_department` (`department_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=21 ;
+  KEY `fk_students_department` (`department_id`),
+  KEY `idx_students_university_id` (`university_id`),
+  KEY `idx_std_univ_name` (`university_id`,`full_name`),
+  KEY `idx_std_dept_name` (`department_id`,`full_name`),
+  KEY `idx_std_univ_dept` (`university_id`,`department_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=83 ;
 
 --
 -- Dumping data for table `students`
@@ -574,7 +879,69 @@ INSERT INTO `students` (`id`, `full_name`, `university_id`, `phone`, `receipt_nu
 (16, 'عبير عبده ادم صالح', '201822000313', '090123456', NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 13:50:37'),
 (17, 'عبير عبده', '123456789', '09552288', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 06:13:04'),
 (19, 'علي هاشم', '147852369', '0987456321', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 08:08:11'),
-(20, 'منعم احمد', '250003', '0905050545', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-05 12:32:20');
+(20, 'منعم احمد', '250003', '0905050545', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-05 12:32:20'),
+(21, 's1', 's0001', '122334', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:18'),
+(22, 's2', 's0002', '321232', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:44'),
+(23, 's3', 's0003', '32456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:18'),
+(24, 's4', 's0004', '213456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:49'),
+(25, 's5', 's0005', '123456', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:20:15'),
+(26, 'أحمد محمد علي', 'MED-250001', '0912345678', 'REC-2501', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(27, 'سارة حسن عمر', 'MED-250002', '0923456789', 'REC-2502', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(28, 'عمر خالد يوسف', 'MED-250003', '0934567890', 'REC-2503', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(29, 'مريم عثمان أحمد', 'MED-250004', '0945678901', 'REC-2504', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(30, 'خالد محمد حسن', 'MED-250005', '0956789012', 'REC-2505', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(31, 'هبة علي عبدالله', 'MED-250006', '0967890123', 'REC-2506', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(32, 'محمد يوسف عمر', 'MED-250007', '0978901234', 'REC-2507', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(33, 'آلاء أحمد خالد', 'MED-250008', '0989012345', 'REC-2508', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(34, 'ريم حسن محمد', 'MED-250009', '0990123456', 'REC-2509', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(35, 'مصطفى عثمان علي', 'MED-250010', '0901234567', 'REC-2510', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(36, 'نهى خالد يوسف', 'MED-250011', '0912345679', 'REC-2511', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(37, 'ضياء محمد حسن', 'MED-250012', '0923456790', 'REC-2512', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(38, 'رنا علي عمر', 'MED-250013', '0934567901', 'REC-2513', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(39, 'إيهاب يوسف أحمد', 'MED-250014', '0945679012', 'REC-2514', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(40, 'سلمى حسن خالد', 'MED-250015', '0956789123', 'REC-2515', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(41, 'عبير محمد عثمان', 'MED-250016', '0967891234', 'REC-2516', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(42, 'علي أحمد حسن', 'MED-250017', '0978901345', 'REC-2517', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(43, 'منعم يوسف محمد', 'MED-250018', '0989013456', 'REC-2518', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(44, 'فاطمة عمر خالد', 'MED-250019', '0990124567', 'REC-2519', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(45, 'حسن عثمان علي', 'MED-250020', '0901235678', 'REC-2520', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(46, 'يوسف محمد حسن', 'MED-250021', '0912346789', 'REC-2521', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(47, 'خالد علي يوسف', 'MED-250022', '0923457890', 'REC-2522', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(48, 'لينا محمود عبدالله', 'MED-250023', '0934568901', 'REC-2523', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(49, 'زينب عمر محمد', 'MED-250024', '0945679012', 'REC-2524', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(50, 'بدر الدين خالد', 'MED-250025', '0956780123', 'REC-2525', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(51, 'نورا حسن يوسف', 'MED-250026', '0967891234', 'REC-2526', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(52, 'أيمن علي عثمان', 'MED-250027', '0978902345', 'REC-2527', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(53, 'سمية محمد أحمد', 'MED-250028', '0989013456', 'REC-2528', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(54, 'طارق يوسف عمر', 'MED-250029', '0990124567', 'REC-2529', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(55, 'رقية حسن خالد', 'MED-250030', '0901235678', 'REC-2530', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(56, 'إبراهيم عثمان علي', 'MED-250031', '0912346789', 'REC-2531', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(57, 'أمل محمد حسن', 'MED-250032', '0923457890', 'REC-2532', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(58, 'جمال خالد يوسف', 'MED-250033', '0934568901', 'REC-2533', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(59, 'لطيفة علي عمر', 'MED-250034', '0945679012', 'REC-2534', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(60, 'صلاح أحمد محمد', 'MED-250035', '0956780123', 'REC-2535', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(61, 'هند حسن عثمان', 'MED-250036', '0967891234', 'REC-2536', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(62, 'عبدالله يوسف خالد', 'MED-250037', '0978902345', 'REC-2537', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(63, 'مريم علي أحمد', 'MED-250038', '0989013456', 'REC-2538', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(64, 'فهد محمد عمر', 'MED-250039', '0990124567', 'REC-2539', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(65, 'سجود حسن يوسف', 'MED-250040', '0901235678', 'REC-2540', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(66, 'بلال خالد عثمان', 'MED-250041', '0912346789', 'REC-2541', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(67, 'نوال أحمد محمد', 'MED-250042', '0923457890', 'REC-2542', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(68, 'عادل علي حسن', 'MED-250043', '0934568901', 'REC-2543', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(69, 'شيماء يوسف عمر', 'MED-250044', '0945679012', 'REC-2544', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(70, 'مازن محمد خالد', 'MED-250045', '0956780123', 'REC-2545', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(71, 'روان حسن أحمد', 'MED-250046', '0967891234', 'REC-2546', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(72, 'عمار عثمان يوسف', 'MED-250047', '0978902345', 'REC-2547', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(73, 'لمعان علي محمد', 'MED-250048', '0989013456', 'REC-2548', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(74, 'بسمة خالد عمر', 'MED-250049', '0990124567', 'REC-2549', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(75, 'زياد أحمد حسن', 'MED-250050', '0901235679', 'REC-2550', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(76, 'فاطمه احمد', '260003', '123456789', NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-09 07:30:08'),
+(77, 'عبدالرحمن', '260001', '0123456789', NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-11 06:43:34'),
+(78, 'وليد', '260004', '3346658', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:12:01'),
+(79, 'عواطف عاطف', '250007', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:14:58'),
+(80, 'ابتهال عاطف', '250008', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:16:48'),
+(81, 'هاله', '260002', '952352', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:17:57'),
+(82, 'عاليه', '357000', '542864', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:21:47');
 
 -- --------------------------------------------------------
 
@@ -601,8 +968,28 @@ CREATE TABLE IF NOT EXISTS `student_registrations` (
   `postgraduate_program` varchar(255) DEFAULT NULL,
   `repeat_count` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `fk_reg_student` (`student_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=67 ;
+  KEY `fk_reg_student` (`student_id`),
+  KEY `idx_student_registrations_student_id` (`student_id`),
+  KEY `idx_student_registrations_academic_year` (`academic_year`),
+  KEY `idx_student_registrations_level_name` (`level_name`),
+  KEY `idx_student_registrations_term_name` (`term_name`),
+  KEY `idx_student_registrations_program_type` (`program_type`),
+  KEY `idx_student_registrations_postgraduate_program` (`postgraduate_program`(191)),
+  KEY `idx_student_registrations_registration_status` (`registration_status`),
+  KEY `idx_reg_student` (`student_id`),
+  KEY `idx_reg_year` (`academic_year`),
+  KEY `idx_reg_level` (`level_name`),
+  KEY `idx_reg_term` (`term_name`),
+  KEY `idx_reg_prog` (`program_type`),
+  KEY `idx_reg_pg` (`postgraduate_program`(191)),
+  KEY `idx_reg_status` (`registration_status`),
+  KEY `idx_reg_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`),
+  KEY `idx_reg_prog_pg` (`program_type`,`postgraduate_program`(191)),
+  KEY `idx_reg_year_prog` (`academic_year`,`program_type`,`postgraduate_program`(191)),
+  KEY `idx_reg_status_year` (`registration_status`,`academic_year`),
+  KEY `idx_reg_std_yr_lvl` (`student_id`,`academic_year`,`level_name`),
+  KEY `idx_reg_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=244 ;
 
 --
 -- Dumping data for table `student_registrations`
@@ -617,7 +1004,7 @@ INSERT INTO `student_registrations` (`id`, `student_id`, `academic_year`, `level
 (6, 6, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025006', NULL, NULL, 'seed', '2025-12-28 09:20:32', NULL, 'bachelor', NULL, NULL, 0),
 (7, 7, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025007', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
 (8, 8, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025008', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
-(9, 9, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025009', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
+(9, 9, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'مجمّد', 'مسجّل', 'REG-2025009', NULL, NULL, 'admin', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
 (10, 10, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025010', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
 (11, 11, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025011', NULL, NULL, 'seed', '2025-12-28 09:20:32', 0, 'bachelor', NULL, NULL, 0),
 (12, 12, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025012', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
@@ -641,9 +1028,156 @@ INSERT INTO `student_registrations` (`id`, `student_id`, `academic_year`, `level
 (55, 4, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-05 12:22:50', NULL, 'bachelor', NULL, NULL, 0),
 (56, 7, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-05 12:22:50', NULL, 'bachelor', NULL, NULL, 0),
 (57, 8, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-05 12:22:50', NULL, 'bachelor', NULL, NULL, 0),
-(58, 20, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-05 12:32:20', NULL, 'bachelor', NULL, NULL, 0),
+(58, 20, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-05 12:32:20', 0, 'bachelor', NULL, NULL, 0),
 (65, 17, '2025/2026', 'المستوى الخامس', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 11:10:34', NULL, 'bachelor', NULL, NULL, 0),
-(66, 17, '2025/2026', 'المستوى الخامس', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 11:11:04', 1, 'bachelor', NULL, NULL, 0);
+(66, 17, '2025/2026', 'المستوى الخامس', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 11:11:04', 1, 'bachelor', NULL, NULL, 0),
+(67, 21, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 15:18:18', 1, 'bachelor', NULL, NULL, 0),
+(68, 22, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 15:18:44', 1, 'bachelor', NULL, NULL, 0),
+(69, 23, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 15:19:18', 1, 'bachelor', NULL, NULL, 0),
+(70, 24, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 15:19:49', 0, 'bachelor', NULL, NULL, 0),
+(71, 25, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-07 15:20:15', 0, 'bachelor', NULL, NULL, 0),
+(72, 20, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 0, 'bachelor', NULL, NULL, 0),
+(73, 21, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 1, 'bachelor', NULL, NULL, 0),
+(74, 22, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 1, 'bachelor', NULL, NULL, 0),
+(75, 23, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 1, 'bachelor', NULL, NULL, 0),
+(76, 24, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 0, 'bachelor', NULL, NULL, 0),
+(77, 25, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-07 15:21:07', 0, 'bachelor', NULL, NULL, 0),
+(108, 20, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 0),
+(109, 21, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 0),
+(110, 22, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 0),
+(111, 23, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 0),
+(112, 24, '2026/2027', 'المستوى الأول', 'الفصل الثاني', 'إعادة', 'مسجّل', NULL, NULL, '16,17,18,19,20,21,22', 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 1),
+(113, 25, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:07:51', NULL, 'bachelor', NULL, NULL, 0),
+(114, 26, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252501', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(115, 27, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252502', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(116, 28, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252503', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(117, 29, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252504', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(118, 30, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252505', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(119, 31, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252506', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(120, 32, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252507', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(121, 33, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252508', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(122, 34, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252509', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(123, 35, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252510', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(124, 36, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252511', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(125, 37, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252512', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(126, 38, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252513', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(127, 39, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', 'REG-20252514', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(128, 40, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252515', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(129, 41, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252516', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(130, 42, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252517', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(131, 43, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252518', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(132, 44, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252519', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(133, 45, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252520', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(134, 46, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252521', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(135, 47, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252522', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(136, 48, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252523', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(137, 49, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252524', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(138, 50, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252525', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(139, 51, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252526', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(140, 52, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252527', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(141, 53, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252528', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(142, 54, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252529', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(143, 55, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252530', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(144, 56, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252531', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(145, 57, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252532', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(146, 58, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252533', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(147, 59, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252534', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(148, 60, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252535', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(149, 61, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252536', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(150, 62, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252537', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(151, 63, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252538', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(152, 64, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252539', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(153, 65, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252540', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(154, 66, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252541', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(155, 67, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252542', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(156, 68, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252543', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(157, 69, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252544', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(158, 70, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252545', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(159, 71, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252546', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(160, 72, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252547', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(161, 73, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252548', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(162, 74, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252549', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(163, 75, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-20252550', NULL, NULL, 'admin', '2026-02-08 11:42:18', 1, 'bachelor', NULL, NULL, 0),
+(164, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(165, 6, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(166, 40, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(167, 41, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(168, 42, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(169, 43, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(170, 44, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(171, 45, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(172, 46, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(173, 47, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(174, 48, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(175, 49, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(176, 50, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(177, 51, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(178, 52, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(179, 53, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(180, 54, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(181, 55, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(182, 56, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(183, 57, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(184, 58, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(185, 59, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(186, 60, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(187, 61, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(188, 62, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(189, 63, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(190, 64, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(191, 65, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(192, 66, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(193, 67, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(194, 68, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(195, 69, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(196, 70, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(197, 71, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(198, 72, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(199, 73, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(200, 74, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(201, 75, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'المسجل', '2026-02-08 11:58:40', NULL, 'bachelor', NULL, NULL, 0),
+(202, 2, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(203, 6, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(204, 40, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(205, 41, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(206, 42, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(207, 43, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(208, 44, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(209, 45, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(210, 46, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(211, 47, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(212, 48, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(213, 49, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(214, 50, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(215, 51, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(216, 52, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(217, 53, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(218, 54, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(219, 55, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(220, 56, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(221, 57, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(222, 58, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(223, 59, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(224, 60, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(225, 61, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(226, 62, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(227, 63, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(228, 64, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(229, 65, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(230, 66, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(231, 67, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(232, 68, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(233, 69, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(234, 70, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(235, 71, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(236, 72, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(237, 73, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(238, 74, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(239, 75, '2026/2027', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-08 12:58:48', NULL, 'bachelor', NULL, NULL, 0),
+(240, 76, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-09 07:30:08', NULL, 'bachelor', NULL, NULL, 0),
+(241, 77, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'ahdi', '2026-02-11 06:43:34', NULL, 'bachelor', NULL, NULL, 0),
+(242, 78, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'ahdi', '2026-02-14 12:12:01', NULL, 'bachelor', NULL, NULL, 0),
+(243, 82, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-14 12:21:47', NULL, 'bachelor', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -674,8 +1208,9 @@ CREATE TABLE IF NOT EXISTS `term_results` (
   `postgraduate_program` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_term_result` (`student_id`,`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`program_mode`),
-  KEY `idx_term_results_student` (`student_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=28 ;
+  KEY `idx_term_results_student` (`student_id`),
+  KEY `idx_res_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=40 ;
 
 --
 -- Dumping data for table `term_results`
@@ -697,7 +1232,19 @@ INSERT INTO `term_results` (`id`, `student_id`, `faculty_id`, `department_id`, `
 (24, 1, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.25, 2.66, 19.50, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-02-05 08:16:16', '2026-02-05 11:25:45', NULL),
 (25, 3, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.50, 2.97, 21.00, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-02-05 08:16:16', '2026-02-05 11:25:45', NULL),
 (26, 7, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.25, 3.37, 19.50, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-02-05 08:16:16', '2026-02-05 11:25:45', NULL),
-(27, 4, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.50, 2.89, 21.00, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-02-05 08:16:16', '2026-02-05 11:25:45', NULL);
+(27, 4, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.50, 2.89, 21.00, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-02-05 08:16:16', '2026-02-05 11:25:45', NULL),
+(28, 21, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.69, 3.53, 29.50, 8.00, 'مرتبة الشرف الأولى', 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(29, 22, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 3.25, 3.28, 26.00, 8.00, 'مرتبة الشرف الثانية (القسم الأول)', 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(30, 23, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 2.94, 3.06, 23.50, 8.00, 'مرتبة الشرف الثانية (القسم الثاني)', 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(31, 24, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 0.00, 0.00, 0.00, 8.00, NULL, 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(32, 25, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 0.00, 0.64, 0.00, 8.00, NULL, 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(33, 20, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', 'honors', 1.13, 0.92, 9.00, 8.00, NULL, 3, 3, 0, '2026-02-07 15:51:26', '2026-02-08 09:36:34', NULL),
+(34, 21, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 3.40, 3.53, 34.00, 10.00, 'مرتبة الشرف الثانية (القسم الأول)', 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL),
+(35, 22, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 3.30, 3.28, 33.00, 10.00, 'مرتبة الشرف الثانية (القسم الأول)', 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL),
+(36, 23, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 3.15, 3.06, 31.50, 10.00, 'مرتبة الشرف الثانية (القسم الأول)', 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL),
+(37, 24, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 0.00, 0.00, 0.00, 10.00, NULL, 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL),
+(38, 25, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 1.15, 0.64, 11.50, 10.00, NULL, 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL),
+(39, 20, 4, 10, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', 'honors', 0.75, 0.92, 7.50, 10.00, NULL, 4, 4, 0, '2026-02-08 07:08:23', '2026-02-08 09:36:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -730,7 +1277,7 @@ CREATE TABLE IF NOT EXISTS `timetable_sessions` (
   KEY `idx_ts_instructor_time` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`instructor_staff_id`,`start_time`,`end_time`),
   KEY `idx_ts_dept_time` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`start_time`,`end_time`),
   KEY `idx_instructor_time` (`instructor_staff_id`,`academic_year`,`term_name`,`program_type`,`day_of_week`,`start_time`,`end_time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
 
 --
 -- Dumping data for table `timetable_sessions`
@@ -744,8 +1291,9 @@ INSERT INTO `timetable_sessions` (`id`, `faculty_id`, `department_id`, `academic
 (13, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, 9, NULL, 'د. نادر حسن', 3, 'السبت', '08:00:00', '10:00:00', '2026-01-12 08:44:34'),
 (16, 1, 1, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, 6, NULL, 'د. علي الطيب', 2, 'السبت', '08:00:00', '10:00:00', '2026-01-13 06:35:14'),
 (17, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, 10, NULL, 'أ. ريم عمر', 1, 'السبت', '12:00:00', '14:00:00', '2026-01-13 08:24:23'),
-(19, 1, 3, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'postgraduate', 'ماجستير البرمجيات المدمجة', 12, NULL, 'د. علي الطيب', 1, 'الأحد', '08:00:00', '10:00:00', '2026-01-17 14:27:31'),
-(21, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, 15, NULL, 'د. علي الطيب', 2, 'السبت', '10:00:00', '12:00:00', '2026-02-05 12:46:29');
+(19, 1, 3, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'postgraduate', 'ماجستير البرمجيات المدمجة', 12, NULL, NULL, 1, 'الأحد', '09:00:00', '10:00:00', '2026-01-17 14:27:31'),
+(21, 1, 2, '2025/2026', 'المستوى الأول', 'الفصل الثاني', 'bachelor', NULL, 15, NULL, 'د. علي الطيب', 2, 'السبت', '10:00:00', '12:00:00', '2026-02-05 12:46:29'),
+(22, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', NULL, 10, NULL, 'أ. ريم عمر', 2, 'السبت', '14:00:00', '15:00:00', '2026-02-09 12:20:44');
 
 --
 -- Triggers `timetable_sessions`
@@ -754,60 +1302,49 @@ DROP TRIGGER IF EXISTS `trg_timetable_no_conflicts`;
 DELIMITER //
 CREATE TRIGGER `trg_timetable_no_conflicts` BEFORE INSERT ON `timetable_sessions`
  FOR EACH ROW BEGIN
-  /* 1) Instructor conflict (GLOBAL by NAME) – خليتها كما هي، عشان مقيدة بالسنة والفصل */
-  IF NEW.instructor_name IS NOT NULL
-     AND EXISTS (
-       SELECT 1
-       FROM timetable_sessions
-       WHERE instructor_name = NEW.instructor_name
-         AND academic_year = NEW.academic_year
-         AND term_name = NEW.term_name
-         AND day_of_week = NEW.day_of_week
-         AND NOT (
-           end_time <= NEW.start_time
-           OR start_time >= NEW.end_time
-         )
-     )
-  THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'تضارب: الأستاذ لديه محاضرتان في نفس الزمن';
-  END IF;
+    -- 1. Instructor conflict → مقيد بالسنة الدراسية فقط (بدون term_name)
+    IF NEW.instructor_name IS NOT NULL THEN
+        IF EXISTS (
+            SELECT 1
+            FROM timetable_sessions
+            WHERE instructor_name = NEW.instructor_name
+              AND academic_year   = NEW.academic_year          -- السنة بس
+              AND day_of_week     = NEW.day_of_week
+              AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'تضارب: الأستاذ لديه محاضرة أخرى في نفس الزمن واليوم في هذه السنة الدراسية';
+        END IF;
+    END IF;
 
-  /* 2) Room conflict – عدلتها: ازلت academic_year و term_name، عشان تكون عامة للكل (جميع الفصول والسنوات) */
-  IF EXISTS (
-    SELECT 1
-    FROM timetable_sessions
-    WHERE room_id = NEW.room_id
-      AND day_of_week = NEW.day_of_week
-      AND NOT (
-        end_time <= NEW.start_time
-        OR start_time >= NEW.end_time
-      )
-  )
-  THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'تضارب: القاعة مشغولة في نفس الزمن ';
-  END IF;
+    -- 2. Room conflict → مقيد بالسنة الدراسية فقط (بدون term_name)
+    IF EXISTS (
+        SELECT 1
+        FROM timetable_sessions
+        WHERE room_id       = NEW.room_id
+          AND academic_year = NEW.academic_year              -- السنة بس
+          AND day_of_week   = NEW.day_of_week
+          AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'تضارب: القاعة مشغولة في نفس الزمن واليوم في هذه السنة الدراسية';
+    END IF;
 
-  /* 3) Department + Level conflict – خليتها كما هي، عشان مقيدة بالمستوى والقسم */
-  IF EXISTS (
-    SELECT 1
-    FROM timetable_sessions
-    WHERE faculty_id = NEW.faculty_id
-      AND department_id = NEW.department_id
-      AND level_name = NEW.level_name
-      AND academic_year = NEW.academic_year
-      AND term_name = NEW.term_name
-      AND day_of_week = NEW.day_of_week
-      AND NOT (
-        end_time <= NEW.start_time
-        OR start_time >= NEW.end_time
-      )
-  )
-  THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'تضارب: نفس القسم والمستوى في نفس الزمن';
-  END IF;
+    -- 3. Department + Level conflict → نتركه مقيد بالسنة والفصل (لأنه منطقي أكثر هنا)
+    IF EXISTS (
+        SELECT 1
+        FROM timetable_sessions
+        WHERE faculty_id    = NEW.faculty_id
+          AND department_id = NEW.department_id
+          AND level_name    = NEW.level_name
+          AND academic_year = NEW.academic_year
+          AND term_name     = NEW.term_name               -- نحتفظ بالفصل هنا
+          AND day_of_week   = NEW.day_of_week
+          AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'تضارب: نفس القسم والمستوى لديه محاضرة أخرى في نفس الزمن والفصل';
+    END IF;
 
 END
 //
@@ -816,42 +1353,52 @@ DROP TRIGGER IF EXISTS `trg_timetable_no_conflicts_update`;
 DELIMITER //
 CREATE TRIGGER `trg_timetable_no_conflicts_update` BEFORE UPDATE ON `timetable_sessions`
  FOR EACH ROW BEGIN
-  /* Instructor conflict (by NAME) – كما هي */
-  IF NEW.instructor_name IS NOT NULL
-     AND EXISTS (
-       SELECT 1
-       FROM timetable_sessions
-       WHERE instructor_name = NEW.instructor_name
-         AND academic_year = NEW.academic_year
-         AND term_name = NEW.term_name
-         AND day_of_week = NEW.day_of_week
-         AND id <> OLD.id
-         AND NOT (
-           end_time <= NEW.start_time
-           OR start_time >= NEW.end_time
-         )
-     )
-  THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'تضارب: الأستاذ لديه محاضرتان في نفس الزمن';
-  END IF;
+    -- 1. Instructor conflict 
+    IF NEW.instructor_name IS NOT NULL THEN
+        IF EXISTS (
+            SELECT 1
+            FROM timetable_sessions
+            WHERE instructor_name = NEW.instructor_name
+              AND academic_year   = NEW.academic_year
+              AND day_of_week     = NEW.day_of_week
+              AND id <> OLD.id
+              AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+        ) THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'تضارب: الأستاذ لديه محاضرة أخرى في نفس الزمن واليوم في هذه السنة بعد التعديل';
+        END IF;
+    END IF;
 
-  /* Room conflict – عدلتها: ازلت academic_year و term_name، عشان عامة */
-  IF EXISTS (
-    SELECT 1
-    FROM timetable_sessions
-    WHERE room_id = NEW.room_id
-      AND day_of_week = NEW.day_of_week
-      AND id <> OLD.id
-      AND NOT (
-        end_time <= NEW.start_time
-        OR start_time >= NEW.end_time
-      )
-  )
-  THEN
-    SIGNAL SQLSTATE '45000'
-      SET MESSAGE_TEXT = 'تضارب: القاعة مشغولة في نفس الزمن ';
-  END IF;
+    -- 2. Room conflict 
+    IF EXISTS (
+        SELECT 1
+        FROM timetable_sessions
+        WHERE room_id       = NEW.room_id
+          AND academic_year = NEW.academic_year
+          AND day_of_week   = NEW.day_of_week
+          AND id <> OLD.id
+          AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'تضارب: القاعة مشغولة في نفس الزمن واليوم في هذه السنة بعد التعديل';
+    END IF;
+
+    -- 3. Department + Level conflict 
+    IF EXISTS (
+        SELECT 1
+        FROM timetable_sessions
+        WHERE faculty_id    = NEW.faculty_id
+          AND department_id = NEW.department_id
+          AND level_name    = NEW.level_name
+          AND academic_year = NEW.academic_year
+          AND term_name     = NEW.term_name
+          AND day_of_week   = NEW.day_of_week
+          AND id <> OLD.id
+          AND NOT (end_time <= NEW.start_time OR start_time >= NEW.end_time)
+    ) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'تضارب: نفس القسم والمستوى لديه محاضرة أخرى بعد التعديل';
+    END IF;
 
 END
 //
@@ -876,7 +1423,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `last_login` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`)
+  UNIQUE KEY `username` (`username`),
+  KEY `idx_users_username` (`username`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6 ;
 
 --
@@ -916,14 +1464,21 @@ ALTER TABLE `courses`
 -- Constraints for table `course_grades`
 --
 ALTER TABLE `course_grades`
-  ADD CONSTRAINT `fk_course_grades_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_course_grades_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_course_grades_course` FOREIGN KEY (`course_id`) REFERENCES `courses` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_course_grades_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `departments`
 --
 ALTER TABLE `departments`
   ADD CONSTRAINT `departments_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculties` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `fees`
+--
+ALTER TABLE `fees`
+  ADD CONSTRAINT `fk_fees_department` FOREIGN KEY (`department_id`) REFERENCES `departments` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fk_fees_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `students`

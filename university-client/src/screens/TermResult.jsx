@@ -29,7 +29,7 @@ const TermResult = () => {
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
 
-  const [programType, setProgramType] = useState("bachelor"); // undergraduate | postgraduate
+  const [programType, setProgramType] = useState("bachelor"); 
   const [postgraduateProgram, setPostgraduateProgram] = useState("");
 
   const [academicYear, setAcademicYear] = useState("");
@@ -254,10 +254,8 @@ function usePostgradProgramsSmartList() {
 
   useEffect(() => {
     rebuildLevelAndTermOptions(periods, academicYear, levelName);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periods, academicYear, levelName]);
 
-  // تغيّر programType/pgProg → reset + reload periods
   useEffect(() => {
     setAcademicYear("");
     setLevelName("");
@@ -266,7 +264,6 @@ function usePostgradProgramsSmartList() {
     setSkippedRows([]);
 
     if (selectedDepartmentId) fetchAcademicPeriods(programType, postgraduateProgram);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [programType, postgraduateProgram]);
 
   useEffect(() => {
@@ -408,7 +405,6 @@ useEffect(() => {
 
   // حمّل النتيجة تلقائياً عند اكتمال الاختيارات
   loadSavedResult();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [canComputeTerm]);
 
 // جلب تفاصيل درجات كل طالب بعد تحميل النتائج
@@ -462,7 +458,7 @@ useEffect(() => {
   fetchStudentGrades();
 }, [savedRows, canComputeTerm, academicYear, levelName, termName, programType, postgraduateProgram]);
 
-// ========================= طباعه النتيجه==========================
+//  طباعه النتيجه
 const printResults = () => {
   if (savedRows.length === 0) {
     return showToast("لا توجد نتائج للطباعة بعد", "error");
@@ -563,7 +559,6 @@ const printResults = () => {
     </div>
   `;
 
-  // جمع أسماء المواد الفريدة
   const allCourses = new Set();
   Object.values(detailedGrades).forEach(grades => {
     grades.forEach(grade => {

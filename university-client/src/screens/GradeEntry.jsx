@@ -13,7 +13,6 @@ const GradeEntry = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // ===== Lists
   const [faculties, setFaculties] = useState([]);
   const [departments, setDepartments] = useState([]);
 
@@ -43,10 +42,8 @@ const GradeEntry = () => {
   const [courseInfo, setCourseInfo] = useState(null);
   const [students, setStudents] = useState([]);
 
-  // ===== NEW: مقياس الدرجات للكلية (للـ preview فوري)
   const [facultyScale, setFacultyScale] = useState([]);
 
-  // ===== Loading flags
   const [loadingFaculties, setLoadingFaculties] = useState(false);
   const [loadingDeps, setLoadingDeps] = useState(false);
   const [loadingPeriods, setLoadingPeriods] = useState(false);
@@ -54,7 +51,6 @@ const GradeEntry = () => {
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [savingGrades, setSavingGrades] = useState(false);
 
-  // ===== Step logic
   const canPickDepartment = !!selectedFacultyId;
   const canPickProgramType = !!selectedDepartmentId;
 
@@ -76,7 +72,6 @@ const GradeEntry = () => {
     levelName.trim() &&
     termName.trim();
 
-  // جلب مقياس الدرجات للكلية المختارة (real-time preview)
 useEffect(() => {
   const fetchFacultyScale = async () => {
     if (!selectedFacultyId) {
@@ -108,12 +103,11 @@ const getLetterAndPointsPreview = (total) => {
     return { letter: null, points: null };
   }
 
-  // نفرض إن min و max ممكن يكونوا معكوسين
   const sortedRules = [...facultyScale].map(rule => {
     const min = Math.min(Number(rule.min_mark), Number(rule.max_mark));
     const max = Math.max(Number(rule.min_mark), Number(rule.max_mark));
     return { ...rule, min_mark: min, max_mark: max };
-  }).sort((a, b) => b.min_mark - a.min_mark);  // تنازلي بعد التصحيح
+  }).sort((a, b) => b.min_mark - a.min_mark);  
 
   console.log("النطاقات بعد التصحيح:", sortedRules);
 
@@ -121,7 +115,7 @@ const getLetterAndPointsPreview = (total) => {
     const min = Number(rule.min_mark);
     const max = Number(rule.max_mark);
 
-    if (total >= min && total <= max) {  // ≤ max عشان نغطي الحد الأعلى
+    if (total >= min && total <= max) { 
       console.log(`طابق بعد تصحيح: ${rule.letter} (${min}-${max}) → نقاط ${rule.points}`);
       return { letter: rule.letter || 'F', points: Number(rule.points) || 0.0 };
     }
@@ -263,10 +257,8 @@ const getLetterAndPointsPreview = (total) => {
 
   useEffect(() => {
     rebuildLevelAndTermOptions(periods, academicYear, levelName);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [periods, academicYear, levelName]);
 
-  // لما نوع البرنامج/اسم PG يتغير: reset وتحديث الفترات
   useEffect(() => {
     setAcademicYear("");
     setLevelName("");
@@ -279,49 +271,18 @@ const getLetterAndPointsPreview = (total) => {
     if (selectedDepartmentId) {
       fetchAcademicPeriods(programType, postgraduateProgram);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [programType, postgraduateProgram]);
 
   useEffect(() => {
     if (programType !== "postgraduate") setPostgraduateProgram("");
   }, [programType]);
 
-  // =========================
-  // Load courses after filters complete
-  // =========================
-  // const fetchCourses = async () => {
-  //   if (!canLoadCourses) return;
-  //   setLoadingCourses(true);
-  //   try {
-  //     const qs =
-  //       `faculty_id=${selectedFacultyId}` +
-  //       `&department_id=${selectedDepartmentId}` +
-  //       `&academic_year=${encodeURIComponent(academicYear.trim())}` +
-  //       `&level_name=${encodeURIComponent(levelName.trim())}` +
-  //       `&term_name=${encodeURIComponent(termName.trim())}` +
-  //       `&program_type=${encodeURIComponent(programType)}` +
-  //       (programType === "postgraduate"
-  //         ? `&postgraduate_program=${encodeURIComponent(postgraduateProgram.trim())}`
-  //         : "");
 
-  //     const res = await fetch(`${API_BASE}/courses?${qs}`);
-  //     const data = await res.json();
-  //     if (!res.ok) throw new Error(data?.error || "فشل تحميل المواد");
-  //     setCourses(Array.isArray(data) ? data : []);
-  //   } catch (e) {
-  //     console.error(e);
-  //     setCourses([]);
-  //     showToast(e.message || "مشكلة في تحميل المواد", "error");
-  //   } finally {
-  //     setLoadingCourses(false);
-  //   }
-  // };
   const fetchCourses = async () => {
   if (!canLoadCourses) return;
 
   setLoadingCourses(true);
   try {
-    // بناء الـ params بشكل أنظف ومتوافق مع الـ endpoint الجديد
     const params = new URLSearchParams({
       faculty_id: selectedFacultyId,
       department_id: selectedDepartmentId,
@@ -331,7 +292,6 @@ const getLetterAndPointsPreview = (total) => {
       program_type: programType,
     });
 
-    // لو دراسات عليا، أضف البرنامج
     if (programType === "postgraduate" && postgraduateProgram.trim()) {
       params.append("postgraduate_program", postgraduateProgram.trim());
     }
@@ -343,7 +303,6 @@ const getLetterAndPointsPreview = (total) => {
       throw new Error(data.error || "فشل تحميل المواد");
     }
 
-    // نتأكد إن data array
     setCourses(Array.isArray(data) ? data : []);
   } catch (e) {
     console.error("خطأ في fetchCourses:", e);
@@ -360,7 +319,6 @@ const getLetterAndPointsPreview = (total) => {
     setStudents([]);
 
     if (canLoadCourses) fetchCourses();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedFacultyId,
     selectedDepartmentId,
@@ -402,7 +360,6 @@ const calcStudentRow = (student) => {
   const feMax = courseMeta?.feMax ?? 60;
   const totalMax = courseMeta?.total ?? cwMax + feMax;
 
-  // ← هنا التعديل المهم
   const cw = clampNum(student.coursework_mark, 0, cwMax, "أعمال السنة");
   const fe = clampNum(student.final_exam_mark, 0, feMax, "النهائي");
   const total = (cw != null && fe != null) ? clampNum(cw + fe, 0, totalMax, "المجموع") : null;
@@ -456,12 +413,9 @@ const res = await fetch(`${API_BASE}/grade-entry/students?${params.toString()}`)
     setCourseInfo(null);
     setStudents([]);
     if (selectedCourseId) fetchStudentsForCourse(selectedCourseId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourseId]);
 
-  // =========================
-  // UI handlers
-  // =========================
+
   const resetBelowFaculty = () => {
     setDepartments([]);
     setSelectedDepartmentId("");
@@ -503,38 +457,6 @@ const res = await fetch(`${API_BASE}/grade-entry/students?${params.toString()}`)
     if (deptId) fetchAcademicPeriods(programType, postgraduateProgram);
   };
 
-// const onChangeMark = (studentId, field, value) => {
-//   setStudents((prev) =>
-//     prev.map((s) => {
-//       if (s.student_id !== studentId) return s;
-
-//       const newData = { ...s, [field]: value ? Number(value) : null };
-
-//       const coursework = Number(newData.coursework_mark || 0);
-//       const final = Number(newData.final_exam_mark || 0);
-//       newData.total_mark = coursework + final;
-
-//       if (newData.total_mark >= 50) {
-//         if (newData.is_repeat) { 
-//           newData.letter = "C*";
-//           newData.points = 2.00;
-//         } else {
-//           const rule = facultyScale.find(
-//             (r) =>
-//               newData.total_mark >= r.min_mark && newData.total_mark <= r.max_mark
-//           );
-//           newData.letter = rule ? rule.letter : "—";
-//           newData.points = rule ? rule.points : "—";
-//         }
-//       } else {
-//         newData.letter = "F";
-//         newData.points = 0;
-//       }
-
-//       return newData;
-//     })
-//   );
-// };
 
 const onChangeMark = (studentId, field, value) => {
   setStudents((prev) =>
@@ -543,7 +465,6 @@ const onChangeMark = (studentId, field, value) => {
 
       let clampedValue = value ? Number(value) : null;
 
-      // ← التعديل المهم هنا: تقييد القيمة قبل ما نحفظها
       if (field === "coursework_mark") {
         clampedValue = clampNum(clampedValue, 0, courseMeta.cwMax, "أعمال السنة");
       } else if (field === "final_exam_mark") {
@@ -575,41 +496,6 @@ const onChangeMark = (studentId, field, value) => {
   );
 };
 
-// const saveGrades = async () => {
-//   if (savingGrades || !selectedCourseId) return;
-
-//   setSavingGrades(true);
-
-//   const payload = students.map(s => ({
-//     student_id: s.student_id,
-//     coursework_mark: s.coursework_mark ?? null,
-//     final_exam_mark: s.final_exam_mark ?? null,
-//   }));
-
-//   try {
-//     const res = await fetch(`${API_BASE}/save-grades`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ course_id: selectedCourseId, grades: payload }),
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok || !data.success) {
-//       throw new Error(data.error || "فشل الحفظ");
-//     }
-
-//     showToast("تم حفظ الدرجات بنجاح!");
-
-//     await fetchStudentsForCourse(selectedCourseId);
-
-//   } catch (err) {
-//     showToast(err.message || "خطأ في الحفظ", "error");
-//   } finally {
-//     setSavingGrades(false);
-//   }
-// };
-
 const saveGrades = async () => {
   if (savingGrades || !selectedCourseId) return;
 
@@ -621,7 +507,7 @@ const saveGrades = async () => {
       student_id: s.student_id,
       coursework_mark: s.coursework_mark ?? null,
       final_exam_mark: s.final_exam_mark ?? null,
-      is_repeat: s.is_repeat  // تأكيد
+      is_repeat: s.is_repeat 
     })),
     academic_year: academicYear.trim(),
     level_name: levelName.trim(),

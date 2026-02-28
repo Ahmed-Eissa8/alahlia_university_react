@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoArrowBack } from "react-icons/io5";
 
-const API_BASE = "http://localhost:5000"; // ← غيري هنا بدون /api في النهاية
+const API_BASE = "http://localhost:5000"; 
 
 const ui = {
   page: {
@@ -134,7 +134,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/register`, { // ← هنا صحيح دلوقتي
+      const res = await fetch(`${API_BASE}/api/register`, { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -147,7 +147,7 @@ export default function Register() {
       }
 
       showToast(data.message || 'تم إنشاء الحساب بنجاح!', 'success');
-      setTimeout(() => navigate('/login'), 1500); // رجوع لصفحة اللوجن
+      setTimeout(() => navigate('/login'), 1500); 
 
     } catch (err) {
       showToast(err.message, 'error');

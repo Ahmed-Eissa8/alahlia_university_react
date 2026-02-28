@@ -166,9 +166,7 @@ const Certificates = () => {
 
   const debounceTimer = useRef(null);
 
-  // ────────────────────────────────────────────────
-  // Logic helpers (نفس المنطق بدون تغيير)
-  // ────────────────────────────────────────────────
+
   const canPickDepartment = !!selectedFacultyId;
   const canPickProgramType = !!selectedDepartmentId;
   const canPickPostgraduateProgram = programType === "postgraduate";
@@ -183,9 +181,7 @@ const canProceedAfterProgram =
     Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
   });
 
-  // ────────────────────────────────────────────────
-  // useEffect hooks (نفسها بدون تغيير)
-  // ────────────────────────────────────────────────
+
   useEffect(() => {
     if (programType !== "postgraduate") {
       setPostgraduateProgram("");
@@ -411,11 +407,9 @@ const generateCertificate = () => {
     return;
   }
 
-  // جلب الأسماء بنفس الطريقة المستخدمة في printResults
   const facultyDisplay = faculties.find(f => f.id === Number(selectedFacultyId))?.faculty_name || "غير محدد";
   const departmentDisplay = departments.find(d => d.id === Number(selectedDepartmentId))?.department_name || "غير محدد";
 
-  // نفس الهيدر المشترك تقريبًا
   const commonHeader = `
     <div style="text-align: center; margin-bottom: 35px; padding-bottom: 18px; border-bottom: 1px solid #ccc;">
       <h1 style="margin: 0; color: #0a3753; font-size: 22px; font-weight: bold;">
@@ -504,7 +498,7 @@ const generateCertificate = () => {
   `;
 
   const opt = {
-    margin: [10, 8, 15, 8],           // top right bottom left (mm)
+    margin: [10, 8, 15, 8],         
     filename: `شهادة_خلو_طرف_${selectedStudent.university_id || "طالب"}.pdf`,
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: {
@@ -533,12 +527,9 @@ const generateCertificate = () => {
   showToast("جاري إنشاء شهادة خلو الطرف...", "success");
 };
 
-  // ────────────────────────────────────────────────
-  // Render
-  // ────────────────────────────────────────────────
+
   return (
     <div dir="rtl" style={ui.page} className="min-h-screen bg-gray-50">
-      {/* Header - نفس الستايل */}
       <header className="library-header">
         <div className="library-header-title">
           <span style={{ fontSize: 22, fontWeight: 800 }}>خلو طرف الطالب</span>

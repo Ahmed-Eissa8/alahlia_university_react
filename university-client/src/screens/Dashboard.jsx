@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoDocumentText, IoLogOut } from "react-icons/io5"; // ← أضفنا IoLogOut
+import { IoDocumentText, IoLogOut } from "react-icons/io5"; 
 
 import {
   FaUsers,
@@ -105,7 +105,6 @@ const allowedPages = user.allowed_pages || [];
     allowedPages.includes(link.title) || user.role === 'admin'
   );
 
-  // دالة تسجيل الخروج
 const handleLogout = () => {
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('user');

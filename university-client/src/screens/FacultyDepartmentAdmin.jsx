@@ -5,7 +5,7 @@ import { IoArrowBack } from "react-icons/io5";
 const API_BASE = "http://localhost:5000/api";
 
 /* =========================
-   ✅ Tab: Grade Rules Admin (Per Faculty)
+    Tab: Grade Rules Admin (Per Faculty)
    ========================= */
 const GradeRulesAdmin = ({ showToast, faculties }) => {
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
@@ -36,7 +36,6 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
     return Number.isFinite(n) ? n : "";
   };
 
-  // Helpers لتعديل الجداول
   const updateRow = (setter) => (idx, patch) => {
     setter((prev) => prev.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
   };
@@ -57,7 +56,6 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
       setHonorsRules(Array.isArray(data.honorsRules) ? data.honorsRules : []);
       setGeneralRules(Array.isArray(data.generalRules) ? data.generalRules : []);
 
-      // ✅ خلي default شامل الحقول الجديدة
       setGpaSettings(
         data.gpaSettings || {
           term_calc_mode: "courses",
@@ -97,7 +95,7 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
       return;
     }
 
-    // ✅ Validation: لازم النهائي + أعمال الفصل = 100
+    //  Validation: لازم النهائي + أعمال الفصل = 100
     const total = Number(gpaSettings.total_mark ?? 100);
     const sum = Number(gpaSettings.final_exam_max || 0) + Number(gpaSettings.coursework_max || 0);
     if (sum !== total) {
@@ -129,13 +127,11 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
   const onSelectFaculty = (facultyId) => {
     setSelectedFacultyId(facultyId);
 
-    // reset rules UI
     setGradeScale([]);
     setHonorsRules([]);
     setGeneralRules([]);
     setProgramMode("honors");
 
-    // reset settings قبل التحميل
     setGpaSettings({
       term_calc_mode: "courses",
       cumulative_calc_mode: "weighted_avg",
@@ -1210,6 +1206,8 @@ const FacultyDepartmentAdmin = () => {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
+  const [facultyType, setFacultyType] = useState("theoretical"); // default
+
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
@@ -1217,7 +1215,6 @@ const FacultyDepartmentAdmin = () => {
 
   useEffect(() => {
     fetchFaculties();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchFaculties = async () => {
@@ -1264,54 +1261,56 @@ const FacultyDepartmentAdmin = () => {
     fetchDepartments(faculty);
   };
 
-  const handleSaveFaculty = async (e) => {
-    e.preventDefault();
-    if (!facultyName.trim()) {
-      showToast("اكتبي اسم الكلية أولاً", "error");
-      return;
+const handleSaveFaculty = async (e) => {
+  e.preventDefault();
+  if (!facultyName.trim()) {
+    showToast("اكتبي اسم الكلية أولاً", "error");
+    return;
+  }
+
+  setSaving(true);
+  try {
+    const payload = {
+      faculty_name: facultyName.trim(),
+      faculty_type: facultyType, // ← الجديد
+    };
+
+    let res;
+    if (editingFacultyId) {
+      res = await fetch(`${API_BASE}/faculties/${editingFacultyId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      res = await fetch(`${API_BASE}/faculties`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
     }
 
-    setSaving(true);
-    try {
-      if (editingFacultyId) {
-        const res = await fetch(`${API_BASE}/faculties/${editingFacultyId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ faculty_name: facultyName }),
-        });
-        const data = await res.json();
-        if (!res.ok) showToast(data.error || "فشل تعديل الكلية", "error");
-        else {
-          showToast(data.message || "تم تعديل الكلية", "success");
-          setFacultyName("");
-          setEditingFacultyId(null);
-          fetchFaculties();
-        }
-      } else {
-        const res = await fetch(`${API_BASE}/faculties`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ faculty_name: facultyName }),
-        });
-        const data = await res.json();
-        if (!res.ok) showToast(data.error || "فشل إضافة الكلية", "error");
-        else {
-          showToast(data.message || "تمت إضافة الكلية", "success");
-          setFacultyName("");
-          fetchFaculties();
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      showToast("مشكلة في الاتصال بالسيرفر", "error");
-    } finally {
-      setSaving(false);
-    }
-  };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || "فشل الحفظ");
+
+    showToast(data.message || (editingFacultyId ? "تم تعديل الكلية" : "تمت إضافة الكلية"), "success");
+
+    setFacultyName("");
+    setFacultyType("theoretical");
+    setEditingFacultyId(null);
+    fetchFaculties();
+  } catch (e) {
+    console.error(e);
+    showToast("مشكلة في حفظ الكلية: " + e.message, "error");
+  } finally {
+    setSaving(false);
+  }
+};
 
   const handleEditFaculty = (faculty) => {
     setEditingFacultyId(faculty.id);
     setFacultyName(faculty.faculty_name);
+    setFacultyType(faculty.faculty_type || "theoretical");
   };
 
   const handleDeleteFaculty = async (faculty) => {
@@ -1351,7 +1350,7 @@ const handleSaveDepartment = async (e) => {
     const payload = {
       faculty_id: selectedFaculty.id,
       department_name: departmentName.trim(),
-      levels_count: levelsCount,   // ← أضيفي هذا السطر
+      levels_count: levelsCount,  
     };
 
     if (editingDepartmentId) {
@@ -1512,38 +1511,54 @@ const handleEditDepartment = (dept) => {
               <div className="card">
                 <h2 className="card-title">الكليات</h2>
 
-                <form onSubmit={handleSaveFaculty} className="two-col-grid" style={{ alignItems: "flex-end", marginBottom: 12 }}>
-                  <div className="input-group">
-                    <label className="input-label">{editingFacultyId ? "تعديل اسم الكلية" : "إضافة كلية جديدة"}</label>
-                    <input
-                      type="text"
-                      dir="rtl"
-                      className="input-field"
-                      placeholder="أدخل اسم الكلية"
-                      value={facultyName}
-                      onChange={(e) => setFacultyName(e.target.value)}
-                    />
-                  </div>
-<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-  <button type="submit" className="btn btn-primary" disabled={saving}>
-    {saving ? "جاري الحفظ..." : editingFacultyId ? "حفظ التعديل" : "إضافة الكلية"}
-  </button>
+<form onSubmit={handleSaveFaculty} className="two-col-grid" style={{ alignItems: "flex-end", marginBottom: 12 }}>
+  <div className="input-group">
+    <label className="input-label">{editingFacultyId ? "تعديل اسم الكلية" : "إضافة كلية جديدة"}</label>
+    <input
+      type="text"
+      dir="rtl"
+      className="input-field"
+      placeholder="أدخل اسم الكلية"
+      value={facultyName}
+      onChange={(e) => setFacultyName(e.target.value)}
+      required
+    />
+  </div>
 
-  {editingFacultyId && (
-    <button
-      type="button"
-      className="btn btn-outline"
-      onClick={() => {
-        setEditingFacultyId(null);
-        setFacultyName("");
-      }}
+  <div className="input-group">
+    <label className="input-label">نوع الكلية</label>
+    <select
+      className="input-field"
+      value={facultyType}
+      onChange={(e) => setFacultyType(e.target.value)}
+      required
     >
-      إلغاء التعديل
-    </button>
-  )}
-</div>
+      <option value="theoretical">نظرية</option>
+      <option value="practical">عملية</option>
+    </select>
 
-                </form>
+  </div>
+
+  <div style={{ gridColumn: "1 / -1", display: "flex", gap: 12, justifyContent: "flex-end" }}>
+    <button type="submit" className="btn btn-primary" disabled={saving}>
+      {saving ? "جاري الحفظ..." : editingFacultyId ? "حفظ التعديل" : "إضافة الكلية"}
+    </button>
+
+    {editingFacultyId && (
+      <button
+        type="button"
+        className="btn btn-outline"
+        onClick={() => {
+          setEditingFacultyId(null);
+          setFacultyName("");
+          setFacultyType("theoretical"); // reset
+        }}
+      >
+        إلغاء التعديل
+      </button>
+    )}
+  </div>
+</form>
 
                 <div style={{ marginTop: 8, overflowX: "auto" }}>
                   {loadingFaculties ? (
@@ -1556,6 +1571,7 @@ const handleEditDepartment = (dept) => {
                         <tr>
                           <th>#</th>
                           <th>اسم الكلية</th>
+                          <th>نوع الكلية</th>
                           <th>عدد الأقسام</th>
                           <th>إجراءات</th>
                         </tr>
@@ -1565,6 +1581,7 @@ const handleEditDepartment = (dept) => {
                           <tr key={f.id} className={selectedFaculty && selectedFaculty.id === f.id ? "row-selected" : ""}>
                             <td>{index + 1}</td>
                             <td>{f.faculty_name}</td>
+                            <td>{f.faculty_type  ? (f.faculty_type === "theoretical" ? "نظرية" : "عملية")   : "غير محدد"}</td>
                             <td>{f.departments_count}</td>
                             <td>
                               <button type="button" className="btn btn-outline" onClick={() => handleSelectFaculty(f)}>

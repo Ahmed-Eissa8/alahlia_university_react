@@ -907,3 +907,19 @@ td {
   background: var(--card-bg);
   padding: 12px 0;
 }
+
+/* في ملف الـ CSS */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 1rem;
+  align-items: start;
+}
+
+.two-col-grid .buttons-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;        
+  padding-top: 1.9rem;          
+}

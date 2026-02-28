@@ -207,9 +207,8 @@ export default function ScheduleAdmin({ showToast, faculties: facultiesProp = []
   const scheduleRef = useRef(null);
 
   //  Tabs
-  const [activeTab, setActiveTab] = useState("schedule"); // schedule | rooms
+  const [activeTab, setActiveTab] = useState("schedule"); 
 
-  // faculties safe
   const [facultiesLocal, setFacultiesLocal] = useState([]);
   const [loadingFaculties, setLoadingFaculties] = useState(false);
 
@@ -219,7 +218,6 @@ export default function ScheduleAdmin({ showToast, faculties: facultiesProp = []
     return Array.isArray(facultiesLocal) ? facultiesLocal : [];
   }, [facultiesProp, facultiesLocal]);
 
-  // -------- selections (للجدول فقط)
   const [selectedFacultyId, setSelectedFacultyId] = useState("");
   const [departments, setDepartments] = useState([]);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
@@ -247,8 +245,7 @@ export default function ScheduleAdmin({ showToast, faculties: facultiesProp = []
   const [sessions, setSessions] = useState([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
 
-  // -------- form: session
-  const [editingSessionId, setEditingSessionId] = useState(""); //  edit mode
+  const [editingSessionId, setEditingSessionId] = useState(""); 
   const [courseId, setCourseId] = useState("");
   const [instructorStaffId, setInstructorStaffId] = useState("");
   const [instructorDisplayName, setInstructorDisplayName] = useState("");
@@ -258,7 +255,7 @@ export default function ScheduleAdmin({ showToast, faculties: facultiesProp = []
   const [endTime, setEndTime] = useState("10:00");
   const [saving, setSaving] = useState(false);
 
-  // Rooms tab (مستقل)
+  // Rooms tab 
   const [newRoomName, setNewRoomName] = useState("");
   const [addingRoom, setAddingRoom] = useState(false);
   const [roomSearch, setRoomSearch] = useState("");
@@ -317,7 +314,6 @@ const handlePrint = () => {
     return;
   }
 
-  // جمع الأوقات الفريدة
   const timeSlotsSet = new Set();
   sessions.forEach(s => {
     if (s.start_time && s.end_time) {
@@ -533,10 +529,9 @@ const programTypeLabel =
   printWindow.document.close();
   printWindow.focus();
 
-  // printWindow.print();
 };
 
-  // ---------- fetch faculties local
+  // ---------- fetch faculties 
   useEffect(() => {
     const p = Array.isArray(facultiesProp) ? facultiesProp : [];
     if (p.length) return;
@@ -740,7 +735,6 @@ const programTypeLabel =
 
   useEffect(() => {
     if (selectedDepartmentId) fetchAcademicPeriods(programType, postgraduateProgram);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [programType, postgraduateProgram]);
 
   useEffect(() => {
@@ -752,7 +746,6 @@ const programTypeLabel =
       fetchCourses();
       fetchSessions();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedFacultyId,
     selectedDepartmentId,
@@ -763,7 +756,6 @@ const programTypeLabel =
     postgraduateProgram,
   ]);
 
-  //  Auto-fill instructor name from courses API
   useEffect(() => {
     if (!courseId) {
       setInstructorStaffId("");
@@ -830,7 +822,7 @@ const programTypeLabel =
   //  Edit room (PUT /api/rooms/:id)
   const saveRoomEdit = async (id, newName, done) => {
     const name = String(newName || "").trim();
-    if (!name) return toast("اسم القاعة ما ممكن يكون فاضي", "error");
+    if (!name) return toast("لايمكن ان يكون اسم القاعه فارغ", "error");
 
     setSavingRoomId(String(id));
     try {
@@ -845,7 +837,7 @@ const programTypeLabel =
       done?.();
       fetchRooms();
     } catch (e) {
-      toast(e.message || "مشكلة في تعديل القاعة", "error");
+      toast(e.message || " يوجد مشكلة في تعديل القاعة", "error");
     } finally {
       setSavingRoomId("");
     }
@@ -925,7 +917,7 @@ const saveSession = async () => {
     );
 
     const { ok } = await handleConflictIfAny(res);
-    if (!ok) return; // stop if there is a conflict
+    if (!ok) return; 
 
     toast(isEdit ? "تم تعديل المحاضرة" : "تمت إضافة المحاضرة للجدول", "success");
     resetSessionForm();
@@ -949,7 +941,6 @@ const saveSession = async () => {
     }
   };
 
-  // ---------- view helpers
   const sessionsByDay = useMemo(() => {
     const map = {};
     DAYS.forEach((d) => (map[d] = []));
