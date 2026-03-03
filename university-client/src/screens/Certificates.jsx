@@ -960,22 +960,34 @@ const generateCertificate = () => {
 <button
   onClick={generateCertificate}
   disabled={
-  borrowedBooks.length > 0 || 
-  !isPassedLastTerm || 
-  !isAllFeesPaid || 
-  failedCourses.length > 0   
-}
+    borrowedBooks.length > 0 || 
+    !isPassedLastTerm || 
+    !isAllFeesPaid ||           // ← ده موجود في disabled بس مش في opacity
+    failedCourses.length > 0   
+  }
   onMouseEnter={() => setIsHovered(true)}
   onMouseLeave={() => setIsHovered(false)}
   style={{
     ...ui.primaryBtn,
     padding: "14px 40px",
     fontSize: 17,
-    opacity: borrowedBooks.length > 0 || !isPassedLastTerm || !isRegisteredLastTerm ? 0.6 : 1,
+    // هنا الشرط الكامل عشان الزر يبقى باهت في كل الحالات الممنوعة
+    opacity: (
+      borrowedBooks.length > 0 || 
+      !isPassedLastTerm || 
+      !isAllFeesPaid ||           // ← أضفناه هنا
+      failedCourses.length > 0   
+    ) ? 0.6 : 1,
     backgroundColor: isHovered ? "#0c4a6e" : "#0a3753",
     transform: isHovered ? "scale(1.05)" : "scale(1)",
     boxShadow: isHovered ? "0 6px 20px rgba(10,55,83,0.3)" : "none",
     transition: "all 0.3s ease",
+    cursor: (
+      borrowedBooks.length > 0 || 
+      !isPassedLastTerm || 
+      !isAllFeesPaid || 
+      failedCourses.length > 0   
+    ) ? "not-allowed" : "pointer"
   }}
 >
   طباعة
