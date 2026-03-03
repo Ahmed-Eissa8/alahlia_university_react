@@ -29,6 +29,17 @@ const ui = {
   }),
 };
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null;
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
+
 function useLocalToast(externalShowToast) {
   const [toast, setToast] = useState({ open: false, type: "success", msg: "" });
   const timerRef = useRef(null);
@@ -532,24 +543,79 @@ const programTypeLabel =
 };
 
   // ---------- fetch faculties 
-  useEffect(() => {
-    const p = Array.isArray(facultiesProp) ? facultiesProp : [];
-    if (p.length) return;
+useEffect(() => {
+  if (Array.isArray(facultiesProp) && facultiesProp.length > 0) {
+    const allowed = getAllowedFaculties();
+    let finalList = facultiesProp;
 
-    (async () => {
-      setLoadingFaculties(true);
-      try {
-        const res = await fetch(`${API_BASE}/faculties-list`);
-        const data = await res.json();
-        setFacultiesLocal(Array.isArray(data) ? data : []);
-      } catch (e) {
-        setFacultiesLocal([]);
-        toast("مشكلة في تحميل الكليات", "error");
-      } finally {
-        setLoadingFaculties(false);
+    if (allowed !== null) {
+      finalList = facultiesProp.filter(fac => allowed.includes(fac.id));
+    }
+
+    setFacultiesLocal(prev => {
+      if (JSON.stringify(prev) === JSON.stringify(finalList)) {
+        return prev;
       }
-    })();
-  }, []);
+      return finalList;
+    });
+
+    if (finalList.length === 0 && allowed !== null) {
+      toast("لا توجد كليات مسموح لك الوصول إليها", "error");
+    }
+
+    if (selectedFacultyId) {
+      const stillAllowed = finalList.find(f => f.id === Number(selectedFacultyId));
+      if (!stillAllowed) {
+        setSelectedFacultyId("");
+      }
+    }
+
+    return; 
+  }
+
+  const loadFromApi = async () => {
+    setLoadingFaculties(true);
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`);
+      if (!res.ok) throw new Error("فشل جلب الكليات");
+
+      const allFaculties = await res.json();
+
+      const allowed = getAllowedFaculties();
+      let filtered = allFaculties;
+
+      if (allowed !== null) {
+        filtered = allFaculties.filter(fac => allowed.includes(fac.id));
+      }
+
+      setFacultiesLocal(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(filtered)) {
+          return prev;
+        }
+        return Array.isArray(filtered) ? filtered : [];
+      });
+
+      if (filtered.length === 0 && allowed !== null) {
+        toast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+
+      if (selectedFacultyId) {
+        const stillAllowed = filtered.find(f => f.id === Number(selectedFacultyId));
+        if (!stillAllowed) {
+          setSelectedFacultyId("");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      toast("مشكلة في تحميل الكليات", "error");
+    } finally {
+      setLoadingFaculties(false);
+    }
+  };
+
+  loadFromApi();
+
+}, []);
 
   // ---------- rooms GLOBAL
   const fetchRooms = async () => {

@@ -4,6 +4,17 @@ import { IoArrowBack } from "react-icons/io5";
 
 const API_BASE = "http://localhost:5000/api";
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null;
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
+
 const GradeEntry = () => {
   const navigate = useNavigate();
 
@@ -128,22 +139,43 @@ const getLetterAndPointsPreview = (total) => {
   // =========================
   // Load faculties
   // =========================
-  useEffect(() => {
-    const fetchFaculties = async () => {
-      setLoadingFaculties(true);
-      try {
-        const res = await fetch(`${API_BASE}/faculties-list`);
-        const data = await res.json();
-        setFaculties(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error(e);
-        showToast("مشكلة في تحميل الكليات", "error");
-      } finally {
-        setLoadingFaculties(false);
+useEffect(() => {
+  const loadFaculties = async () => {
+    setLoadingFaculties(true);
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`);
+      const allFaculties = await res.json();
+
+      const allowed = getAllowedFaculties();
+
+      let filtered = allFaculties;
+      if (allowed !== null) {
+        filtered = allFaculties.filter(fac => allowed.includes(fac.id));
       }
-    };
-    fetchFaculties();
-  }, []);
+
+      setFaculties(Array.isArray(filtered) ? filtered : []);
+
+      if (filtered.length === 0 && allowed !== null) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+
+      // إعادة التحقق من الكلية المختارة
+      if (selectedFacultyId) {
+        const stillAllowed = filtered.find(f => f.id === Number(selectedFacultyId));
+        if (!stillAllowed) {
+          setSelectedFacultyId("");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("مشكلة في تحميل الكليات", "error");
+    } finally {
+      setLoadingFaculties(false);
+    }
+  };
+
+  loadFaculties();
+}, []);
 
   useEffect(() => {
     if (programType === "postgraduate") {

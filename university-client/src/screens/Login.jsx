@@ -138,7 +138,9 @@ sessionStorage.setItem('user', JSON.stringify({
   full_name: data.full_name || '',
   email: data.email || '',
   role: data.role,
-  allowed_pages: data.allowed_pages || []
+  allowed_pages: data.allowed_pages || [],
+  allowed_faculties: data.allowed_faculties || []
+  
 }));
 
       // showToast('تم تسجيل الدخول بنجاح', 'success');

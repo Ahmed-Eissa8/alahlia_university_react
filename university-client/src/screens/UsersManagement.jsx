@@ -182,13 +182,34 @@ const getAuthHeaders = () => {
 export default function UsersManagement() {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
-  const [form, setForm] = useState({ username: '', full_name: '', email: '', role: 'user', allowed_pages: [] });
-  const [newUserForm, setNewUserForm] = useState({ username: '', password: '', role: 'user', allowed_pages: [] });
+  const [form, setForm] = useState({ username: '', full_name: '', email: '', role: 'user', allowed_pages: [],allowed_faculties: [] });
+  const [newUserForm, setNewUserForm] = useState({ username: '', password: '', role: 'user', allowed_pages: [],allowed_faculties: [] });
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   const [hoverBtn, setHoverBtn] = useState(null);
   const [activeBtn, setActiveBtn] = useState(null);
   const [search, setSearch] = useState("");
+
+  const [faculties, setFaculties] = useState([]);
+
+
+  useEffect(() => {
+  const fetchFaculties = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error('فشل جلب الكليات');
+      const data = await res.json();
+      setFaculties(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+      showToast('خطأ في جلب قائمة الكليات', 'error');
+    }
+  };
+
+  fetchFaculties();
+}, []);
 
   useEffect(() => {
   const token = sessionStorage.getItem('token');
@@ -254,6 +275,7 @@ sessionStorage.removeItem('user');
       email: user.email || '',
       role: user.role,
       allowed_pages: user.allowed_pages || [],
+      allowed_faculties: user.allowed_faculties || [],
     });
   };
 
@@ -314,7 +336,7 @@ sessionStorage.removeItem('user');
         throw new Error(errData.error || 'فشل الإضافة');
       }
 
-      setNewUserForm({ username: '', password: '', role: 'user', allowed_pages: [] });
+      setNewUserForm({ username: '', password: '', role: 'user', allowed_pages: [], allowed_faculties: [] });
       fetchUsers();
       showToast('تم إضافة المستخدم', 'success');
     } catch (err) {
@@ -424,6 +446,31 @@ sessionStorage.removeItem('user');
               </div>
             </div>
 
+<div style={{ margin: '1.5rem 0' }}>
+  <strong>الكليات المسموح الوصول إليها:</strong><br />
+  {faculties.length === 0 ? (
+    <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
+  ) : (
+    faculties.map(fac => (
+      <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+        <input
+          type="checkbox"
+          checked={newUserForm.allowed_faculties.includes(fac.id)}
+          onChange={() => {
+            setNewUserForm(prev => ({
+              ...prev,
+              allowed_faculties: prev.allowed_faculties.includes(fac.id)
+                ? prev.allowed_faculties.filter(id => id !== fac.id)
+                : [...prev.allowed_faculties, fac.id]
+            }));
+          }}
+        />
+        {fac.faculty_name}
+      </label>
+    ))
+  )}
+</div>
+
             <div style={{ margin: '1.5rem 0' }}>
               <strong>الصفحات المسموحة:</strong><br />
               {allPortalTitles.map(title => (
@@ -481,6 +528,7 @@ sessionStorage.removeItem('user');
                     <th style={ui.th}>الاسم الكامل</th>
                     <th style={ui.th}>وصف المستخدم</th>
                     <th style={ui.th}>الصفحات المسموحة</th>
+                    <th style={ui.th}>الكليات المسموحة</th>
                     <th style={ui.th}>إجراء</th>
                   </tr>
                 </thead>
@@ -493,6 +541,15 @@ sessionStorage.removeItem('user');
                       <td style={ui.td}>
                         {(u.allowed_pages || []).length === 0 ? 'لا يوجد' : u.allowed_pages.join(' • ')}
                       </td>
+                      <td style={ui.td}>
+  {(u.allowed_faculties || []).length === 0 
+    ? 'لا يوجد' 
+    : u.allowed_faculties.map(id => {
+        const f = faculties.find(fac => fac.id === id);
+        return f ? f.faculty_name : id;
+      }).join(' • ')
+  }
+</td>
                       <td style={ui.td}>
 <div style={{ display: "flex", gap: 8 }}>
   <button
@@ -590,9 +647,32 @@ sessionStorage.removeItem('user');
                   </select>
                 </div>
               </div>
-
+<div style={{ margin: '1.5rem 0' }}>
+  <strong>الكليات المسموح الوصول إليها:</strong><br />
+  {faculties.length === 0 ? (
+    <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
+  ) : (
+    faculties.map(fac => (
+      <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+        <input
+          type="checkbox"
+          checked={form.allowed_faculties.includes(fac.id)}
+          onChange={() => {
+            setForm(prev => ({
+              ...prev,
+              allowed_faculties: prev.allowed_faculties.includes(fac.id)
+                ? prev.allowed_faculties.filter(id => id !== fac.id)
+                : [...prev.allowed_faculties, fac.id]
+            }));
+          }}
+        />
+        {fac.faculty_name}
+      </label>
+    ))
+  )}
+</div>
               <div style={{ margin: '1.5rem 0' }}>
-                <strong>اختر الصفحات التي يراها المستخدم:</strong><br />
+                <strong> الصفحات المسموحة: </strong><br />
                 {allPortalTitles.map(title => (
                   <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
                     <input

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
+import html2pdf from 'html2pdf.js';
+
 
 const API_BASE = "http://localhost:5000/api";
 const DEFAULT_REGISTRAR = "";
@@ -193,6 +195,16 @@ const ui = {
   },
 };
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null;
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
 
 const ACADEMIC_STATUS_OPTIONS = [
   "نظامي",
@@ -670,12 +682,28 @@ useEffect(() => {
   // =========================
   // (5) جلب الكليات والأقسام
   // =========================
-  useEffect(() => {
-    fetch(`${API_BASE}/faculties-list`)
-      .then((res) => res.json())
-      .then(setFaculties)
-      .catch((err) => console.error("Error loading faculties", err));
-  }, []);
+useEffect(() => {
+  fetch(`${API_BASE}/faculties-list`)
+    .then(res => res.json())
+    .then(allFaculties => {
+      const allowed = getAllowedFaculties();
+      if (allowed === null) {
+        // admin → كل الكليات
+        setFaculties(allFaculties);
+      } else {
+        // فلتر حسب المسموح
+        const filtered = allFaculties.filter(f => allowed.includes(f.id));
+        setFaculties(filtered);
+        if (filtered.length === 0) {
+          showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+        }
+      }
+    })
+    .catch(err => {
+      console.error("Error loading faculties", err);
+      showToast("خطأ في تحميل الكليات", "error");
+    });
+}, []);
 
   useEffect(() => {
     if (!selectedFacultyId) {
@@ -1316,12 +1344,34 @@ function SingleRegistrationTab({ showToast }) {
     postgraduateProgram: form.postgraduate_program,
   });
 
-  useEffect(() => {
-    fetch(`${API_BASE}/faculties-list`)
-      .then((res) => res.json())
-      .then(setFaculties)
-      .catch(() => {});
-  }, []);
+useEffect(() => {
+  fetch(`${API_BASE}/faculties-list`)
+    .then(res => res.json())
+    .then(allFaculties => {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      
+      if (user.role === 'admin') {
+        setFaculties(allFaculties);
+        return;
+      }
+
+      const allowedIds = Array.isArray(user.allowed_faculties) 
+        ? user.allowed_faculties 
+        : [];
+
+      const filtered = allFaculties.filter(fac => allowedIds.includes(fac.id));
+
+      setFaculties(filtered);
+
+      if (filtered.length === 0) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+    })
+    .catch(err => {
+      console.error("Error loading faculties", err);
+      showToast("خطأ في تحميل الكليات", "error");
+    });
+}, []);
 
   useEffect(() => {
     if (programType !== "postgraduate") {
@@ -2170,12 +2220,34 @@ function FailedCoursesRegistrationTab({ showToast }) {
   });
 
   // تحميل الكليات
-  useEffect(() => {
-    fetch(`${API_BASE}/faculties-list`)
-      .then((res) => res.json())
-      .then(setFaculties)
-      .catch(() => showToast("خطأ في تحميل الكليات", "error"));
-  }, []);
+useEffect(() => {
+  fetch(`${API_BASE}/faculties-list`)
+    .then(res => res.json())
+    .then(allFaculties => {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      
+      if (user.role === 'admin') {
+        setFaculties(allFaculties);
+        return;
+      }
+
+      const allowedIds = Array.isArray(user.allowed_faculties) 
+        ? user.allowed_faculties 
+        : [];
+
+      const filtered = allFaculties.filter(fac => allowedIds.includes(fac.id));
+
+      setFaculties(filtered);
+
+      if (filtered.length === 0) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+    })
+    .catch(err => {
+      console.error("Error loading faculties", err);
+      showToast("خطأ في تحميل الكليات", "error");
+    });
+}, []);
 
   // تحميل الأقسام
   useEffect(() => {
@@ -2788,12 +2860,34 @@ function FeesTab({ showToast }) {
   };
 
   // تحميل الكليات
-  useEffect(() => {
-    fetch(`${API_BASE}/faculties-list`)
-      .then(res => res.json())
-      .then(setFaculties)
-      .catch(() => showToast("خطأ في تحميل الكليات", "error"));
-  }, []);
+useEffect(() => {
+  fetch(`${API_BASE}/faculties-list`)
+    .then(res => res.json())
+    .then(allFaculties => {
+      const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+      
+      if (user.role === 'admin') {
+        setFaculties(allFaculties);
+        return;
+      }
+
+      const allowedIds = Array.isArray(user.allowed_faculties) 
+        ? user.allowed_faculties 
+        : [];
+
+      const filtered = allFaculties.filter(fac => allowedIds.includes(fac.id));
+
+      setFaculties(filtered);
+
+      if (filtered.length === 0) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+    })
+    .catch(err => {
+      console.error("Error loading faculties", err);
+      showToast("خطأ في تحميل الكليات", "error");
+    });
+}, []);
 
   // تحميل الأقسام
   useEffect(() => {
@@ -2873,71 +2967,182 @@ function FeesTab({ showToast }) {
       return;
     }
 
-    const loadFees = async () => {
-      setLoadingStudentFees(true);
-      try {
-        const params = new URLSearchParams({
-          student_id: selectedStudent.id,
-          academic_year: academicYear,
-          level_name: levelName,
-        });
+const loadFees = async () => {
+  setLoadingStudentFees(true);
+  try {
+    const params = new URLSearchParams({
+      student_id: selectedStudent.id,
+      academic_year: academicYear,
+      level_name: levelName,
+    });
 
-        let res = await fetch(`${API_BASE}/student-fees?${params}`);
-        if (res.ok) {
-          const fees = await res.json();
-          fillFeesData(fees);
-          setFeesSource("student");
-          showToast("تم تحميل رسوم خاصة بالطالب", "success");
-        } else if (res.status === 404) {
-          const defParams = new URLSearchParams({
-            academic_year: academicYear,
-            level_name: levelName,
-            program_type: programType,
-            ...(postgradProgram && { postgraduate_program: postgradProgram.trim() }),
-          });
-          res = await fetch(`${API_BASE}/term-default-fees?${defParams}`);
-          if (res.ok) {
-            const defFees = await res.json();
-            fillFeesData(defFees);
-            setFeesSource("default");
-            showToast("لا رسوم خاصة – تم تحميل الرسوم العامة", "info");
+    let res = await fetch(`${API_BASE}/student-fees?${params}`);
+    let feesToUse = null;
+    let source = "";
+
+    if (res.ok) {
+      // فيه رسوم خاصة بالطالب → نستخدمها مباشرة بدون تطبيق خصم تلقائي جديد
+      feesToUse = await res.json();
+      source = "student";
+      showToast("تم تحميل رسوم خاصة بالطالب", "success");
+      // ← هنا ما بنطبقش applyScholarshipDiscount تلقائيًا تاني
+      // الخصم لو موجود هيكون محفوظ أصلاً في tuition_fee
+    } else if (res.status === 404) {
+      // ما فيش رسوم خاصة → نجيب الرسوم العامة
+      const defParams = new URLSearchParams({
+        academic_year: academicYear,
+        level_name: levelName,
+        program_type: programType,
+        ...(postgradProgram && { postgraduate_program: postgradProgram.trim() }),
+      });
+
+      res = await fetch(`${API_BASE}/term-default-fees?${defParams}`);
+      if (res.ok) {
+        feesToUse = await res.json();
+        source = "default";
+        showToast("لا رسوم خاصة – تم تحميل الرسوم العامة", "info");
+
+        // نقل المنحة فقط في حالة الرسوم العامة
+        try {
+          const prevParams = new URLSearchParams({ student_id: selectedStudent.id });
+          const prevRes = await fetch(`${API_BASE}/student-fees?${prevParams}`);
+          
+          if (prevRes.ok) {
+            const prevFees = await prevRes.json();
+            
+            const isSamePeriod = 
+              prevFees.academic_year === academicYear && 
+              prevFees.level_name === levelName;
+
+            if (!isSamePeriod &&
+                prevFees.scholarship_type &&
+                prevFees.scholarship_type !== "لا منحة" &&
+                Number(prevFees.scholarship_percentage) > 0) {
+              
+              feesToUse.scholarship_type = prevFees.scholarship_type;
+              feesToUse.scholarship_percentage = Number(prevFees.scholarship_percentage);
+              
+              showToast(
+                `تم نقل المنحة "${prevFees.scholarship_type}" (${prevFees.scholarship_percentage}%) من سنة سابقة تلقائيًا`,
+                "info"
+              );
+            }
           }
+        } catch (prevErr) {
+          console.log("لم يتم العثور على منحة سابقة، هنستخدم الافتراضي", prevErr);
         }
-
-        res = await fetch(`${API_BASE}/student-fees-calculated?${params}`);
-        if (res.ok) {
-          const calc = await res.json();
-          setCalculatedFees(calc);
-          setAcademicStatus(calc.academic_status || "نظامي");
-          setFacultyType(calc.faculty_type || "غير محدد");
-
-          let original = calc.tuition_fee?.toString() || "";
-          let afterRepeat = original;
-
-          if (calc.academic_status === "إعاده" && calc.repeat_discount) {
-            const repeatPerc = cleanNumber(calc.repeat_discount) / 100 || 0.5;
-            original = (cleanNumber(afterRepeat) / (1 - repeatPerc)).toFixed(2);
-          }
-
-          setFeesData(prev => ({
-            ...prev,
-            tuition_fee: calc.tuition_fee?.toString() || prev.tuition_fee,
-            tuition_fee_original: original,
-            tuition_after_repeat: afterRepeat,
-            freeze_fee: calc.total_extra && calc.notes?.includes("تجميد") ? calc.total_extra.toString() : "0",
-            unfreeze_fee: "0",
-          }));
-        }
-      } catch (err) {
-        showToast(err.message || "لا رسوم متاحة لهذه الفترة", "warning");
-        setFeesSource("");
-      } finally {
-        setLoadingStudentFees(false);
+      } else {
+        showToast("لا توجد رسوم عامة لهذه الفترة", "warning");
       }
-    };
+    }
+
+    // ملء البيانات + تطبيق الخصم فقط في حالة الرسوم العامة + نقل منحة
+    if (feesToUse) {
+      fillFeesData(feesToUse);
+      setFeesSource(source);
+
+      // ← التعديل الرئيسي: نطبق الخصم تلقائيًا فقط لو الرسوم عامة + فيه منحة منقولة
+      if (source === "default" && feesToUse.scholarship_percentage > 0) {
+        applyScholarshipDiscount(feesToUse.scholarship_percentage);
+        showToast("تم تطبيق المنحة المنقولة تلقائيًا على الرسوم", "info");
+      }
+    }
+
+    // جلب الرسوم المحسوبة (كما هي)
+    res = await fetch(`${API_BASE}/student-fees-calculated?${params}`);
+    if (res.ok) {
+      const calc = await res.json();
+      setCalculatedFees(calc);
+      setAcademicStatus(calc.academic_status || "نظامي");
+      setFacultyType(calc.faculty_type || "غير محدد");
+
+      let original = calc.tuition_fee?.toString() || "";
+      let afterRepeat = original;
+
+      if (calc.academic_status === "إعاده" && calc.repeat_discount) {
+        const repeatPerc = cleanNumber(calc.repeat_discount) / 100 || 0.5;
+        original = (cleanNumber(afterRepeat) / (1 - repeatPerc)).toFixed(2);
+      }
+
+      setFeesData(prev => ({
+        ...prev,
+        tuition_fee: calc.tuition_fee?.toString() || prev.tuition_fee,
+        tuition_fee_original: original,
+        tuition_after_repeat: afterRepeat,
+        freeze_fee: calc.total_extra && calc.notes?.includes("تجميد") ? calc.total_extra.toString() : "0",
+        unfreeze_fee: "0",
+        scholarship_type: feesToUse?.scholarship_type || prev.scholarship_type || "لا منحة",
+        scholarship_percentage: feesToUse?.scholarship_percentage || prev.scholarship_percentage || 0,
+      }));
+    }
+  } catch (err) {
+    showToast(err.message || "لا رسوم متاحة لهذه الفترة", "warning");
+    setFeesSource("");
+  } finally {
+    setLoadingStudentFees(false);
+  }
+};
 
     loadFees();
   }, [selectedStudent, academicYear, levelName, programType, postgradProgram]);
+
+  // جلب الرسوم المحسوبة تلقائيًا كل ما يتغير الطالب أو السنة أو المستوى أو البرنامج
+useEffect(() => {
+  if (!selectedStudent || !academicYear || !levelName) {
+    setCalculatedFees(null);
+    setAcademicStatus("");
+    setFacultyType("");
+    return;
+  }
+
+  const fetchCalculatedFees = async () => {
+    setCalculating(true);
+    try {
+      const params = new URLSearchParams({
+        student_id: selectedStudent.id,
+        academic_year: academicYear,
+        level_name: levelName,
+      });
+
+      const res = await fetch(`${API_BASE}/student-fees-calculated?${params}`);
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "فشل في حساب الرسوم");
+      }
+
+      const data = await res.json();
+
+      setCalculatedFees(data);
+      setAcademicStatus(data.academic_status || "نظامي");
+      setFacultyType(data.faculty_type || "غير محدد");
+
+      let original = data.tuition_fee?.toString() || "";
+      let afterRepeat = original;
+
+      if (data.academic_status === "إعاده" && data.repeat_discount) {
+        const repeatPerc = cleanNumber(data.repeat_discount) / 100 || 0.5;
+        original = (cleanNumber(afterRepeat) / (1 - repeatPerc)).toFixed(2);
+      }
+
+      setFeesData(prev => ({
+        ...prev,
+        tuition_fee: data.tuition_fee?.toString() || prev.tuition_fee,
+        tuition_fee_original: original,
+        tuition_after_repeat: afterRepeat,
+        freeze_fee: data.total_extra && data.notes?.includes("تجميد") ? data.total_extra.toString() : "0",
+        unfreeze_fee: "0",
+      }));
+
+    } catch (err) {
+      showToast("خطأ أثناء حساب الرسوم: " + err.message, "error");
+      setCalculatedFees(null);
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  fetchCalculatedFees();
+}, [selectedStudent, academicYear, levelName, programType, postgradProgram]);
 
   // ملء البيانات
   const fillFeesData = (fees) => {
@@ -2992,7 +3197,7 @@ function FeesTab({ showToast }) {
     setInstallmentCount(count);
 
     if (fees.scholarship_percentage > 0) {
-      applyScholarshipDiscount(fees.scholarship_percentage);
+      // applyScholarshipDiscount(fees.scholarship_percentage);
     }
   };
 
@@ -3043,142 +3248,286 @@ function FeesTab({ showToast }) {
   };
 
   // حفظ الرسوم + reset بعد الحفظ
-  const saveFees = async () => {
-    if (!academicYear || !levelName) {
-      showToast("يرجى اختيار السنة والمستوى", "error");
-      return;
-    }
-    const token = sessionStorage.getItem("token");
-    if (!token) {
-      showToast("يرجى تسجيل الدخول أولاً", "error");
-      navigate("/login");
-      return;
-    }
-    try {
-      const body = {
-        academic_year: academicYear,
-        level_name: levelName,
-        program_type: programType,
-        postgraduate_program: programType === "postgraduate" ? postgradProgram || null : null,
-        department_id: departmentId ? Number(departmentId) : null,
-        registration_fee: Number(feesData.registration_fee) || 0,
-        tuition_fee: Number(feesData.tuition_fee) || 0,
-        late_fee: Number(feesData.late_fee) || 0,
-        freeze_fee: Number(feesData.freeze_fee) || 0,
-        unfreeze_fee: Number(feesData.unfreeze_fee) || 0,
-        repeat_discount: Number(feesData.repeat_discount) || 50,
-        scholarship_type: feesData.scholarship_type,
-        scholarship_percentage: Number(feesData.scholarship_percentage) || 0,
-        installment_1: feesData.installment_1 || null,
-        installment_1_start: feesData.installment_1_start || null,
-        installment_1_end: feesData.installment_1_end || null,
-        installment_2: feesData.installment_2 || null,
-        installment_2_start: feesData.installment_2_start || null,
-        installment_2_end: feesData.installment_2_end || null,
-        installment_3: feesData.installment_3 || null,
-        installment_3_start: feesData.installment_3_start || null,
-        installment_3_end: feesData.installment_3_end || null,
-        installment_4: feesData.installment_4 || null,
-        installment_4_start: feesData.installment_4_start || null,
-        installment_4_end: feesData.installment_4_end || null,
-        installment_5: feesData.installment_5 || null,
-        installment_5_start: feesData.installment_5_start || null,
-        installment_5_end: feesData.installment_5_end || null,
-        installment_6: feesData.installment_6 || null,
-        installment_6_start: feesData.installment_6_start || null,
-        installment_6_end: feesData.installment_6_end || null,
-      };
-
-      let url = `${API_BASE}/term-default-fees`;
-      if (selectedStudent) {
-        url = `${API_BASE}/student-fees`;
-        body.student_id = selectedStudent.id;
-      }
-
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || `فشل الحفظ (كود: ${res.status})`);
-      }
-
-      showToast(
-        selectedStudent ? "تم حفظ/تحديث رسوم الطالب بنجاح" : "تم حفظ الرسوم المبدئية بنجاح",
-        "success"
-      );
-
-      // Reset كامل بعد الحفظ الناجح
-      setFeesData(defaultFeesData);
-      setInstallmentCount(0);
-      setCalculatedFees(null);
-      setAcademicStatus("");
-      setFacultyType("");
-      setFeesSource("");
-
-      if (selectedStudent) {
-        selectStudent(selectedStudent);
-      }
-    } catch (err) {
-      showToast("خطأ أثناء الحفظ: " + err.message, "error");
-    }
-  };
-
-const printFeesReport = () => {
-  if (!selectedStudent || !calculatedFees) {
-    showToast("اختر طالب أولاً وحساب الرسوم", "error");
+const saveFees = async () => {
+  if (!academicYear || !levelName) {
+    showToast("يرجى اختيار السنة والمستوى", "error");
     return;
   }
 
-  const paid = 0; 
-  const remaining = mainTotal - paid;
+  const token = sessionStorage.getItem("token");
+  if (!token) {
+    showToast("يرجى تسجيل الدخول أولاً", "error");
+    navigate("/login");
+    return;
+  }
 
-  const reportWindow = window.open("", "_blank");
-  reportWindow.document.write(`
-    <html dir="rtl" lang="ar">
-      <head>
-        <title>تقرير رسوم الطالب</title>
-        <style>
-          body { font-family: Arial, sans-serif; padding: 30px; background: #f9f9f9; }
-          .report { max-width: 800px; margin: auto; background: white; padding: 30px; border: 1px solid #ddd; border-radius: 10px; }
-          h1 { text-align: center; color: #0a3753; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
-          th { background: #0a3753; color: white; }
-          .total { font-size: 22px; font-weight: bold; color: #b91c1c; text-align: center; margin: 20px 0; }
-          .footer { text-align: center; margin-top: 40px; color: #666; }
-        </style>
-      </head>
-      <body>
-        <div class="report">
-          <h1>تقرير رسوم الطالب</h1>
-          <p><strong>الاسم:</strong> ${selectedStudent.full_name}</p>
-          <p><strong>الرقم الجامعي:</strong> ${selectedStudent.university_id || "—"}</p>
-          <p><strong>السنة:</strong> ${academicYear} | <strong>المستوى:</strong> ${levelName}</p>
-          
-          <table>
-            <tr><th>البند</th><th>المبلغ</th></tr>
-            <tr><td>الإجمالي / الرسوم الدراسية</td><td>${formatCurrency(mainTotal)}</td></tr>
-            <tr><td>رسوم التسجيل</td><td>${formatCurrency(feesData.registration_fee)}</td></tr>
-            <tr><td>إجمالي المسدد</td><td>${formatCurrency(paid)}</td></tr>
-            <tr><td><strong>المتبقي</strong></td><td class="total">${formatCurrency(remaining)}</td></tr>
-          </table>
+  const errors = [];
 
-          <div class="footer">
-            تم الطباعة بتاريخ: ${new Date().toLocaleDateString('ar-EG')} | ${new Date().toLocaleTimeString('ar-EG')}
-          </div>
-        </div>
-        <script>window.print();</script>
-      </body>
-    </html>
-  `);
-  reportWindow.document.close();
+  for (let i = 1; i <= installmentCount; i++) {
+    const amount = cleanNumber(feesData[`installment_${i}`]);
+    const start = feesData[`installment_${i}_start`];
+    const end   = feesData[`installment_${i}_end`];
+
+    if (amount > 0) {
+      if (!start) {
+        errors.push(`القسط ${i}: تاريخ بداية الدفع مطلوب`);
+      }
+      if (!end) {
+        errors.push(`القسط ${i}: تاريخ نهاية الدفع مطلوب`);
+      }
+      if (start && end && start > end) {
+        errors.push(`القسط ${i}: تاريخ النهاية يجب أن يكون بعد أو يساوي تاريخ البداية`);
+      }
+    }
+  }
+
+  if (errors.length > 0) {
+    const errorMessage = "يرجى إكمال التواريخ للأقساط المختارة:\n" + errors.join("\n");
+    showToast(errorMessage, "error");
+    // alert(errorMessage);
+    return;
+  }
+
+  try {
+    const body = {
+      academic_year: academicYear,
+      level_name: levelName,
+      program_type: programType,
+      postgraduate_program: programType === "postgraduate" ? postgradProgram || null : null,
+      department_id: departmentId ? Number(departmentId) : null,
+      registration_fee: Number(feesData.registration_fee) || 0,
+      tuition_fee: Number(feesData.tuition_fee) || 0,
+      late_fee: Number(feesData.late_fee) || 0,
+      freeze_fee: Number(feesData.freeze_fee) || 0,
+      unfreeze_fee: Number(feesData.unfreeze_fee) || 0,
+      repeat_discount: Number(feesData.repeat_discount) || 50,
+      scholarship_type: feesData.scholarship_type,
+      scholarship_percentage: Number(feesData.scholarship_percentage) || 0,
+      installment_1: feesData.installment_1 || null,
+      installment_1_start: feesData.installment_1_start || null,
+      installment_1_end: feesData.installment_1_end || null,
+      installment_2: feesData.installment_2 || null,
+      installment_2_start: feesData.installment_2_start || null,
+      installment_2_end: feesData.installment_2_end || null,
+      installment_3: feesData.installment_3 || null,
+      installment_3_start: feesData.installment_3_start || null,
+      installment_3_end: feesData.installment_3_end || null,
+      installment_4: feesData.installment_4 || null,
+      installment_4_start: feesData.installment_4_start || null,
+      installment_4_end: feesData.installment_4_end || null,
+      installment_5: feesData.installment_5 || null,
+      installment_5_start: feesData.installment_5_start || null,
+      installment_5_end: feesData.installment_5_end || null,
+      installment_6: feesData.installment_6 || null,
+      installment_6_start: feesData.installment_6_start || null,
+      installment_6_end: feesData.installment_6_end || null,
+    };
+
+    let url = `${API_BASE}/term-default-fees`;
+    if (selectedStudent) {
+      url = `${API_BASE}/student-fees`;
+      body.student_id = selectedStudent.id;
+    }
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || `فشل الحفظ (كود: ${res.status})`);
+    }
+
+    showToast(
+      selectedStudent ? "تم حفظ/تحديث رسوم الطالب بنجاح" : "تم حفظ الرسوم المبدئية بنجاح",
+      "success"
+    );
+
+    setFeesData(defaultFeesData);
+    setInstallmentCount(0);
+    setCalculatedFees(null);
+    setAcademicStatus("");
+    setFacultyType("");
+    setFeesSource("");
+
+    if (selectedStudent) {
+      selectStudent(selectedStudent);
+    }
+  } catch (err) {
+    showToast("خطأ أثناء الحفظ: " + err.message, "error");
+  }
+};
+
+const printFeesReport = async () => {
+  if (!selectedStudent || !academicYear || !levelName) {
+    showToast("اختر طالب وحدد السنة والمستوى أولاً", "error");
+    return;
+  }
+
+  try {
+    // showToast("جاري تحميل أحدث بيانات الرسوم...", "info");
+
+    const params = new URLSearchParams({
+      student_id: selectedStudent.id,
+      academic_year: academicYear,
+      level_name: levelName,
+    });
+
+    const url = `${API_BASE}/student-installments-status?${params}`;
+    console.log("Fetching:", url); 
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      let errorMsg = `حالة ${response.status}`;
+      try {
+        const errData = await response.json();
+        errorMsg = errData.error || errorMsg;
+      } catch {
+        errorMsg = await response.text() || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+
+    const data = await response.json();
+
+    // ────────────────────────────────────────────────
+    // حساب الإجمالي والمدفوع
+    const totalDue =
+      cleanNumber(data.registration_fee || 0) +
+      cleanNumber(data.tuition_fee || 0) +
+      cleanNumber(data.late_fee || 0) +
+      cleanNumber(data.freeze_fee || 0) +
+      cleanNumber(data.unfreeze_fee || 0);
+
+    let totalPaid = 0;
+    const installmentsRows = [];
+
+    for (let i = 1; i <= 6; i++) {
+      const amount = cleanNumber(data[`installment_${i}`] || 0);
+      if (amount <= 0) continue;
+
+      const isPaid = data[`installment_${i}_paid`] === 1 || data[`installment_${i}_paid`] === true;
+      const paidDateRaw = data[`installment_${i}_paid_at`];
+      const paidDate = paidDateRaw && paidDateRaw !== '0000-00-00' 
+      ? paidDateRaw 
+      : "—";
+
+      if (isPaid) totalPaid += amount;
+
+      installmentsRows.push(`
+        <tr style="background: ${i % 2 === 0 ? '#f9fafb' : '#ffffff'};">
+          <td style="padding: 12px; border: 1px solid #d1d5db; text-align: center;">${i}</td>
+          <td style="padding: 12px; border: 1px solid #d1d5db; text-align: right;">${formatCurrency(amount)}</td>
+          <td style="padding: 12px; border: 1px solid #d1d5db; text-align: center; color: ${isPaid ? '#0a3753' : '#0a3753'}; font-weight: ${isPaid ? 'bold' : 'normal'};">
+            ${isPaid ? 'مدفوع' : 'غير مدفوع'}
+          </td>
+          <td style="padding: 12px; border: 1px solid #d1d5db; text-align: center;">${paidDate}</td>
+        </tr>
+      `);
+    }
+
+    const remaining = totalDue - totalPaid;
+
+    // ────────────────────────────────────────────────
+    const headerHTML = `
+      <div style="text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #0a3753; direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif;">
+        <h1 style="margin: 0; color: #0a3753; font-size: 24px; font-weight: bold;">
+          جامعة بورتسودان الأهلية
+        </h1>
+        <p style="margin: 10px 0 6px; font-size: 18px; font-weight: bold; color: #0a3753;">
+          تقرير الرسوم الدراسية
+        </p>
+        <p style="margin: 4px 0; font-size: 15px; color: #374151;">
+          السنة الدراسية: ${academicYear} | المستوى: ${levelName}
+        </p>
+        <p style="margin: 12px 0 0; font-size: 14px; color: #4b5563;">
+          الطالب: ${selectedStudent.full_name} - ${selectedStudent.university_id || "غير مسجل"}
+        </p>
+      </div>
+    `;
+
+    const basicFeesTable = `
+      <table style="width: 100%; border-collapse: collapse; margin: 20px 0; direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 14px;">
+        <thead>
+          <tr style="background: #6e6e6e; color: white;">
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: right;">البند</th>
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: center;">المبلغ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding: 10px; border: 1px solid #d1d5db;">رسوم التسجيل</td><td style="padding: 10px; border: 1px solid #d1d5db; text-align: center;">${formatCurrency(data.registration_fee || 0)}</td></tr>
+          <tr><td style="padding: 10px; border: 1px solid #d1d5db;">رسوم الدراسة</td><td style="padding: 10px; border: 1px solid #d1d5db; text-align: center;">${formatCurrency(data.tuition_fee || 0)}</td></tr>
+          ${Number(data.late_fee || 0) > 0 ? `<tr><td style="padding: 10px; border: 1px solid #d1d5db;">رسوم التأخير</td><td style="padding: 10px; border: 1px solid #d1d5db; text-align: center;">${formatCurrency(data.late_fee)}</td></tr>` : ''}
+          ${Number(data.freeze_fee || 0) > 0 ? `<tr><td style="padding: 10px; border: 1px solid #d1d5db;">رسوم التجميد</td><td style="padding: 10px; border: 1px solid #d1d5db; text-align: center;">${formatCurrency(data.freeze_fee)}</td></tr>` : ''}
+          ${Number(data.unfreeze_fee || 0) > 0 ? `<tr><td style="padding: 10px; border: 1px solid #d1d5db;">رسوم فك التجميد</td><td style="padding: 10px; border: 1px solid #d1d5db; text-align: center;">${formatCurrency(data.unfreeze_fee)}</td></tr>` : ''}
+          <tr style="font-weight: bold; background: #e5e7eb;">
+            <td style="padding: 12px; border: 1px solid #9ca3af; text-align: right;">الإجمالي المستحق</td>
+            <td style="padding: 12px; border: 1px solid #9ca3af; text-align: center; color: #0a3753;">${formatCurrency(totalDue)}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+
+    const installmentsTable = `
+      <table style="width: 100%; border-collapse: collapse; margin: 30px 0 20px; direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 14px;">
+        <thead>
+          <tr style="background: #6e6e6e; color: white;">
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: center;">القسط</th>
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: center;">المبلغ المستحق</th>
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: center;">حالة الدفع</th>
+            <th style="padding: 12px; border: 1px solid #9ca3af; text-align: center;">تاريخ الدفع</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${installmentsRows.length > 0 ? installmentsRows.join('') : '<tr><td colspan="4" style="padding: 20px; text-align: center; color: #6b7280;">لا توجد أقساط مسجلة لهذه الفترة</td></tr>'}
+        </tbody>
+      </table>
+    `;
+
+    const footerHTML = `
+      <div style="text-align: center; margin-top: 60px; color: #6b7280; font-size: 13px; direction: rtl;">
+        تم إنشاء التقرير بتاريخ ${new Date().toLocaleDateString('EG')} الساعة ${new Date().toLocaleTimeString('EG')}
+      </div>
+    `;
+
+    const fullContent = `
+      <div style="padding: 30px 40px; direction: rtl;">
+        ${headerHTML}
+        ${basicFeesTable}
+        ${installmentsTable}
+        ${footerHTML}
+      </div>
+    `;
+    
+    const element = document.createElement('div');
+    element.innerHTML = fullContent;
+    element.style.padding = '20px 40px';
+    element.style.direction = 'rtl';
+    element.style.fontFamily = "'Cairo', 'Tajawal', sans-serif";
+
+    html2pdf()
+      .from(element)
+      .set({
+        margin: 1,
+        filename: `تقرير_رسوم_${selectedStudent.full_name.replace(/ /g, '_')}_${academicYear.replace('/', '-')}.pdf`,
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+        html2canvas: { scale: 2 }
+      })
+      .save();
+
+    // showToast("جاري تجهيز التقرير كـ PDF...", "success");
+    
+
+  } catch (err) {
+    console.error("خطأ في طباعة التقرير:", err);
+    showToast("فشل جلب بيانات الرسوم: " + (err.message || "خطأ غير متوقع"), "error");
+  }
 };
 
   return (
@@ -3393,7 +3742,7 @@ const printFeesReport = () => {
             )}
           </div>
 
-          {selectedStudent && (
+          {/* {selectedStudent && (
             <button
               onClick={calculateFinalFees}
               disabled={calculating}
@@ -3406,7 +3755,7 @@ const printFeesReport = () => {
             >
               {calculating ? "جاري الحساب..." : "حساب الرسوم النهائية"}
             </button>
-          )}
+          )} */}
 
           {calculatedFees && (
             <div style={{ marginBottom: 24, padding: 16, background: "#f8fafc", borderRadius: 12, border: "1px solid #e2e8f0" }}>
@@ -3577,7 +3926,7 @@ const printFeesReport = () => {
               {installmentCount > 0 && (
                 <div style={{ gridColumn: "1 / -1" }}>
                   <h4 style={{ margin: "24px 0 16px", color: "#0a3753", fontSize: 18, textAlign: "center" }}>
-                    تفاصيل الأقساط (تقسيم الإجمالي المستحق)
+                    تفاصيل الأقساط
                   </h4>
 
                   <div 

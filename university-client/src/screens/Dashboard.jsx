@@ -98,12 +98,22 @@ useEffect(() => {
   );
 
   // فلترة الروابط بناءً على الصلاحيات
-const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-const allowedPages = user.allowed_pages || [];
+// const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+// const allowedPages = user.allowed_pages || [];
 
-  const visibleLinks = portalLinks.filter(link => 
-    allowedPages.includes(link.title) || user.role === 'admin'
-  );
+//   const visibleLinks = portalLinks.filter(link => 
+//     allowedPages.includes(link.title) || user.role === 'admin'
+//   );
+
+
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+const allowedPages = Array.isArray(user.allowed_pages) ? user.allowed_pages : [];
+
+const visibleLinks = portalLinks.filter(link => 
+  user.role === 'admin' || 
+  allowedPages.includes(link.title.trim()) 
+);
+
 
 const handleLogout = () => {
   sessionStorage.removeItem('token');

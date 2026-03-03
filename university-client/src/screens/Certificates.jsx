@@ -125,6 +125,17 @@ const ui = {
   },
 };
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null;
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
+
 const Certificates = () => {
   const navigate = useNavigate();
 
@@ -181,6 +192,9 @@ const canProceedAfterProgram =
     Authorization: `Bearer ${sessionStorage.getItem("token") || ""}`,
   });
 
+  const [isAllFeesPaid, setIsAllFeesPaid] = useState(false);
+  const [unpaidYears, setUnpaidYears] = useState([]);          
+  const [failedCourses, setFailedCourses] = useState([]);
 
   useEffect(() => {
     if (programType !== "postgraduate") {
@@ -198,14 +212,45 @@ const canProceedAfterProgram =
       });
   }, [programType]);
 
-  useEffect(() => {
+useEffect(() => {
+  const loadFaculties = async () => {
     setLoadingFaculties(true);
-    fetch(`${API_BASE}/faculties-list`, { headers: getAuthHeader() })
-      .then((res) => res.json())
-      .then((data) => setFaculties(Array.isArray(data) ? data : []))
-      .catch(() => showToast("خطأ في تحميل الكليات", "error"))
-      .finally(() => setLoadingFaculties(false));
-  }, []);
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`, { headers: getAuthHeader() });
+      if (!res.ok) throw new Error("فشل جلب الكليات");
+
+      const allFaculties = await res.json();
+
+      const allowed = getAllowedFaculties();
+      let filtered = allFaculties;
+
+      if (allowed !== null) {
+        filtered = allFaculties.filter(fac => allowed.includes(fac.id));
+      }
+
+      setFaculties(Array.isArray(filtered) ? filtered : []);
+
+      if (filtered.length === 0 && allowed !== null) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+
+      // إعادة ضبط الكلية المختارة لو مش موجودة في القايمة الجديدة
+      if (selectedFacultyId) {
+        const stillAllowed = filtered.find(f => f.id === Number(selectedFacultyId));
+        if (!stillAllowed) {
+          setSelectedFacultyId("");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("خطأ في تحميل الكليات", "error");
+    } finally {
+      setLoadingFaculties(false);
+    }
+  };
+
+  loadFaculties();
+}, []);
 
   useEffect(() => {
     if (!selectedFacultyId) {
@@ -309,95 +354,137 @@ const canProceedAfterProgram =
     canFetchStudents,
   ]);
 
-  useEffect(() => {
-    if (!selectedStudentId) {
-      setSelectedStudent(null);
-      setStudentHistory([]);
-      setBorrowedBooks([]);
-      setIsRegisteredLastTerm(false);
-      setIsPassedLastTerm(false);
-      return;
-    }
+useEffect(() => {
+  if (!selectedStudentId) {
+    setSelectedStudent(null);
+    setStudentHistory([]);
+    setBorrowedBooks([]);
+    setIsRegisteredLastTerm(false);
+    setIsPassedLastTerm(false);
+    setIsAllFeesPaid(false);
+    setUnpaidYears([]);
+    return;
+  }
 
-    setLoadingHistory(true);
+  setLoadingHistory(true);
 
-    const found = suggestions.find((s) => s.id === selectedStudentId);
+  const found = suggestions.find((s) => s.id === selectedStudentId);
 
-    if (found) {
-      setSelectedStudent(found);
-      const universityId = found.university_id;
+  // الـ student_id اللي هنستخدمه
+  const studentIdToUse = found ? found.id : selectedStudentId;
 
-      Promise.all([
-        fetch(`${API_BASE}/student-history?student_id=${selectedStudentId}`, { headers: getAuthHeader() }),
-        fetch(`${API_BASE}/student-borrowed-books?university_id=${universityId}`, { headers: getAuthHeader() }),
-      ])
-        .then(([histRes, bookRes]) => {
-          if (!histRes.ok) throw new Error("خطأ في جلب السجل الدراسي");
-          if (!bookRes.ok) throw new Error("خطأ في جلب الكتب المستعارة");
-          return Promise.all([histRes.json(), bookRes.json()]);
-        })
-        .then(([historyData, booksData]) => {
-          const history = Array.isArray(historyData) ? historyData : [];
-          setStudentHistory(history);
-          setBorrowedBooks(Array.isArray(booksData) ? booksData : []);
+  // أول حاجة: نجيب university_id (من found أو من /student-basic)
+  let universityIdPromise;
 
-          if (history.length > 0) {
-            const lastEntry = history[history.length - 1];
-            setIsPassedLastTerm(lastEntry.status === "نجاح");
-            setIsRegisteredLastTerm(true);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          showToast("حدث خطأ أثناء جلب بيانات الطالب", "error");
-        })
-        .finally(() => setLoadingHistory(false));
-    } else {
-      fetch(`${API_BASE}/student-basic?student_id=${selectedStudentId}`, { headers: getAuthHeader() })
-        .then((res) => {
-          if (!res.ok) throw new Error("خطأ في جلب بيانات الطالب الأساسية");
-          return res.json();
-        })
-        .then((basic) => {
-          setSelectedStudent(basic);
-          const universityId = basic.university_id;
+  if (found) {
+    setSelectedStudent(found);
+    universityIdPromise = Promise.resolve(found.university_id);
+  } else {
+    universityIdPromise = fetch(`${API_BASE}/student-basic?student_id=${studentIdToUse}`, {
+      headers: getAuthHeader(),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("خطأ في جلب بيانات الطالب الأساسية");
+        return res.json();
+      })
+      .then((basic) => {
+        setSelectedStudent(basic);
+        return basic.university_id;
+      })
+      .catch((err) => {
+        console.error(err);
+        setSelectedStudent({
+          id: studentIdToUse,
+          full_name: "اسم الطالب غير معروف",
+          university_id: "غير معروف",
+        });
+        showToast("حدث خطأ أثناء جلب بيانات الطالب", "error");
+        return null;
+      });
+  }
 
-          return Promise.all([
-            fetch(`${API_BASE}/student-history?student_id=${selectedStudentId}`, { headers: getAuthHeader() }),
-            fetch(`${API_BASE}/student-borrowed-books?university_id=${universityId}`, { headers: getAuthHeader() }),
-          ]);
-        })
-        .then(([histRes, bookRes]) => {
-          if (histRes && !histRes.ok) throw new Error("خطأ في جلب السجل الدراسي");
-          if (bookRes && !bookRes.ok) throw new Error("خطأ في جلب الكتب المستعارة");
-          return Promise.all([histRes.json(), bookRes.json()]);
-        })
-        .then(([historyData, booksData]) => {
-          const history = Array.isArray(historyData) ? historyData : [];
-          setStudentHistory(history);
-          setBorrowedBooks(Array.isArray(booksData) ? booksData : []);
+  universityIdPromise
+    .then((universityId) => {
+      const promises = [
+        // السجل الدراسي
+        fetch(`${API_BASE}/student-history?student_id=${studentIdToUse}`, { headers: getAuthHeader() }),
+        // حالة الرسوم لكل السنين (الشرط الجديد)
+        fetch(`${API_BASE}/student-certificate-status?student_id=${studentIdToUse}&final_level=${encodeURIComponent(finalLevelName)}`, {
+          headers: getAuthHeader(),
+        }),
+      ];
 
-          if (history.length > 0) {
-            const lastEntry = history[history.length - 1];
-            setIsPassedLastTerm(lastEntry.status === "نجاح");
-            setIsRegisteredLastTerm(true);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setSelectedStudent({
-            id: selectedStudentId,
-            full_name: "اسم الطالب غير معروف",
-            university_id: "غير معروف",
-          });
-          showToast("حدث خطأ أثناء جلب بيانات الطالب", "error");
-        })
-        .finally(() => setLoadingHistory(false));
-    }
-  }, [selectedStudentId, suggestions]);
+      // لو عندنا university_id → نجيب الكتب المستعارة
+      if (universityId) {
+        promises.push(
+          fetch(`${API_BASE}/student-borrowed-books?university_id=${universityId}`, { headers: getAuthHeader() })
+        );
+      }
+
+      return Promise.all(promises);
+    })
+    .then((responses) => {
+      const histRes = responses[0];
+      const statusRes = responses[1];
+      const bookRes = responses.length > 2 ? responses[2] : null;
+
+      if (!histRes.ok) throw new Error("خطأ في جلب السجل الدراسي");
+      if (!statusRes.ok) throw new Error("خطأ في جلب حالة الشهادة");
+
+      return Promise.all([
+        histRes.json(),
+        statusRes.json(),
+        bookRes ? bookRes.json() : Promise.resolve([]),
+      ]);
+    })
+    .then(([historyData, statusData, booksData]) => {
+      // السجل الدراسي
+      const history = Array.isArray(historyData) ? historyData : [];
+      setStudentHistory(history);
+
+      // الكتب
+      setBorrowedBooks(Array.isArray(booksData) ? booksData : []);
+
+      // الشروط من /student-certificate-status
+      setIsPassedLastTerm(statusData.is_passed_last_term || false);
+      // setIsRegisteredLastTerm(statusData.is_registered_last_term || false);  ← ممكن نحتفظ بيه للعرض بس
+
+      setFailedCourses(statusData.failed_courses || []);
+
+      // الشرط الجديد الأساسي: كل السنين مدفوعة؟
+      setIsAllFeesPaid(statusData.is_all_fees_paid || false);
+      setUnpaidYears(statusData.unpaid_years || []);
+
+      // لو مفيش سجل دراسي → نعطل النجاح
+    let isPassedLastTerm = false;
+let isRegisteredLastTerm = false;
+
+if (history.length > 0) {
+  const lastSecondTerm = history.find(r => 
+    r.term_name && 
+    ["الفصل الثاني", "فصل ثاني", "الفصل الثانى"].some(t => r.term_name.includes(t))
+  );
+
+  if (lastSecondTerm) {
+    isRegisteredLastTerm = true;
+    isPassedLastTerm = lastSecondTerm.status === "نجاح";
+  }
+}
+
+setIsPassedLastTerm(isPassedLastTerm);
+setIsRegisteredLastTerm(isRegisteredLastTerm);
+    })
+    .catch((err) => {
+      console.error("خطأ في جلب بيانات الطالب:", err);
+      showToast("حدث خطأ أثناء جلب بيانات الطالب", "error");
+    })
+    .finally(() => {
+      setLoadingHistory(false);
+    });
+}, [selectedStudentId, suggestions, finalLevelName]);   // ← أضفنا finalLevelName كـ dependency
 
 const generateCertificate = () => {
-  if (borrowedBooks.length > 0 || !isPassedLastTerm || !isRegisteredLastTerm) {
+  if (borrowedBooks.length > 0 || !isPassedLastTerm || !isAllFeesPaid) {
     showToast("الطالب غير مؤهل لإصدار الشهادة حالياً", "error");
     return;
   }
@@ -796,12 +883,88 @@ const generateCertificate = () => {
                 )}
               </div>
 
+              {/* عرض تفاصيل الأقساط الغير مدفوعة لو موجودة */}
+{!isAllFeesPaid && unpaidYears.length > 0 && (
+  <div style={{
+    background: "#fef2f2",
+    padding: "16px",
+    borderRadius: "8px",
+    marginTop: "16px",
+    border: "1px solid #fecaca"
+  }}>
+    <strong style={{ color: "#b91c1c", display: "block", marginBottom: "8px" }}>
+      الأقساط غير مكتملة في السنوات التالية:
+    </strong>
+    <ul style={{ paddingRight: "24px", margin: "8px 0 0 0" }}>
+      {unpaidYears.map((item, idx) => (
+        <li key={idx} style={{ marginBottom: "6px" }}>
+          <strong>{item.academic_year} – {item.level_name}</strong><br />
+          الأقساط غير المدفوعة: {item.unpaid_installments.join("، ")}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+{/* عرض المواد الراسبة لو موجودة */}
+{failedCourses.length > 0 && (
+  <div style={{
+    background: "#fef2f2",
+    padding: "16px",
+    borderRadius: "8px",
+    marginTop: "16px",
+    border: "1px solid #fecaca"
+  }}>
+    <strong style={{ color: "#b91c1c", display: "block", marginBottom: "12px", fontSize: "1.1em" }}>
+      مواد راسبة / إعادة لم يتم النجاح فيها بعد:
+    </strong>
+    
+    <div style={{ maxHeight: "240px", overflowY: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95em" }}>
+        <thead>
+          <tr style={{ background: "#fee2e2" }}>
+            <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "right" }}>السنة</th>
+            <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "right" }}>المستوى</th>
+            {/* <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "right" }}>الفصل الدراسي</th> */}
+            <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "right" }}>اسم المادة</th>
+            {/* <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "center" }}>الدرجة</th> */}
+            <th style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "center" }}>التقدير</th>
+          </tr>
+        </thead>
+        <tbody>
+          {failedCourses.map((course, idx) => (
+            <tr key={idx} style={{ background: idx % 2 === 0 ? "#fff" : "#fff5f5" }}>
+              <td style={{ padding: "8px", border: "1px solid #fecaca" }}>{course.academic_year}</td>
+              <td style={{ padding: "8px", border: "1px solid #fecaca" }}>{course.level_name}</td>
+              {/* <td style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "right" }}>
+                {course.term_name || "غير محدد"}
+              </td> */}
+              <td style={{ padding: "8px", border: "1px solid #fecaca" }}>{course.course_name || "غير معروف"}</td>
+              {/* <td style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "center", fontWeight: "bold", color: "#dc2626" }}>
+                {course.total_mark ?? "—"}
+              </td> */}
+              <td style={{ padding: "8px", border: "1px solid #fecaca", textAlign: "center", fontWeight: "bold", color: "#dc2626" }}>
+                {course.letter || ""}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
               <div style={{ textAlign: "center", marginTop: 24 }}>
 
 
 <button
   onClick={generateCertificate}
-  disabled={borrowedBooks.length > 0 || !isPassedLastTerm || !isRegisteredLastTerm}
+  disabled={
+  borrowedBooks.length > 0 || 
+  !isPassedLastTerm || 
+  !isAllFeesPaid || 
+  failedCourses.length > 0   
+}
   onMouseEnter={() => setIsHovered(true)}
   onMouseLeave={() => setIsHovered(false)}
   style={{
@@ -818,11 +981,12 @@ const generateCertificate = () => {
   طباعة
 </button>
 
-                {(borrowedBooks.length > 0 || !isPassedLastTerm || !isRegisteredLastTerm) && (
-                  <p style={{ marginTop: 16, color: "#dc2626", fontWeight: 700 }}>
-                    لا يمكن إصدار خلو طرف حاليًا – يرجى مراجعة الشروط أعلاه
-                  </p>
-                )}
+{(borrowedBooks.length > 0 || !isPassedLastTerm || !isAllFeesPaid) && (
+  <p style={{ marginTop: 16, color: "#dc2626", fontWeight: 700 }}>
+    لا يمكن إصدار خلو طرف حاليًا – يرجى مراجعة الشروط أعلاه
+  </p>
+)}
+
               </div>
             </div>
           ) : null}

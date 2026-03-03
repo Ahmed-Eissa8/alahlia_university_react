@@ -4,6 +4,17 @@ import { useNavigate } from "react-router-dom";
 
 const API_BASE = "http://localhost:5000/api";
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null;
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
+
 const emptyForm = {
   id: null,
   full_name: "",
@@ -57,18 +68,40 @@ export default function StaffMembers() {
   }, [list, q]);
 
   // ===== Load faculties
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${API_BASE}/faculties-list`);
-        const data = await res.json();
-        setFaculties(Array.isArray(data) ? data : []);
-      } catch (e) {
-        console.error(e);
-        showToast("مشكلة في تحميل الكليات", "error");
+useEffect(() => {
+  const loadFaculties = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`);
+      const allFaculties = await res.json();
+
+      const allowed = getAllowedFaculties();
+
+      let filtered = allFaculties;
+      if (allowed !== null) {
+        filtered = allFaculties.filter(fac => allowed.includes(fac.id));
       }
-    })();
-  }, []);
+
+      setFaculties(Array.isArray(filtered) ? filtered : []);
+
+      if (filtered.length === 0 && allowed !== null) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+
+      // إعادة التحقق من الكلية المختارة لو كانت موجودة قبل الفلتر
+      if (selectedFacultyId) {
+        const stillAllowed = filtered.find(f => f.id === Number(selectedFacultyId));
+        if (!stillAllowed) {
+          setSelectedFacultyId("");
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("مشكلة في تحميل الكليات", "error");
+    }
+  };
+
+  loadFaculties();
+}, []);
 
   // ===== Load academic ranks (smart list) 
 const loadRanks = async () => {

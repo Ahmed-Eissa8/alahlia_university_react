@@ -4,6 +4,17 @@ import { IoArrowBack } from "react-icons/io5";
 
 const API_BASE = "http://localhost:5000/api";
 
+const getAllowedFaculties = () => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    if (user.role === 'admin') return null; // null = كل الكليات
+    return Array.isArray(user.allowed_faculties) ? user.allowed_faculties : [];
+  } catch (e) {
+    console.warn("مشكلة في قراءة allowed_faculties", e);
+    return [];
+  }
+};
+
 /* =========================
     Tab: Grade Rules Admin (Per Faculty)
    ========================= */
@@ -189,10 +200,9 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
         <>
           {/* إعدادات المعادلات */}
 {/* ✅ طريقة حساب المعدل (حسب اللائحة) */}
-<h3 style={{ margin: "16px 0 10px" }}>طريقة حساب المعدل</h3>
+{/* <h3 style={{ margin: "16px 0 10px" }}>طريقة حساب المعدل</h3>
 
 <div className="card" style={{ padding: 14, marginBottom: 14, background: "#fff" }}>
-  {/* اختيارات طريقة الحساب */}
   <div className="two-col-grid" style={{ gap: 12 }}>
     <div className="input-group">
       <label className="input-label">طريقة حساب المعدل الفصلي</label>
@@ -214,7 +224,6 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
         onChange={(e) => setGpaSettings((p) => ({ ...p, cumulative_calc_mode: e.target.value }))}
       >
         <option value="weighted_avg">متوسط مرجّح بالساعات</option>
-        {/* <option value="simple_avg">متوسط بسيط</option> */}
       </select>
     </div>
 
@@ -240,7 +249,6 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
     </div>
   </div>
 
-  {/* عرض المعادلات */}
   <div style={{ marginTop: 12, lineHeight: 1.9, color: "#374151", fontWeight: 700 }}>
     <div>• نقاط المقرر = (التقدير بالنقاط) × (عدد الساعات المعتمدة).</div>
     <div>• المعدل الفصلي = مجموع نقاط المقررات ÷ مجموع الساعات المعتمدة (للفصل).</div>
@@ -252,7 +260,7 @@ const GradeRulesAdmin = ({ showToast, faculties }) => {
       </div>
     )}
   </div>
-</div>
+</div> */}
 
 
           {/* 1) جدول تقديرات المقررات */}
@@ -1213,9 +1221,44 @@ const FacultyDepartmentAdmin = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  useEffect(() => {
-    fetchFaculties();
-  }, []);
+useEffect(() => {
+  const loadFaculties = async () => {
+    setLoadingFaculties(true);
+    try {
+      const res = await fetch(`${API_BASE}/faculties-list`);
+      const allFaculties = await res.json();
+
+      const allowed = getAllowedFaculties();
+
+      let filtered = allFaculties;
+      if (allowed !== null) {
+        filtered = allFaculties.filter(f => allowed.includes(f.id));
+      }
+
+      setFaculties(Array.isArray(filtered) ? filtered : []);
+
+      if (filtered.length === 0 && allowed !== null) {
+        showToast("لا توجد كليات مسموح لك الوصول إليها", "error");
+      }
+
+      // إعادة التحقق من الكلية المختارة
+      if (selectedFaculty) {
+        const stillAllowed = filtered.find(f => f.id === selectedFaculty.id);
+        if (!stillAllowed) {
+          setSelectedFaculty(null);
+          setDepartments([]);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      showToast("مشكلة في تحميل الكليات", "error");
+    } finally {
+      setLoadingFaculties(false);
+    }
+  };
+
+  loadFaculties();
+}, []);
 
   const fetchFaculties = async () => {
     setLoadingFaculties(true);

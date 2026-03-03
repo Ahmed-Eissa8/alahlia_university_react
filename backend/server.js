@@ -1005,7 +1005,7 @@ app.get("/api/students/:id", (req, res) => {
 });
 
 
-app.post("/api/registrations", authMiddleware, async (req, res) => {
+app.post("/api/registrations", async (req, res) => {
   const registrar = req.user?.username || DEFAULT_REGISTRAR;
   const {
     student_id,
@@ -4811,17 +4811,42 @@ app.get("/api/postgraduate-programs", async (req, res) => {
 // ---------------------
 app.get('/api/users', authMiddleware, async (req, res) => {
   try {
-    const [rows] = await dbp.query(
-      `SELECT id, username, full_name, email, role, is_active, allowed_pages
-       FROM users
-       ORDER BY username`
-    );
+    const [rows] = await dbp.query(`
+      SELECT 
+        id, 
+        username, 
+        full_name, 
+        email, 
+        role, 
+        is_active, 
+        allowed_pages,
+        allowed_faculties
+      FROM users
+      ORDER BY username
+    `);
 
-    // تحويل allowed_pages من string إلى array
-    const users = rows.map(u => ({
-      ...u,
-      allowed_pages: u.allowed_pages ? JSON.parse(u.allowed_pages) : []
-    }));
+    const users = rows.map(user => {
+      let allowedPages = [];
+      let allowedFaculties = [];
+
+      try {
+        if (user.allowed_pages) allowedPages = JSON.parse(user.allowed_pages);
+      } catch (e) {
+        console.warn(`Invalid allowed_pages JSON for user ${user.id}:`, e);
+      }
+
+      try {
+        if (user.allowed_faculties) allowedFaculties = JSON.parse(user.allowed_faculties);
+      } catch (e) {
+        console.warn(`Invalid allowed_faculties JSON for user ${user.id}:`, e);
+      }
+
+      return {
+        ...user,
+        allowed_pages: allowedPages,
+        allowed_faculties: allowedFaculties
+      };
+    });
 
     res.json(users);
   } catch (err) {
@@ -4829,13 +4854,12 @@ app.get('/api/users', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'خطأ في جلب المستخدمين' });
   }
 });
-
 // ---------------------
 // PUT /api/users/:id    تعديل الصفحات المسموحة   
 // ---------------------
 app.put('/api/users/:id', authMiddleware, async (req, res) => {
   const { id } = req.params;
-  const { username, full_name, email, role, is_active, allowed_pages } = req.body;
+  const { username, full_name, email, role, is_active, allowed_pages, allowed_faculties = [] } = req.body;
 
   try {
     const updates = [];
@@ -4847,6 +4871,7 @@ app.put('/api/users/:id', authMiddleware, async (req, res) => {
     if (role !== undefined)         { updates.push('role = ?');         values.push(role); }
     if (is_active !== undefined)    { updates.push('is_active = ?');    values.push(is_active ? 1 : 0); }
     if (allowed_pages !== undefined){ updates.push('allowed_pages = ?'); values.push(JSON.stringify(allowed_pages)); }
+    if (allowed_faculties !== undefined){ updates.push('allowed_faculties = ?'); values.push(JSON.stringify(allowed_faculties)); }
 
     if (updates.length === 0) {
       return res.status(400).json({ error: 'لا توجد تغييرات' });
@@ -4872,7 +4897,7 @@ app.put('/api/users/:id', authMiddleware, async (req, res) => {
 // POST /api/users       إضافة مستخدم جديد
 // ---------------------
 app.post('/api/users', authMiddleware, async (req, res) => {
-  const { username, password, full_name, email, role = 'user', allowed_pages = [] } = req.body;
+  const { username, password, full_name, email, role = 'user', allowed_pages = [] , allowed_faculties = []} = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور مطلوبين' });
@@ -4882,9 +4907,9 @@ app.post('/api/users', authMiddleware, async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     const [result] = await dbp.query(   
-      `INSERT INTO users (username, password_hash, full_name, email, role, allowed_pages)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [username, hash, full_name || null, email || null, role, JSON.stringify(allowed_pages)]
+      `INSERT INTO users (username, password_hash, full_name, email, role, allowed_pages, allowed_faculties)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [username, hash, full_name || null, email || null, role, JSON.stringify(allowed_pages), JSON.stringify(allowed_faculties)]
     );
 
     res.status(201).json({
@@ -4893,7 +4918,8 @@ app.post('/api/users', authMiddleware, async (req, res) => {
       full_name,
       email,
       role,
-      allowed_pages
+      allowed_pages,
+      allowed_faculties
     });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
@@ -4939,7 +4965,7 @@ app.post("/api/login", async (req, res) => {
   try {
     // جلب بيانات المستخدم
     const [rows] = await dbp.query(
-      `SELECT id, username, full_name, email, role, password_hash, allowed_pages
+      `SELECT id, username, full_name, email, role, password_hash, allowed_pages, allowed_faculties
        FROM users
        WHERE username = ?`,
       [username]
@@ -4974,7 +5000,19 @@ app.post("/api/login", async (req, res) => {
         : [];
     } catch (parseErr) {
       console.error("خطأ في تحليل allowed_pages:", parseErr);
+    
     }
+
+    // تحويل allowed_faculties من text إلى array
+    let allowed_faculties = [];
+    try {
+      allowed_faculties = user.allowed_faculties && user.allowed_faculties.trim() !== ''
+        ? JSON.parse(user.allowed_faculties)
+        : [];
+    } catch (parseErr) {
+      console.error("خطأ في تحليل allowed_faculties:", parseErr);
+    }
+
 
     //   ( allowed_pages)
     res.json({
@@ -4984,7 +5022,8 @@ app.post("/api/login", async (req, res) => {
       full_name: user.full_name || null,
       email: user.email || null,
       role: user.role,
-      allowed_pages
+      allowed_pages,
+      allowed_faculties
     });
 
   } catch (err) {
@@ -5068,7 +5107,7 @@ app.get("/api/student-search", async (req, res) => {
 });
 
 // جلب السجل الدراسي للطالب
-app.get("/api/student-history", authMiddleware, async (req, res) => {
+app.get("/api/student-history", async (req, res) => {
   const { student_id } = req.query;
 
   if (!student_id) {
@@ -5337,55 +5376,178 @@ app.get("/api/students-final-level-search", async (req, res) => {
   }
 });
 
-// (نجاح / تسجيل / كتب مستعارة)
-app.get("/api/student-certificate-status", authMiddleware, async (req, res) => {
+// (نجاح / دفع كل الأقساط في كل السنين / كتب مستعارة)
+app.get("/api/student-certificate-status", async (req, res) => {
   const {
     student_id,
     department_id,
-    academic_year,
+    academic_year,          
     program_type,
     postgraduate_program,
     final_level     
   } = req.query;
 
   if (!student_id || !final_level) {
-    return res.status(400).json({ error: "بيانات ناقصة" });
+    return res.status(400).json({ error: "بيانات ناقصة (student_id و final_level مطلوبين)" });
   }
 
   try {
-    // 1. هل مسجل في الفصل الثاني من المستوى الأخير؟
+    // ───────────────────────────────────────────────
+    // 1. حالة النجاح في آخر مستوى (نحتفظ بيها للتوافق)
+    // ───────────────────────────────────────────────
     const [regRows] = await dbp.query(
       `
       SELECT 
-        registration_status
-      FROM student_registrations
-      WHERE student_id = ?
-        AND academic_year = ?
-        AND level_name = ?
-        AND term_name IN ('فصل ثاني', 'الفصل الثاني', 'الفصل الثانى')
-        AND program_type = ?
-        AND (postgraduate_program <=> ?)
-      ORDER BY created_at DESC
+        sr.registration_status,
+        sr.result_status,
+        CASE 
+          WHEN sr.result_status = 1 THEN 'نجاح'
+          WHEN sr.result_status = 0 THEN 'رسوب'
+          ELSE 'غير محدد'
+        END AS status,
+        sr.academic_year AS last_reg_year,
+        sr.level_name AS last_reg_level,
+        sr.repeated_courses
+      FROM student_registrations sr
+      WHERE sr.student_id = ?
+        AND sr.level_name = ?
+        AND sr.term_name IN ('فصل ثاني', 'الفصل الثاني', 'الفصل الثانى')
+        AND sr.program_type = ?
+        AND (sr.postgraduate_program <=> ?)
+      ORDER BY sr.academic_year DESC, sr.created_at DESC
       LIMIT 1
       `,
-      [
-        student_id,
-        academic_year,
-        final_level,
-        program_type,
-        postgraduate_program || null
-      ]
+      [student_id, final_level, program_type, postgraduate_program || null]
     );
 
-    let is_registered = regRows.length > 0;
-    let is_passed = false;
+    let is_passed_last_term = false;
+    let last_reg_year = null;
+    let last_reg_level = null;
+    let repeated_courses_str = null;
 
-    if (is_registered) {
-      const status = regRows[0].registration_status;
-      is_passed = (status === 1);
+    if (regRows.length > 0) {
+      is_passed_last_term = regRows[0].status === 'نجاح';
+      last_reg_year = regRows[0].last_reg_year;
+      last_reg_level = regRows[0].last_reg_level;
+      repeated_courses_str = regRows[0].repeated_courses;  // string زي "1,2,3"
     }
 
-    // 2. الكتب المستعارة غير المرجعة
+// ──────  repeated_courses ──────
+// شيك كل المواد الراسبة في آخر محاولة
+let has_failed_repeated_courses = false;
+let failed_courses = [];
+
+// أحدث سنة ومستوى كحل مؤقت
+const [latestReg] = await dbp.query(
+  `
+  SELECT academic_year, level_name
+  FROM student_registrations
+  WHERE student_id = ?
+  ORDER BY academic_year DESC, created_at DESC
+  LIMIT 1
+  `,
+  [student_id]
+);
+
+const defaultYear = latestReg.length > 0 ? latestReg[0].academic_year : "غير محدد";
+const defaultLevel = latestReg.length > 0 ? latestReg[0].level_name : "غير محدد";
+
+const [gradesRows] = await dbp.query(
+  `
+  SELECT 
+    cg.course_id,
+    NULL AS course_code,
+    c.course_name AS course_name,
+    cg.total_mark,
+    cg.letter,
+    cg.attempt_number
+  FROM course_grades cg
+  LEFT JOIN courses c ON cg.course_id = c.id
+  WHERE cg.student_id = ?
+    AND cg.attempt_number = (
+      SELECT MAX(cg2.attempt_number)
+      FROM course_grades cg2
+      WHERE cg2.student_id = cg.student_id
+        AND cg2.course_id = cg.course_id
+    )
+    AND (cg.total_mark < 50 OR cg.letter = 'F')
+  `,
+  [student_id]
+);
+
+for (const g of gradesRows) {
+  has_failed_repeated_courses = true;
+
+failed_courses.push({
+  academic_year: defaultYear,
+  level_name: defaultLevel,
+  term_name: "—",        
+  course_name: g.course_name || "غير معروف",
+  total_mark: Number(g.total_mark) || "—",
+  letter: g.letter || "F",
+  attempt_number: g.attempt_number || 1
+});
+}
+
+    // ───────────────────────────────────────────────
+    // 2. فحص حالة الدفع في **كل** السجلات في fees
+    // ───────────────────────────────────────────────
+    const [feeRows] = await dbp.query(
+      `
+      SELECT 
+        id,
+        academic_year,
+        level_name,
+        installment_1, installment_1_paid,
+        installment_2, installment_2_paid,
+        installment_3, installment_3_paid,
+        installment_4, installment_4_paid,
+        installment_5, installment_5_paid,
+        installment_6, installment_6_paid
+        -- لو فيه registration_fee_paid بعدين ممكن نضيفه هنا
+      FROM fees
+      WHERE student_id = ?
+      ORDER BY 
+        CAST(SUBSTRING_INDEX(academic_year, '/', 1) AS UNSIGNED) DESC,
+        academic_year DESC,
+        updated_at DESC
+      `,
+      [student_id]
+    );
+
+    const unpaid_years = [];
+
+    feeRows.forEach(row => {
+      const unpaid_inst = [];
+
+      for (let i = 1; i <= 6; i++) {
+        const amount = Number(row[`installment_${i}`] || 0);
+        const is_paid = row[`installment_${i}_paid`] === 1;
+
+        if (amount > 0 && !is_paid) {
+          unpaid_inst.push(i);
+        }
+      }
+
+      // اختياري: لو عندك registration_fee ومش مدفوع
+      // if (Number(row.registration_fee || 0) > 0 && !row.registration_fee_paid) {
+      //   unpaid_inst.push("رسوم التسجيل");
+      // }
+
+      if (unpaid_inst.length > 0) {
+        unpaid_years.push({
+          academic_year: row.academic_year,
+          level_name: row.level_name,
+          unpaid_installments: unpaid_inst
+        });
+      }
+    });
+
+    const is_all_fees_paid = feeRows.length > 0 && unpaid_years.length === 0;
+
+    // ───────────────────────────────────────────────
+    // 3. الكتب المستعارة غير المرجعة
+    // ───────────────────────────────────────────────
     const [books] = await dbp.query(
       `
       SELECT 
@@ -5400,16 +5562,30 @@ app.get("/api/student-certificate-status", authMiddleware, async (req, res) => {
       [student_id]
     );
 
+    // ───────────────────────────────────────────────
+    // الرد النهائي
+    // ───────────────────────────────────────────────
     res.json({
-      is_registered_last_term: is_registered,
-      is_passed_last_term: is_passed,
-      borrowed_books: books,
-      registration_status: is_registered ? regRows[0].registration_status : null
+      is_registered_last_term: regRows.length > 0,
+      is_passed_last_term: is_passed_last_term,
+
+      has_failed_repeated_courses: has_failed_repeated_courses,
+      failed_courses: failed_courses,
+
+      is_all_fees_paid: is_all_fees_paid,
+      total_fee_records: feeRows.length,
+      unpaid_years: unpaid_years,
+
+      last_registration: regRows.length > 0 ? regRows[0] : null,
+      borrowed_books: books
     });
 
   } catch (err) {
     console.error("CERTIFICATE STATUS ERROR:", err);
-    res.status(500).json({ error: "خطأ في السيرفر" });
+    res.status(500).json({ 
+      error: "خطأ في السيرفر", 
+      details: err.message 
+    });
   }
 });
 
@@ -6716,16 +6892,56 @@ app.get("/api/student-fees", async (req, res) => {
   if (!student_id) return res.status(400).json({ error: "student_id مطلوب" });
 
   try {
-    let sql = `
+let sql = `
       SELECT 
-        id, student_id, academic_year, level_name, term_name, program_type, postgraduate_program,
-        registration_fee, tuition_fee, late_fee,
-        scholarship_type, scholarship_percentage,   -- ← تأكدي إنه موجود
-        payment_start_date, payment_end_date,
-        installment_1, installment_2, installment_3,
-        installment_4, installment_5, installment_6,
-        registrar, created_at, updated_at
-      FROM fees WHERE student_id = ?`;
+        id, 
+        student_id, 
+        academic_year, 
+        level_name, 
+        term_name, 
+        program_type, 
+        postgraduate_program,
+        registration_fee, 
+        tuition_fee, 
+        late_fee,
+        freeze_fee,
+        unfreeze_fee,
+        repeat_discount,
+        scholarship_type, 
+        scholarship_percentage,
+        payment_start_date, 
+        payment_end_date,
+        
+       
+        installment_1, 
+        DATE_FORMAT(installment_1_start, '%Y-%m-%d') AS installment_1_start,
+        DATE_FORMAT(installment_1_end,   '%Y-%m-%d') AS installment_1_end,
+        
+        installment_2, 
+        DATE_FORMAT(installment_2_start, '%Y-%m-%d') AS installment_2_start,
+        DATE_FORMAT(installment_2_end,   '%Y-%m-%d') AS installment_2_end,
+        
+        installment_3, 
+        DATE_FORMAT(installment_3_start, '%Y-%m-%d') AS installment_3_start,
+        DATE_FORMAT(installment_3_end,   '%Y-%m-%d') AS installment_3_end,
+        
+        installment_4, 
+        DATE_FORMAT(installment_4_start, '%Y-%m-%d') AS installment_4_start,
+        DATE_FORMAT(installment_4_end,   '%Y-%m-%d') AS installment_4_end,
+        
+        installment_5, 
+        DATE_FORMAT(installment_5_start, '%Y-%m-%d') AS installment_5_start,
+        DATE_FORMAT(installment_5_end,   '%Y-%m-%d') AS installment_5_end,
+        
+        installment_6, 
+        DATE_FORMAT(installment_6_start, '%Y-%m-%d') AS installment_6_start,
+        DATE_FORMAT(installment_6_end,   '%Y-%m-%d') AS installment_6_end,
+        
+        registrar, 
+        created_at, 
+        updated_at
+      FROM fees 
+      WHERE student_id = ?`;
     const params = [student_id];
 
     if (academic_year) {
@@ -6760,6 +6976,9 @@ app.get("/api/student-fees", async (req, res) => {
 // GET /api/student-fees-calculated?student_id=...&academic_year=...&level_name=...&term_name=...
 app.get("/api/student-fees-calculated", async (req, res) => {
   const { student_id, academic_year, level_name, term_name } = req.query;
+  const currentDeptId = stud.department_id || null;
+  const currentProgramType = stud.program_type || program_type;
+  const currentPostgrad = stud.postgraduate_program || null;
 
   if (!student_id || !academic_year) {
     return res.status(400).json({ error: "student_id و academic_year مطلوبان" });
@@ -6848,13 +7067,18 @@ app.get("/api/student-fees-calculated", async (req, res) => {
     // 5. مصدر رسوم الدراسة
     let tuitionSource = "السنة الحالية";
     if (yearsAbsent <= 2 && firstYear) {
-      const [enrollFees] = await dbp.query(
-        `SELECT tuition_fee FROM fees 
-         WHERE academic_year = ? 
-           AND (student_id = ? OR student_id IS NULL)
-         ORDER BY student_id DESC LIMIT 1`,
-        [firstYear, student_id]
-      );
+const [enrollFees] = await dbp.query(
+    `SELECT f.tuition_fee 
+     FROM fees f
+     WHERE f.academic_year = ?
+       AND (f.student_id = ? OR f.student_id IS NULL)
+       AND f.department_id = ?                  -- ← شرط القسم (مهم جدًا)
+       AND f.program_type = ?                   -- ← شرط نوع البرنامج
+       AND (f.postgraduate_program <=> ?)       -- ← شرط البرنامج العالي لو موجود
+     ORDER BY f.student_id DESC, f.updated_at DESC
+     LIMIT 1`,
+    [firstYear, student_id, currentDeptId, currentProgramType, currentPostgrad]
+  );
 
       if (enrollFees.length > 0 && enrollFees[0].tuition_fee) {
         fees.tuition_fee = enrollFees[0].tuition_fee;
@@ -6919,6 +7143,66 @@ app.get("/api/student-fees-calculated", async (req, res) => {
   }
 });
 
+// GET /api/student-installments-status
+app.get("/api/student-installments-status", async (req, res) => {
+  const { student_id, academic_year, level_name } = req.query;
 
+  if (!student_id || !academic_year || !level_name) {
+    return res.status(400).json({ error: "مطلوب student_id و academic_year و level_name" });
+  }
+  try {
+    const [rows] = await dbp.query(`
+      SELECT 
+        installment_1, 
+        installment_1_paid, 
+        DATE_FORMAT(installment_1_paid_at, '%Y-%m-%d') AS installment_1_paid_at,
+        
+        installment_2, 
+        installment_2_paid, 
+        DATE_FORMAT(installment_2_paid_at, '%Y-%m-%d') AS installment_2_paid_at,
+        
+        installment_3, 
+        installment_3_paid, 
+        DATE_FORMAT(installment_3_paid_at, '%Y-%m-%d') AS installment_3_paid_at,
+        
+        installment_4, 
+        installment_4_paid, 
+        DATE_FORMAT(installment_4_paid_at, '%Y-%m-%d') AS installment_4_paid_at,
+        
+        installment_5, 
+        installment_5_paid, 
+        DATE_FORMAT(installment_5_paid_at, '%Y-%m-%d') AS installment_5_paid_at,
+        
+        installment_6, 
+        installment_6_paid, 
+        DATE_FORMAT(installment_6_paid_at, '%Y-%m-%d') AS installment_6_paid_at,
+        
+        registration_fee, 
+        tuition_fee, 
+        late_fee, 
+        freeze_fee, 
+        unfreeze_fee
+      FROM fees
+      WHERE student_id = ?
+        AND academic_year = ?
+        AND level_name = ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `, [student_id, academic_year, level_name]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "لا توجد بيانات رسوم" });
+    }
+
+    const result = rows[0];
+
+
+
+    res.json(result);
+  } catch (err) {
+    console.error("خطأ في جلب حالة الأقساط:", err);
+    res.status(500).json({ error: "خطأ في السيرفر", details: err.message });
+  }
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
