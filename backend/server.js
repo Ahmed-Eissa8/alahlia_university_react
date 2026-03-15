@@ -16,10 +16,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use((req, res, next) => {
-    console.log("REQ:", req.method, req.url);
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log("REQ:", req.method, req.url);
+//     next();
+// });
 
 const db = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
@@ -840,7 +840,7 @@ app.get("/stats", (req, res) => {
 app.put("/api/students/:id", async (req, res) => {
   try {
     const studentId = req.params.id;
-    const { full_name, university_id, phone, department_id } = req.body;
+    const { full_name, university_id, phone, nationality, gender, status, department_id } = req.body;
 
     const name = (full_name || "").trim();
     if (!name) {
@@ -863,13 +863,24 @@ const uniId = uniIdRaw === "" ? "0" : uniIdRaw;
       }
     }
 
+    const finalStatus = (status || "نشط").trim();
+
     const [result] = await dbp.query(
       `
       UPDATE students
-      SET full_name = ?, university_id = ?, phone = ?, department_id = ?
+      SET full_name = ?, university_id = ?, phone = ?,nationality = ?, gender = ?, status = ?, department_id = ?
       WHERE id = ?
       `,
-      [name, uniId || "0", phone || null, department_id || null, studentId]
+      [
+    name,
+    uniId || "0",
+    phone || null,
+    nationality?.trim() || null,
+    gender || null,
+    finalStatus,              
+    department_id || null,
+    studentId
+  ]
     );
 
     if (result.affectedRows === 0) {
@@ -1005,8 +1016,9 @@ app.get("/api/students/:id", (req, res) => {
 });
 
 
-app.post("/api/registrations", async (req, res) => {
-  const registrar = req.user?.username || DEFAULT_REGISTRAR;
+app.post("/api/registrations",authMiddleware, async (req, res) => {
+  const registrar = req.user?.username;
+  // const registrar = req.user?.username || DEFAULT_REGISTRAR;
   const {
     student_id,
     academic_year,
@@ -1143,7 +1155,7 @@ app.post("/api/registrations", async (req, res) => {
                   academic_status || "نظامي",
                   registration_status || "مسجّل",
                   notes || null,
-                  registrar || "المسجل",
+                  registrar,
                   postgraduate_data ? JSON.stringify(postgraduate_data) : null,
                   existing.id,
                 ],
@@ -1183,7 +1195,7 @@ app.post("/api/registrations", async (req, res) => {
                   academic_status || "نظامي",
                   registration_status || "مسجّل",
                   notes || null,
-                  registrar || "المسجل",
+                  registrar,
                   programType,
                   pgProgram,
                   postgraduate_data ? JSON.stringify(postgraduate_data) : null,
@@ -1209,7 +1221,7 @@ app.post("/api/registrations", async (req, res) => {
   });
 });
 
-app.put("/api/registrations/:id", authMiddleware, async (req, res) => {
+app.put("/api/registrations/:id", async (req, res) => {
   const { id } = req.params;
   const { academic_status } = req.body;
   const registrar = req.user?.username || DEFAULT_REGISTRAR;
@@ -1229,11 +1241,14 @@ app.put("/api/registrations/:id", authMiddleware, async (req, res) => {
 });
 
 
-app.post('/api/students', (req, res) => {
+app.post('/api/students',authMiddleware, (req, res) => {
   const {
     full_name,
     university_id,
     phone,
+    nationality,
+    gender,
+    status,
     receipt_number,
     department_id,
     notes,
@@ -1247,6 +1262,8 @@ app.post('/api/students', (req, res) => {
 
  const uniIdRaw = (university_id ?? "").toString().trim();
 const uniId = uniIdRaw === "" ? "0" : uniIdRaw;  
+
+const finalStatus = (status || "نشط").trim();
 
 
   // 1) منع تكرار الاسم الرباعي 
@@ -1264,8 +1281,8 @@ const uniId = uniIdRaw === "" ? "0" : uniIdRaw;
     const doInsert = () => {
       const insertSql = `
         INSERT INTO students
-        (full_name, university_id, phone, receipt_number, department_id, notes, registrar)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        (full_name, university_id, phone,nationality, gender, status, receipt_number, department_id, notes, registrar)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
       db.query(
         insertSql,
@@ -1273,6 +1290,9 @@ const uniId = uniIdRaw === "" ? "0" : uniIdRaw;
           name,
           uniId || "0",
           phone || null,
+          nationality?.trim() || null,
+          gender || null, 
+          finalStatus,                     
           receipt_number || null,
           department_id || null,
           notes || null,
@@ -3434,7 +3454,7 @@ const pgProgram =
 
     const courseIds = courses.map(c => c.id);
 
-    // 2) الطلاب المسجلين
+    // 2) الطلاب المسجلين  AND registration_status = 'مسجّل'
     const [students] = await conn.query(
       `
       SELECT
@@ -3453,7 +3473,7 @@ const pgProgram =
             AND term_name IN (${termVariants.map(() => "?").join(",")})
             AND program_type = ?
             AND (postgraduate_program <=> ?)
-            AND registration_status = 'مسجّل'
+           
           GROUP BY student_id
         ) x ON x.max_id = sr.id
       ) r ON r.student_id = s.id
@@ -3775,10 +3795,29 @@ if (existing.length > 0) {
       );
     }
 
+      const [regRow] = await conn.query(
+        `
+        SELECT academic_status
+        FROM student_registrations
+        WHERE student_id = ?
+          AND academic_year = ?
+          AND level_name = ?
+          AND term_name IN (${termVariants.map(() => "?").join(",")})
+          AND program_type = ?
+          AND (postgraduate_program <=> ?)
+        ORDER BY id DESC
+        LIMIT 1
+        `,
+        [studentId, academicYear, canonicalLevelName, ...termVariants, programType, pgProgram]
+      );
+
+      const academicStatus = regRow.length > 0 ? (regRow[0].academic_status || "غير محدد") : "غير مسجل";
+
       saved.push({
         student_id: studentId,
         full_name: st.full_name,
         university_id: st.university_id,
+        academic_status: academicStatus,          
         term_gpa: termGpa,
         cumulative_gpa: cumulativeGpa,
         classification_label: classificationLabel,
@@ -3831,34 +3870,42 @@ app.get("/api/term-results/list", async (req, res) => {
     const programMode = await inferProgramMode(conn, facultyId, programType);
     conn.release();
 
-    const [rows] = await dbp.query(
-      `
-      SELECT
-        tr.student_id,
-        s.full_name,
-        s.university_id,
-        tr.term_gpa,
-        tr.cumulative_gpa,
-        tr.classification_label,
-        tr.term_total_points,
-        tr.term_total_hours,
-        tr.courses_count,
-        tr.completed_courses,
-        tr.missing_courses
-      FROM term_results tr
-      JOIN students s ON s.id = tr.student_id
-      WHERE tr.faculty_id = ?
-        AND tr.department_id = ?
-        AND tr.academic_year = ?
-        AND tr.level_name = ?
-        AND tr.term_name IN (${termVariants.map(() => "?").join(",")})
-        AND tr.program_type = ?
-        AND (tr.postgraduate_program <=> ?)
-        AND tr.program_mode = ?
-      ORDER BY s.full_name
-      `,
-      [facultyId, departmentId, academicYear, levelName, ...termVariants, programType, pgProgram, programMode]
-    );
+const [rows] = await dbp.query(
+  `
+  SELECT
+    tr.student_id,
+    s.full_name,
+    s.university_id,
+    sr.academic_status,                
+    tr.term_gpa,
+    tr.cumulative_gpa,
+    tr.classification_label,
+    tr.term_total_points,
+    tr.term_total_hours,
+    tr.courses_count,
+    tr.completed_courses,
+    tr.missing_courses
+  FROM term_results tr
+  JOIN students s ON s.id = tr.student_id
+  LEFT JOIN student_registrations sr 
+    ON sr.student_id = tr.student_id 
+    AND sr.academic_year = tr.academic_year 
+    AND sr.level_name = tr.level_name 
+    AND sr.term_name = tr.term_name
+    AND sr.program_type = tr.program_type
+    AND (sr.postgraduate_program <=> tr.postgraduate_program)
+  WHERE tr.faculty_id = ?
+    AND tr.department_id = ?
+    AND tr.academic_year = ?
+    AND tr.level_name = ?
+    AND tr.term_name IN (${termVariants.map(() => "?").join(",")})
+    AND tr.program_type = ?
+    AND (tr.postgraduate_program <=> ?)
+    AND tr.program_mode = ?
+  ORDER BY s.full_name
+  `,
+  [facultyId, departmentId, academicYear, levelName, ...termVariants, programType, pgProgram, programMode]
+);
 
     return res.json(rows);
   } catch (e) {
@@ -4192,24 +4239,77 @@ ORDER BY academic_rank ASC;
 app.get("/api/dashboard/summary", async (req, res) => {
   try {
     const queries = await Promise.allSettled([
+      // إجمالي الطلاب
       dbp.query("SELECT COUNT(*) AS c FROM students"),
+      
+      // عدد التسجيلات
       dbp.query("SELECT COUNT(*) AS c FROM student_registrations"),
+      
+      // عدد المواد
       dbp.query("SELECT COUNT(*) AS c FROM courses"),
+      
+      // عدد سجلات نتائج الفصول
       dbp.query("SELECT COUNT(*) AS c FROM term_results"),
+      
+      // عدد الكتب
       dbp.query("SELECT COUNT(*) AS c FROM books"),
+      
+      // عدد أعضاء هيئة التدريس
       dbp.query("SELECT COUNT(*) AS c FROM staff_members"),
+      
+      // عدد الكليات
       dbp.query("SELECT COUNT(*) AS c FROM faculties"),
+      
+      // عدد الأقسام
       dbp.query("SELECT COUNT(*) AS c FROM departments"),
+      
+      // عدد الذكور
+      dbp.query(`
+        SELECT COUNT(*) AS c 
+        FROM students 
+        WHERE gender IN ('ذكر', 'male', 'M', 'ذكــر')
+      `),
+      
+      // عدد الإناث
+      dbp.query(`
+        SELECT COUNT(*) AS c 
+        FROM students 
+        WHERE gender IN ('أنثى', 'female', 'F', 'انثي', 'أنــثى')
+      `),
+      
+      // (اختياري) عدد الطلاب اللي الـ gender مش محدد أو فاضي
+      dbp.query(`
+        SELECT COUNT(*) AS c 
+        FROM students 
+        WHERE gender IS NULL 
+           OR gender = '' 
+           OR gender NOT IN ('ذكر','أنثى','male','female','M','F','ذكــر','أنــثى','انثي')
+      `),
     ]);
 
-    const getCount = (i) => {
-      const r = queries[i];
-      if (r.status !== "fulfilled") return null;
-      return r.value?.[0]?.[0]?.c ?? null;
+    const getCount = (index) => {
+      const result = queries[index];
+      if (result.status !== "fulfilled") return 0;
+      return Number(result.value?.[0]?.[0]?.c) || 0;
     };
 
+    const totalStudents = getCount(0);
+    const males   = getCount(8);
+    const females = getCount(9);
+    const unknownGender = getCount(10);
+
+    // تحقق بسيط (اختياري - للديباج)
+    if (totalStudents !== (males + females + unknownGender)) {
+      console.warn(
+        `[dashboard/summary] تحذير: إجمالي الطلاب (${totalStudents}) ≠ (ذكور ${males} + إناث ${females} + غير محدد ${unknownGender})`
+      );
+    }
+
     res.json({
-      students: getCount(0),
+      students: totalStudents,
+      male_count: males,
+      female_count: females,
+      unknown_gender: unknownGender,  
       registrations: getCount(1),
       courses: getCount(2),
       term_results: getCount(3),
@@ -4219,12 +4319,14 @@ app.get("/api/dashboard/summary", async (req, res) => {
       departments: getCount(7),
       updated_at: new Date().toISOString(),
     });
-  } catch (e) {
-    console.error("DASHBOARD SUMMARY ERROR:", e);
-    res.status(500).json({ error: "Database error" });
+  } catch (err) {
+    console.error("DASHBOARD SUMMARY ERROR:", err);
+    res.status(500).json({ 
+      error: "خطأ في جلب بيانات الملخص",
+      details: err.message 
+    });
   }
 });
-
 
 // آخر فترة/فصل مسجل فيها لقسم معيّن + برنامج
 app.get("/api/registrations/last-period", (req, res) => {
@@ -4809,7 +4911,7 @@ app.get("/api/postgraduate-programs", async (req, res) => {
 // ---------------------
 // GET /api/users
 // ---------------------
-app.get('/api/users', authMiddleware, async (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
     const [rows] = await dbp.query(`
       SELECT 
@@ -4820,7 +4922,8 @@ app.get('/api/users', authMiddleware, async (req, res) => {
         role, 
         is_active, 
         allowed_pages,
-        allowed_faculties
+        allowed_faculties,
+        registration_tab_permissions
       FROM users
       ORDER BY username
     `);
@@ -4828,6 +4931,7 @@ app.get('/api/users', authMiddleware, async (req, res) => {
     const users = rows.map(user => {
       let allowedPages = [];
       let allowedFaculties = [];
+      let registrationTabPermissions = {};
 
       try {
         if (user.allowed_pages) allowedPages = JSON.parse(user.allowed_pages);
@@ -4841,10 +4945,19 @@ app.get('/api/users', authMiddleware, async (req, res) => {
         console.warn(`Invalid allowed_faculties JSON for user ${user.id}:`, e);
       }
 
+      try {
+        if (user.registration_tab_permissions) {
+          registrationTabPermissions = JSON.parse(user.registration_tab_permissions);
+        }
+      } catch (e) {
+        console.warn(`Invalid registration_tab_permissions JSON for user ${user.id}:`, e);
+      }
+
       return {
         ...user,
         allowed_pages: allowedPages,
-        allowed_faculties: allowedFaculties
+        allowed_faculties: allowedFaculties,
+        registration_tab_permissions: registrationTabPermissions
       };
     });
 
@@ -4857,13 +4970,28 @@ app.get('/api/users', authMiddleware, async (req, res) => {
 // ---------------------
 // PUT /api/users/:id    تعديل الصفحات المسموحة   
 // ---------------------
-app.put('/api/users/:id', authMiddleware, async (req, res) => {
+app.put('/api/users/:id', async (req, res) => {
   const { id } = req.params;
-  const { username, full_name, email, role, is_active, allowed_pages, allowed_faculties = [] } = req.body;
+  let { 
+    username, 
+    full_name, 
+    email, 
+    role, 
+    is_active, 
+    allowed_pages, 
+    allowed_faculties = [], 
+    registration_tab_permissions = {} 
+  } = req.body;
 
   try {
     const updates = [];
     const values = [];
+
+    if (role === 'admin') {
+      allowed_pages = [];                        
+      allowed_faculties = [];                      
+      registration_tab_permissions = {};            
+    }
 
     if (username !== undefined)     { updates.push('username = ?');     values.push(username); }
     if (full_name !== undefined)    { updates.push('full_name = ?');    values.push(full_name); }
@@ -4872,6 +5000,8 @@ app.put('/api/users/:id', authMiddleware, async (req, res) => {
     if (is_active !== undefined)    { updates.push('is_active = ?');    values.push(is_active ? 1 : 0); }
     if (allowed_pages !== undefined){ updates.push('allowed_pages = ?'); values.push(JSON.stringify(allowed_pages)); }
     if (allowed_faculties !== undefined){ updates.push('allowed_faculties = ?'); values.push(JSON.stringify(allowed_faculties)); }
+    if (registration_tab_permissions !== undefined) { updates.push('registration_tab_permissions = ?'); values.push(JSON.stringify(registration_tab_permissions));
+    }
 
     if (updates.length === 0) {
       return res.status(400).json({ error: 'لا توجد تغييرات' });
@@ -4896,8 +5026,8 @@ app.put('/api/users/:id', authMiddleware, async (req, res) => {
 // ---------------------
 // POST /api/users       إضافة مستخدم جديد
 // ---------------------
-app.post('/api/users', authMiddleware, async (req, res) => {
-  const { username, password, full_name, email, role = 'user', allowed_pages = [] , allowed_faculties = []} = req.body;
+app.post('/api/users', async (req, res) => {
+  const { username, password, full_name, email, role = 'user', allowed_pages = [] , allowed_faculties = [], registration_tab_permissions = {} } = req.body;
 
   if (!username || !password) {
     return res.status(400).json({ error: 'اسم المستخدم وكلمة المرور مطلوبين' });
@@ -4907,9 +5037,9 @@ app.post('/api/users', authMiddleware, async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     const [result] = await dbp.query(   
-      `INSERT INTO users (username, password_hash, full_name, email, role, allowed_pages, allowed_faculties)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [username, hash, full_name || null, email || null, role, JSON.stringify(allowed_pages), JSON.stringify(allowed_faculties)]
+      `INSERT INTO users (username, password_hash, full_name, email, role, allowed_pages, allowed_faculties, registration_tab_permissions)
+       VALUES (?, ?, ?, ?, ?, ?, ? , ?)`,
+      [username, hash, full_name || null, email || null, role, JSON.stringify(allowed_pages), JSON.stringify(allowed_faculties), JSON.stringify(registration_tab_permissions)]
     );
 
     res.status(201).json({
@@ -4919,7 +5049,8 @@ app.post('/api/users', authMiddleware, async (req, res) => {
       email,
       role,
       allowed_pages,
-      allowed_faculties
+      allowed_faculties,
+      registration_tab_permissions
     });
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
@@ -4933,7 +5064,7 @@ app.post('/api/users', authMiddleware, async (req, res) => {
 // ---------------------
 // DELETE /api/users/:id
 // ---------------------
-app.delete('/api/users/:id', authMiddleware, async (req, res) => {
+app.delete('/api/users/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -4965,7 +5096,7 @@ app.post("/api/login", async (req, res) => {
   try {
     // جلب بيانات المستخدم
     const [rows] = await dbp.query(
-      `SELECT id, username, full_name, email, role, password_hash, allowed_pages, allowed_faculties
+      `SELECT id, username, full_name, email, role, password_hash, allowed_pages, allowed_faculties, registration_tab_permissions
        FROM users
        WHERE username = ?`,
       [username]
@@ -5012,7 +5143,14 @@ app.post("/api/login", async (req, res) => {
     } catch (parseErr) {
       console.error("خطأ في تحليل allowed_faculties:", parseErr);
     }
-
+let registration_tab_permissions = {};
+try {
+      registration_tab_permissions = user.registration_tab_permissions && user.registration_tab_permissions.trim() !== ''
+        ? JSON.parse(user.registration_tab_permissions)
+        : {};
+    } catch (e) {
+      console.error("خطأ في تحليل registration_tab_permissions:", e);
+    }
 
     //   ( allowed_pages)
     res.json({
@@ -5023,7 +5161,8 @@ app.post("/api/login", async (req, res) => {
       email: user.email || null,
       role: user.role,
       allowed_pages,
-      allowed_faculties
+      allowed_faculties,
+      registration_tab_permissions
     });
 
   } catch (err) {
@@ -5429,15 +5568,13 @@ app.get("/api/student-certificate-status", async (req, res) => {
       is_passed_last_term = regRows[0].status === 'نجاح';
       last_reg_year = regRows[0].last_reg_year;
       last_reg_level = regRows[0].last_reg_level;
-      repeated_courses_str = regRows[0].repeated_courses;  // string زي "1,2,3"
+      repeated_courses_str = regRows[0].repeated_courses; 
     }
 
 // ──────  repeated_courses ──────
-// شيك كل المواد الراسبة في آخر محاولة
 let has_failed_repeated_courses = false;
 let failed_courses = [];
 
-// أحدث سنة ومستوى كحل مؤقت
 const [latestReg] = await dbp.query(
   `
   SELECT academic_year, level_name
@@ -5490,7 +5627,7 @@ failed_courses.push({
 }
 
     // ───────────────────────────────────────────────
-    // 2. فحص حالة الدفع في **كل** السجلات في fees
+    // 2. fees
     // ───────────────────────────────────────────────
     const [feeRows] = await dbp.query(
       `
@@ -5504,7 +5641,6 @@ failed_courses.push({
         installment_4, installment_4_paid,
         installment_5, installment_5_paid,
         installment_6, installment_6_paid
-        -- لو فيه registration_fee_paid بعدين ممكن نضيفه هنا
       FROM fees
       WHERE student_id = ?
       ORDER BY 
@@ -5529,10 +5665,6 @@ failed_courses.push({
         }
       }
 
-      // اختياري: لو عندك registration_fee ومش مدفوع
-      // if (Number(row.registration_fee || 0) > 0 && !row.registration_fee_paid) {
-      //   unpaid_inst.push("رسوم التسجيل");
-      // }
 
       if (unpaid_inst.length > 0) {
         unpaid_years.push({
@@ -6593,7 +6725,8 @@ app.get("/api/term-default-fees", async (req, res) => {
       `SELECT 
          id, academic_year, level_name, program_type, postgraduate_program,
          registration_fee, tuition_fee, late_fee,
-         scholarship_type, scholarship_percentage,   
+         scholarship_type, scholarship_percentage,
+         scholarship_granted_by,   
          payment_start_date, payment_end_date,
          installment_1, installment_1_start, installment_1_end,
          installment_2, installment_2_start, installment_2_end,
@@ -6633,11 +6766,13 @@ app.post("/api/term-default-fees", async (req, res) => {
     program_type,
     postgraduate_program = null,
     department_id = null,
+    currency = 'SDG',
     registration_fee = 0,
     tuition_fee = 0,
     late_fee = 0,
     scholarship_type = "لا منحة",
     scholarship_percentage = 0,
+    scholarship_granted_by = null,
     payment_start_date,
     payment_end_date,
     installment_1 = null, installment_1_start = null, installment_1_end = null,
@@ -6668,8 +6803,9 @@ app.post("/api/term-default-fees", async (req, res) => {
       // Update
       [result] = await dbp.query(
         `UPDATE fees SET
+          currency = ?,
           registration_fee = ?, tuition_fee = ?, late_fee = ?,
-          scholarship_type = ?, scholarship_percentage = ?,
+          scholarship_type = ?, scholarship_percentage = ?, scholarship_granted_by = ?,
           payment_start_date = ?, payment_end_date = ?,
           installment_1 = ?, installment_1_start = ?, installment_1_end = ?,
           installment_2 = ?, installment_2_start = ?, installment_2_end = ?,
@@ -6680,8 +6816,10 @@ app.post("/api/term-default-fees", async (req, res) => {
           registrar = ?, updated_at = NOW()
          WHERE id = ?`,
         [
+          currency,
           registration_fee, tuition_fee, late_fee,
           scholarship_type, scholarship_percentage,
+          scholarship_granted_by,
           payment_start_date || null, payment_end_date || null,
           installment_1, installment_1_start, installment_1_end,
           installment_2, installment_2_start, installment_2_end,
@@ -6697,11 +6835,11 @@ app.post("/api/term-default-fees", async (req, res) => {
 
     // Insert
     [result] = await dbp.query(
-      `INSERT INTO fees (
+`INSERT INTO fees (
         academic_year, level_name, program_type, postgraduate_program,
         department_id, student_id,
-        registration_fee, tuition_fee, late_fee,
-        scholarship_type, scholarship_percentage,
+        currency, registration_fee, tuition_fee, late_fee,
+        scholarship_type, scholarship_percentage,scholarship_granted_by,
         payment_start_date, payment_end_date,
         installment_1, installment_1_start, installment_1_end,
         installment_2, installment_2_start, installment_2_end,
@@ -6710,12 +6848,13 @@ app.post("/api/term-default-fees", async (req, res) => {
         installment_5, installment_5_start, installment_5_end,
         installment_6, installment_6_start, installment_6_end,
         registrar, created_at, updated_at
-      ) VALUES (?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())`,
+      ) VALUES (?,?,?,?,?,NULL,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())`,
       [
         academic_year, level_name, program_type, postgraduate_program,
         department_id,
-        registration_fee, tuition_fee, late_fee,
+        currency, registration_fee, tuition_fee, late_fee,
         scholarship_type, scholarship_percentage,
+        scholarship_granted_by,
         payment_start_date || null, payment_end_date || null,
         installment_1, installment_1_start, installment_1_end,
         installment_2, installment_2_start, installment_2_end,
@@ -6742,6 +6881,7 @@ app.post("/api/student-fees", async (req, res) => {
     level_name,
     program_type,
     postgraduate_program = null,
+    currency = "SDG",
     registration_fee = 0,
     tuition_fee = 0,
     late_fee = 0,
@@ -6750,6 +6890,7 @@ app.post("/api/student-fees", async (req, res) => {
     repeat_discount = 50,
     scholarship_type = "لا منحة",
     scholarship_percentage = 0,
+    scholarship_granted_by = null,
     payment_start_date,
     payment_end_date,
     installment_1 = null, installment_1_start = null, installment_1_end = null,
@@ -6767,7 +6908,6 @@ app.post("/api/student-fees", async (req, res) => {
   try {
     const registrar = req.user?.username || DEFAULT_REGISTRAR;
 
-    // تحقق التسجيل (بدون term_name)
     const [regCheck] = await dbp.query(
       `SELECT id FROM student_registrations 
        WHERE student_id = ?
@@ -6784,7 +6924,6 @@ app.post("/api/student-fees", async (req, res) => {
       });
     }
 
-    // تحقق أنها الفترة الأحدث (بدون term_name)
     const [latestReg] = await dbp.query(
       `SELECT academic_year, level_name
        FROM student_registrations 
@@ -6817,68 +6956,117 @@ app.post("/api/student-fees", async (req, res) => {
       [student_id, academic_year, level_name, program_type, postgraduate_program]
     );
 
-    if (existing.length > 0) {
-      await dbp.query(
-        `UPDATE fees SET
-          registration_fee = ?, tuition_fee = ?, late_fee = ?,
-          freeze_fee = ?, unfreeze_fee = ?, repeat_discount = ?,
-          scholarship_type = ?, scholarship_percentage = ?,
-          payment_start_date = ?, payment_end_date = ?,
-          installment_1 = ?, installment_1_start = ?, installment_1_end = ?,
-          installment_2 = ?, installment_2_start = ?, installment_2_end = ?,
-          installment_3 = ?, installment_3_start = ?, installment_3_end = ?,
-          installment_4 = ?, installment_4_start = ?, installment_4_end = ?,
-          installment_5 = ?, installment_5_start = ?, installment_5_end = ?,
-          installment_6 = ?, installment_6_start = ?, installment_6_end = ?,
-          registrar = ?, updated_at = NOW()
-         WHERE id = ?`,
-        [
-          registration_fee, tuition_fee, late_fee,
-          freeze_fee, unfreeze_fee, repeat_discount,
-          scholarship_type, scholarship_percentage,
-          payment_start_date || null, payment_end_date || null,
-          installment_1, installment_1_start, installment_1_end,
-          installment_2, installment_2_start, installment_2_end,
-          installment_3, installment_3_start, installment_3_end,
-          installment_4, installment_4_start, installment_4_end,
-          installment_5, installment_5_start, installment_5_end,
-          installment_6, installment_6_start, installment_6_end,
-          registrar, existing[0].id
-        ]
-      );
-      return res.json({ success: true, message: "تم تحديث رسوم الطالب بنجاح" });
+if (existing.length > 0) {
+  const [oldFees] = await dbp.query(
+    `SELECT 
+       installment_1, installment_1_paid,
+       installment_2, installment_2_paid,
+       installment_3, installment_3_paid,
+       installment_4, installment_4_paid,
+       installment_5, installment_5_paid,
+       installment_6, installment_6_paid
+     FROM fees 
+     WHERE id = ?`,
+    [existing[0].id]
+  );
+
+  if (oldFees.length === 0) {
+    return res.status(404).json({ error: "السجل غير موجود رغم وجوده سابقًا" });
+  }
+
+  const old = oldFees[0];
+
+  const newInstallments = {
+    installment_1, installment_2, installment_3,
+    installment_4, installment_5, installment_6,
+  };
+
+  // تحقق من كل قسط لو مدفوع ومحاولة تغيير المبلغ
+  for (let i = 1; i <= 6; i++) {
+    const key = `installment_${i}`;
+    const paidKey = `${key}_paid`;
+
+    if (old[paidKey] === 1 || old[paidKey] === true) {
+      const oldAmount = old[key] !== null ? String(old[key]) : null;
+      const newVal = newInstallments[key];
+      const newAmount = (newVal !== null && newVal !== undefined) ? String(newVal) : null;
+
+      if (oldAmount !== newAmount) {
+        console.log(`محاولة تعديل قسط مدفوع: قسط ${i} - قديم: ${oldAmount} → جديد: ${newAmount}`);
+        return res.status(403).json({ 
+          error: `لا يمكن تعديل مبلغ القسط ${i} لأنه مدفوع بالفعل` 
+        });
+      }
     }
+  }
 
-    await dbp.query(
-      `INSERT INTO fees (
-        student_id, academic_year, level_name, program_type, postgraduate_program,
-        registration_fee, tuition_fee, late_fee, freeze_fee, unfreeze_fee, repeat_discount,
-        scholarship_type, scholarship_percentage,
-        payment_start_date, payment_end_date,
-        installment_1, installment_1_start, installment_1_end,
-        installment_2, installment_2_start, installment_2_end,
-        installment_3, installment_3_start, installment_3_end,
-        installment_4, installment_4_start, installment_4_end,
-        installment_5, installment_5_start, installment_5_end,
-        installment_6, installment_6_start, installment_6_end,
-        registrar, created_at, updated_at
-      ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())`,
-      [
-        student_id, academic_year, level_name, program_type, postgraduate_program,
-        registration_fee, tuition_fee, late_fee, freeze_fee, unfreeze_fee, repeat_discount,
-        scholarship_type, scholarship_percentage,
-        payment_start_date || null, payment_end_date || null,
-        installment_1, installment_1_start, installment_1_end,
-        installment_2, installment_2_start, installment_2_end,
-        installment_3, installment_3_start, installment_3_end,
-        installment_4, installment_4_start, installment_4_end,
-        installment_5, installment_5_start, installment_5_end,
-        installment_6, installment_6_start, installment_6_end,
-        registrar
-      ]
-    );
+  // UPDATE
+  await dbp.query(
+    `UPDATE fees SET
+       currency = ?, registration_fee = ?, tuition_fee = ?, late_fee = ?,
+      freeze_fee = ?, unfreeze_fee = ?, repeat_discount = ?,
+      scholarship_type = ?, scholarship_percentage = ?, scholarship_granted_by = ?,
+      payment_start_date = ?, payment_end_date = ?,
+      installment_1 = ?, installment_1_start = ?, installment_1_end = ?,
+      installment_2 = ?, installment_2_start = ?, installment_2_end = ?,
+      installment_3 = ?, installment_3_start = ?, installment_3_end = ?,
+      installment_4 = ?, installment_4_start = ?, installment_4_end = ?,
+      installment_5 = ?, installment_5_start = ?, installment_5_end = ?,
+      installment_6 = ?, installment_6_start = ?, installment_6_end = ?,
+      registrar = ?, updated_at = NOW()
+     WHERE id = ?`,
+    [
+      currency || "SDG",
+      registration_fee, tuition_fee, late_fee,
+      freeze_fee, unfreeze_fee, repeat_discount,
+      scholarship_type, scholarship_percentage,
+      scholarship_granted_by,
+      payment_start_date || null, payment_end_date || null,
+      installment_1, installment_1_start, installment_1_end,
+      installment_2, installment_2_start, installment_2_end,
+      installment_3, installment_3_start, installment_3_end,
+      installment_4, installment_4_start, installment_4_end,
+      installment_5, installment_5_start, installment_5_end,
+      installment_6, installment_6_start, installment_6_end,
+      registrar, existing[0].id
+    ]
+  );
 
-    res.json({ success: true, message: "تم حفظ رسوم الطالب بنجاح" });
+  return res.json({ success: true, message: "تم تحديث رسوم الطالب بنجاح" });
+}
+
+// INSERT
+await dbp.query(
+  `INSERT INTO fees (
+    student_id, academic_year, level_name, program_type, postgraduate_program,
+    currency, registration_fee, tuition_fee, late_fee, freeze_fee, unfreeze_fee, repeat_discount,
+    scholarship_type, scholarship_percentage, scholarship_granted_by,
+    payment_start_date, payment_end_date,
+    installment_1, installment_1_start, installment_1_end,
+    installment_2, installment_2_start, installment_2_end,
+    installment_3, installment_3_start, installment_3_end,
+    installment_4, installment_4_start, installment_4_end,
+    installment_5, installment_5_start, installment_5_end,
+    installment_6, installment_6_start, installment_6_end,
+    registrar, created_at, updated_at
+  ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),NOW())`,
+  [
+    student_id, academic_year, level_name, program_type, postgraduate_program,
+    currency || "SDG",
+    registration_fee, tuition_fee, late_fee, freeze_fee, unfreeze_fee, repeat_discount,
+    scholarship_type, scholarship_percentage, scholarship_granted_by,
+    payment_start_date || null, payment_end_date || null,
+    installment_1, installment_1_start, installment_1_end,
+    installment_2, installment_2_start, installment_2_end,
+    installment_3, installment_3_start, installment_3_end,
+    installment_4, installment_4_start, installment_4_end,
+    installment_5, installment_5_start, installment_5_end,
+    installment_6, installment_6_start, installment_6_end,
+    registrar
+  ]
+);
+
+res.json({ success: true, message: "تم حفظ رسوم الطالب بنجاح" });
   } catch (err) {
     console.error("Student fees error:", err);
     res.status(500).json({ error: "خطأ في حفظ الرسوم: " + err.message });
@@ -6901,6 +7089,7 @@ let sql = `
         term_name, 
         program_type, 
         postgraduate_program,
+        currency,
         registration_fee, 
         tuition_fee, 
         late_fee,
@@ -6909,6 +7098,7 @@ let sql = `
         repeat_discount,
         scholarship_type, 
         scholarship_percentage,
+        scholarship_granted_by,
         payment_start_date, 
         payment_end_date,
         
@@ -6976,15 +7166,45 @@ let sql = `
 // GET /api/student-fees-calculated?student_id=...&academic_year=...&level_name=...&term_name=...
 app.get("/api/student-fees-calculated", async (req, res) => {
   const { student_id, academic_year, level_name, term_name } = req.query;
-  const currentDeptId = stud.department_id || null;
-  const currentProgramType = stud.program_type || program_type;
-  const currentPostgrad = stud.postgraduate_program || null;
 
   if (!student_id || !academic_year) {
     return res.status(400).json({ error: "student_id و academic_year مطلوبان" });
   }
 
   try {
+    // 0. جلب بيانات الطالب الأساسية + القسم + نوع الكلية + الموقف الأكاديمي
+    const [studentRows] = await dbp.query(
+      `SELECT 
+         s.*,
+         d.id AS department_id,
+         f.faculty_type,
+         sr.academic_status
+       FROM students s
+       LEFT JOIN departments d ON s.department_id = d.id
+       LEFT JOIN faculties f ON d.faculty_id = f.id
+       LEFT JOIN student_registrations sr 
+         ON sr.student_id = s.id 
+         AND sr.academic_year = ?
+         AND (sr.level_name = ? OR ? IS NULL)
+         AND (sr.term_name = ? OR ? IS NULL)
+       WHERE s.id = ?
+       ORDER BY sr.id DESC
+       LIMIT 1`,
+      [academic_year, level_name || null, level_name, term_name || null, term_name, student_id]
+    );
+
+    if (studentRows.length === 0) {
+      return res.status(404).json({ error: "الطالب غير موجود" });
+    }
+
+    const stud = studentRows[0];
+
+    const currentDeptId = stud.department_id || null;
+    const currentProgramType = stud.program_type || "bachelor";
+    const currentPostgrad = stud.postgraduate_program || null;
+    const status = stud.academic_status || "نظامي";
+    const facultyType = stud.faculty_type || "غير محدد";
+
     // 1. جلب سنة الدخول الأولى وآخر سنة نشطة
     const [regRows] = await dbp.query(
       `SELECT 
@@ -7006,36 +7226,6 @@ app.get("/api/student-fees-calculated", async (req, res) => {
       const lastActiveNum = parseInt(lastActiveYear.split('/')[0]) || 0;
       yearsAbsent = currentYearNum - lastActiveNum;
     }
-
-    // 3. جلب بيانات الطالب + الموقف الأكاديمي + نوع الكلية
-    const [studentRows] = await dbp.query(
-      `SELECT 
-         s.*,
-         sr.academic_status,
-         sr.level_name AS current_level,
-         sr.term_name AS current_term,
-         f.faculty_type
-       FROM students s
-       LEFT JOIN student_registrations sr 
-         ON sr.student_id = s.id 
-         AND sr.academic_year = ?
-         AND (sr.level_name = ? OR ? IS NULL)
-         AND (sr.term_name = ? OR ? IS NULL)
-       LEFT JOIN departments d ON s.department_id = d.id
-       LEFT JOIN faculties f ON d.faculty_id = f.id
-       WHERE s.id = ?
-       ORDER BY sr.id DESC
-       LIMIT 1`,
-      [academic_year, level_name || null, level_name, term_name || null, term_name, student_id]
-    );
-
-    if (studentRows.length === 0) {
-      return res.status(404).json({ error: "الطالب غير موجود" });
-    }
-
-    const stud = studentRows[0];
-    const status = stud.academic_status || "نظامي";
-    const facultyType = stud.faculty_type || "غير محدد";
 
     // 4. جلب الرسوم الأساسية (خاصة أو عامة)
     let sqlFees = `
@@ -7067,18 +7257,18 @@ app.get("/api/student-fees-calculated", async (req, res) => {
     // 5. مصدر رسوم الدراسة
     let tuitionSource = "السنة الحالية";
     if (yearsAbsent <= 2 && firstYear) {
-const [enrollFees] = await dbp.query(
-    `SELECT f.tuition_fee 
-     FROM fees f
-     WHERE f.academic_year = ?
-       AND (f.student_id = ? OR f.student_id IS NULL)
-       AND f.department_id = ?                  -- ← شرط القسم (مهم جدًا)
-       AND f.program_type = ?                   -- ← شرط نوع البرنامج
-       AND (f.postgraduate_program <=> ?)       -- ← شرط البرنامج العالي لو موجود
-     ORDER BY f.student_id DESC, f.updated_at DESC
-     LIMIT 1`,
-    [firstYear, student_id, currentDeptId, currentProgramType, currentPostgrad]
-  );
+      const [enrollFees] = await dbp.query(
+        `SELECT f.tuition_fee 
+         FROM fees f
+         WHERE f.academic_year = ?
+           AND (f.student_id = ? OR f.student_id IS NULL)
+           AND f.department_id = ?
+           AND f.program_type = ?
+           AND (f.postgraduate_program <=> ?)
+         ORDER BY f.student_id DESC, f.updated_at DESC
+         LIMIT 1`,
+        [firstYear, student_id, currentDeptId, currentProgramType, currentPostgrad]
+      );
 
       if (enrollFees.length > 0 && enrollFees[0].tuition_fee) {
         fees.tuition_fee = enrollFees[0].tuition_fee;
@@ -7153,6 +7343,7 @@ app.get("/api/student-installments-status", async (req, res) => {
   try {
     const [rows] = await dbp.query(`
       SELECT 
+        currency,
         installment_1, 
         installment_1_paid, 
         DATE_FORMAT(installment_1_paid_at, '%Y-%m-%d') AS installment_1_paid_at,
@@ -7204,5 +7395,453 @@ app.get("/api/student-installments-status", async (req, res) => {
     res.status(500).json({ error: "خطأ في السيرفر", details: err.message });
   }
 });
+
+//السجل الاكاديمي
+
+app.get("/api/search-students-live", async (req, res) => {
+  const { q } = req.query;
+  if (!q || q.length < 2) return res.json([]);
+
+  try {
+    const [rows] = await dbp.query(
+      `SELECT id, full_name, university_id 
+       FROM students 
+       WHERE full_name LIKE ? OR university_id LIKE ?
+       ORDER BY full_name ASC 
+       LIMIT 12`,
+      [`%${q}%`, `%${q}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("خطأ في البحث الحي:", err);
+    res.status(500).json({ error: "خطأ في البحث" });
+  }
+});
+
+
+app.get("/api/student-registrations", async (req, res) => {
+  const { student_id, latest } = req.query;
+  if (!student_id) return res.status(400).json({ error: "مطلوب student_id" });
+
+  try {
+    let query = `
+      SELECT * FROM student_registrations 
+      WHERE student_id = ?
+    `;
+    const params = [student_id];
+
+    if (latest === "true") {
+      query += `
+        ORDER BY academic_year DESC,
+                 CASE term_name 
+                   WHEN 'الفصل الأول' THEN 1 
+                   WHEN 'فصل الأول' THEN 1 
+                   WHEN 'الفصل الثاني' THEN 2 
+                   WHEN 'فصل الثاني' THEN 2 
+                   ELSE 0 
+                 END DESC
+        LIMIT 1
+      `;
+    }
+
+    const [rows] = await dbp.query(query, params);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "لا توجد تسجيلات لهذا الطالب" });
+    }
+
+    res.json(latest === "true" ? rows[0] : rows);
+  } catch (err) {
+    console.error("خطأ في جلب التسجيلات:", err);
+    res.status(500).json({ error: "خطأ في السيرفر" });
+  }
+});
+
+
+app.get("/api/course-grades", async (req, res) => {
+  const { student_id } = req.query;
+
+  if (!student_id) {
+    return res.status(400).json({ 
+      error: "مطلوب student_id",
+      message: "يرجى إرسال رقم الطالب في الـ query parameter" 
+    });
+  }
+
+  try {
+    // ─── 1. جلب درجات المواد (نفس اللي كان موجود) ───
+    const [gradesRows] = await dbp.query(
+      `SELECT DISTINCT
+         cg.*,
+         c.course_name,
+         c.academic_year,
+         c.term_name,
+         c.level_name,
+         c.credit_hours,
+         f.faculty_name,              
+         d.department_name           
+       FROM course_grades cg
+       JOIN courses c ON cg.course_id = c.id
+       JOIN students s ON cg.student_id = s.id
+       JOIN departments d ON s.department_id = d.id
+       JOIN faculties f ON d.faculty_id = f.id
+       INNER JOIN (
+         SELECT 
+           course_id,
+           MAX(attempt_number) AS max_attempt
+         FROM course_grades
+         WHERE student_id = ?
+         GROUP BY course_id
+       ) latest 
+         ON cg.course_id = latest.course_id 
+         AND cg.attempt_number = latest.max_attempt
+       WHERE cg.student_id = ?
+       ORDER BY 
+         c.academic_year DESC,
+         CASE c.term_name 
+           WHEN 'الفصل الأول' THEN 1 
+           WHEN 'فصل الأول' THEN 1 
+           WHEN 'الفصل الثاني' THEN 2 
+           WHEN 'فصل الثاني' THEN 2 
+           ELSE 0 
+         END DESC,
+         c.course_name ASC`,
+      [student_id, student_id]
+    );
+
+    // ─── 2. جلب المعدلات المحفوظة من term_results (لو موجود) ───
+    const [termStatsRows] = await dbp.query(
+      `SELECT 
+         academic_year,
+         term_name,
+         level_name,
+         term_gpa,
+         cumulative_gpa,
+         classification_label,
+         term_total_hours,
+         term_total_points
+       FROM term_results
+       WHERE student_id = ?
+       ORDER BY 
+         academic_year DESC,
+         CASE term_name 
+           WHEN 'الفصل الأول' THEN 1 
+           WHEN 'فصل الأول' THEN 1 
+           WHEN 'الفصل الثاني' THEN 2 
+           WHEN 'فصل الثاني' THEN 2 
+           ELSE 0 
+         END DESC`,
+      [student_id]
+    );
+
+    // ─── 3. لو مفيش بيانات في term_results → نحسبها مؤقتًا من الدرجات ───
+    let termGpas = termStatsRows;
+
+    if (termStatsRows.length === 0 && gradesRows.length > 0) {
+      const termMap = new Map();
+
+      gradesRows.forEach(row => {
+        const key = `${row.academic_year}-${row.term_name}`;
+        if (!termMap.has(key)) {
+          termMap.set(key, {
+            academic_year: row.academic_year,
+            term_name: row.term_name,
+            level_name: row.level_name,
+            total_points: 0,
+            total_hours: 0,
+            classification_label: null 
+          });
+        }
+
+        const term = termMap.get(key);
+        const points = Number(row.points) || 0;
+        const hours = Number(row.credit_hours) || 0;
+
+        term.total_points += points * hours;
+        term.total_hours += hours;
+      });
+
+      termGpas = Array.from(termMap.values()).map(term => ({
+        academic_year: term.academic_year,
+        term_name: term.term_name,
+        level_name: term.level_name,
+        term_gpa: term.total_hours > 0 ? (term.total_points / term.total_hours).toFixed(2) : null,
+        cumulative_gpa: null, 
+        classification_label: term.classification_label,
+        term_total_hours: term.total_hours,
+        term_total_points: term.total_points.toFixed(2)
+      }));
+
+      // ترتيب تنازلي
+      termGpas.sort((a, b) => {
+        if (a.academic_year !== b.academic_year) return b.academic_year.localeCompare(a.academic_year);
+        return (b.term_name.includes('ثاني') ? 2 : 1) - (a.term_name.includes('ثاني') ? 2 : 1);
+      });
+    }
+
+    res.json({
+      success: true,
+      grades: gradesRows.length > 0 ? gradesRows : [],
+      term_gpas: termGpas.length > 0 ? termGpas : [],
+      message: gradesRows.length === 0 ? "لا توجد درجات مسجلة لهذا الطالب" : undefined
+    });
+
+  } catch (err) {
+    console.error("خطأ في جلب درجات الطالب مع المعدلات:", err);
+    res.status(500).json({
+      success: false,
+      error: "خطأ داخلي أثناء جلب البيانات",
+      details: err.message,
+      sqlMessage: err.sqlMessage || "غير متوفر"
+    });
+  }
+});
+
+// ──────────────────────────────────────────────────────────────
+// GET /api/fees-report 
+// ──────────────────────────────────────────────────────────────
+app.get("/api/fees-report", async (req, res) => {
+  const {
+    scope = "all",
+    faculty_id = "",
+    department_id = "",
+    student_id = "",
+    academic_year = "",
+    level_name = "",
+  } = req.query;
+
+  if (!academic_year || !level_name) {
+    return res.status(400).json({ error: "مطلوب academic_year و level_name" });
+  }
+
+  try {
+    let result = {};
+
+    // 1. كل الجامعة
+    if (scope === "all") {
+      const [rows] = await dbp.query(`
+        SELECT 
+          fac.faculty_name,
+          SUM(COALESCE(f.installment_1,0) + COALESCE(f.installment_2,0) + COALESCE(f.installment_3,0) +
+              COALESCE(f.installment_4,0) + COALESCE(f.installment_5,0) + COALESCE(f.installment_6,0)) AS total_due,
+          SUM(
+            CASE WHEN f.installment_1_paid = 1 THEN COALESCE(f.installment_1,0) ELSE 0 END +
+            CASE WHEN f.installment_2_paid = 1 THEN COALESCE(f.installment_2,0) ELSE 0 END +
+            CASE WHEN f.installment_3_paid = 1 THEN COALESCE(f.installment_3,0) ELSE 0 END +
+            CASE WHEN f.installment_4_paid = 1 THEN COALESCE(f.installment_4,0) ELSE 0 END +
+            CASE WHEN f.installment_5_paid = 1 THEN COALESCE(f.installment_5,0) ELSE 0 END +
+            CASE WHEN f.installment_6_paid = 1 THEN COALESCE(f.installment_6,0) ELSE 0 END
+          ) AS total_paid
+        FROM fees f
+        LEFT JOIN students st ON f.student_id = st.id
+        LEFT JOIN departments d ON COALESCE(f.department_id, st.department_id) = d.id
+        LEFT JOIN faculties fac ON d.faculty_id = fac.id
+        WHERE f.academic_year = ? AND f.level_name = ?
+        GROUP BY fac.id, fac.faculty_name
+        ORDER BY fac.faculty_name
+      `, [academic_year, level_name]);
+
+      const grand = rows.reduce((acc, r) => ({
+        total_due: acc.total_due + Number(r.total_due || 0),
+        total_paid: acc.total_paid + Number(r.total_paid || 0)
+      }), { total_due: 0, total_paid: 0 });
+
+      result = {
+        scope: "all",
+        type: "faculties",
+        groups: rows.map(r => ({
+          name: r.faculty_name,
+          total_due: Number(Number(r.total_due || 0).toFixed(2)),
+          total_paid: Number(Number(r.total_paid || 0).toFixed(2)),
+          total_unpaid: Number((Number(r.total_due || 0) - Number(r.total_paid || 0)).toFixed(2)),
+          percentage: Number(r.total_due || 0) > 0 ? Number(((Number(r.total_paid || 0) / Number(r.total_due || 0)) * 100).toFixed(2)) : 0
+        })),
+        grand_total: {
+          total_due: Number(grand.total_due.toFixed(2)),
+          total_paid: Number(grand.total_paid.toFixed(2)),
+          total_unpaid: Number((grand.total_due - grand.total_paid).toFixed(2)),
+          percentage: grand.total_due > 0 ? Number(((grand.total_paid / grand.total_due) * 100).toFixed(2)) : 0
+        }
+      };
+    }
+
+    // 2. كلية معينة
+    else if (scope === "faculty" && faculty_id) {
+      const [rows] = await dbp.query(`
+        SELECT 
+          d.department_name,
+          SUM(COALESCE(f.installment_1,0) + COALESCE(f.installment_2,0) + COALESCE(f.installment_3,0) +
+              COALESCE(f.installment_4,0) + COALESCE(f.installment_5,0) + COALESCE(f.installment_6,0)) AS total_due,
+          SUM(
+            CASE WHEN f.installment_1_paid = 1 THEN COALESCE(f.installment_1,0) ELSE 0 END +
+            CASE WHEN f.installment_2_paid = 1 THEN COALESCE(f.installment_2,0) ELSE 0 END +
+            CASE WHEN f.installment_3_paid = 1 THEN COALESCE(f.installment_3,0) ELSE 0 END +
+            CASE WHEN f.installment_4_paid = 1 THEN COALESCE(f.installment_4,0) ELSE 0 END +
+            CASE WHEN f.installment_5_paid = 1 THEN COALESCE(f.installment_5,0) ELSE 0 END +
+            CASE WHEN f.installment_6_paid = 1 THEN COALESCE(f.installment_6,0) ELSE 0 END
+          ) AS total_paid
+        FROM fees f
+        LEFT JOIN students st ON f.student_id = st.id
+        LEFT JOIN departments d ON COALESCE(f.department_id, st.department_id) = d.id
+        WHERE f.academic_year = ? AND f.level_name = ? AND d.faculty_id = ?
+        GROUP BY d.id, d.department_name
+      `, [academic_year, level_name, faculty_id]);
+
+      const grand = rows.reduce((a, r) => ({
+        total_due: a.total_due + Number(r.total_due || 0),
+        total_paid: a.total_paid + Number(r.total_paid || 0)
+      }), { total_due: 0, total_paid: 0 });
+
+      result = {
+        scope: "faculty",
+        type: "departments",
+        groups: rows.map(r => ({
+          name: r.department_name,
+          total_due: Number(Number(r.total_due || 0).toFixed(2)),
+          total_paid: Number(Number(r.total_paid || 0).toFixed(2)),
+          total_unpaid: Number((Number(r.total_due || 0) - Number(r.total_paid || 0)).toFixed(2)),
+          percentage: Number(r.total_due || 0) > 0 ? Number(((Number(r.total_paid || 0) / Number(r.total_due || 0)) * 100).toFixed(2)) : 0
+        })),
+        grand_total: {
+          total_due: Number(grand.total_due.toFixed(2)),
+          total_paid: Number(grand.total_paid.toFixed(2)),
+          total_unpaid: Number((grand.total_due - grand.total_paid).toFixed(2)),
+          percentage: grand.total_due > 0 ? Number(((grand.total_paid / grand.total_due) * 100).toFixed(2)) : 0
+        }
+      };
+    }
+
+    // 3. قسم معين
+    else if (scope === "department" && department_id) {
+      const [rows] = await dbp.query(`
+        SELECT 
+          st.full_name,
+          st.university_id,
+          SUM(COALESCE(f.installment_1,0) + COALESCE(f.installment_2,0) + COALESCE(f.installment_3,0) +
+              COALESCE(f.installment_4,0) + COALESCE(f.installment_5,0) + COALESCE(f.installment_6,0)) AS total_due,
+          SUM(
+            CASE WHEN f.installment_1_paid = 1 THEN COALESCE(f.installment_1,0) ELSE 0 END +
+            CASE WHEN f.installment_2_paid = 1 THEN COALESCE(f.installment_2,0) ELSE 0 END +
+            CASE WHEN f.installment_3_paid = 1 THEN COALESCE(f.installment_3,0) ELSE 0 END +
+            CASE WHEN f.installment_4_paid = 1 THEN COALESCE(f.installment_4,0) ELSE 0 END +
+            CASE WHEN f.installment_5_paid = 1 THEN COALESCE(f.installment_5,0) ELSE 0 END +
+            CASE WHEN f.installment_6_paid = 1 THEN COALESCE(f.installment_6,0) ELSE 0 END
+          ) AS total_paid
+        FROM fees f
+        LEFT JOIN students st ON f.student_id = st.id
+        WHERE f.academic_year = ? AND f.level_name = ? 
+          AND COALESCE(f.department_id, st.department_id) = ?
+        GROUP BY st.id, st.full_name, st.university_id
+      `, [academic_year, level_name, department_id]);
+
+      const grand = rows.reduce((a, r) => ({
+        total_due: a.total_due + Number(r.total_due || 0),
+        total_paid: a.total_paid + Number(r.total_paid || 0)
+      }), { total_due: 0, total_paid: 0 });
+
+      result = {
+        scope: "department",
+        type: "students",
+        groups: rows.map(r => ({
+          name: `${r.university_id} — ${r.full_name}`,
+          total_due: Number(Number(r.total_due || 0).toFixed(2)),
+          total_paid: Number(Number(r.total_paid || 0).toFixed(2)),
+          total_unpaid: Number((Number(r.total_due || 0) - Number(r.total_paid || 0)).toFixed(2)),
+          percentage: Number(r.total_due || 0) > 0 ? Number(((Number(r.total_paid || 0) / Number(r.total_due || 0)) * 100).toFixed(2)) : 0
+        })),
+        grand_total: {
+          total_due: Number(grand.total_due.toFixed(2)),
+          total_paid: Number(grand.total_paid.toFixed(2)),
+          total_unpaid: Number((grand.total_due - grand.total_paid).toFixed(2)),
+          percentage: grand.total_due > 0 ? Number(((grand.total_paid / grand.total_due) * 100).toFixed(2)) : 0
+        }
+      };
+    }
+
+// 4. طالب معين
+else if (scope === "student" && student_id) {
+  try {
+    const [rows] = await dbp.query(`
+      SELECT 
+        installment_1, installment_1_start, installment_1_end, installment_1_paid, installment_1_paid_at,
+        installment_2, installment_2_start, installment_2_end, installment_2_paid, installment_2_paid_at,
+        installment_3, installment_3_start, installment_3_end, installment_3_paid, installment_3_paid_at,
+        installment_4, installment_4_start, installment_4_end, installment_4_paid, installment_4_paid_at,
+        installment_5, installment_5_start, installment_5_end, installment_5_paid, installment_5_paid_at,
+        installment_6, installment_6_start, installment_6_end, installment_6_paid, installment_6_paid_at
+      FROM fees
+      WHERE student_id = ?
+        AND academic_year = ?
+        AND level_name = ?
+      ORDER BY updated_at DESC
+      LIMIT 1
+    `, [student_id, academic_year, level_name]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "لا توجد بيانات رسوم لهذا الطالب" });
+    }
+
+    const row = rows[0];
+
+    const installments = [];
+    let total_due = 0;
+    let total_paid = 0;
+
+    for (let i = 1; i <= 6; i++) {
+      const amount = Number(row[`installment_${i}`] || 0);
+      const paid = row[`installment_${i}_paid`] === 1;
+
+      total_due += amount;
+
+      if (paid) {
+        total_paid += amount;
+      }
+
+      if (amount > 0 || paid) {
+        installments.push({
+          installment_no: i,
+          amount: amount.toFixed(2),
+          paid: paid ? 1 : 0,
+          paid_at: row[`installment_${i}_paid_at`]
+            ? row[`installment_${i}_paid_at`].toISOString().split('T')[0]
+            : null,
+          start: row[`installment_${i}_start`] || null,
+          end: row[`installment_${i}_end`] || null
+        });
+      }
+    }
+
+    const total_unpaid = total_due - total_paid;
+    const percentage = total_due > 0 ? ((total_paid / total_due) * 100) : 0;
+
+    result = {
+      scope: "student",
+      type: "installments",
+      student_details: installments,
+      grand_total: {
+        total_due: Number(total_due.toFixed(2)),
+        total_paid: Number(total_paid.toFixed(2)),
+        total_unpaid: Number(total_unpaid.toFixed(2)),
+        percentage: Number(percentage.toFixed(2))
+      }
+    };
+  } catch (err) {
+    console.error("[fees-report student error]", err);
+    return res.status(500).json({
+      error: "خطأ في جلب بيانات الطالب",
+      details: err.message,
+      sqlMessage: err.sqlMessage || null
+    });
+  }
+}
+
+    res.json({ success: true, ...result });
+
+  } catch (err) {
+    console.error("[fees-report error]", err);
+    res.status(500).json({ error: "خطأ داخلي في تقرير الرسوم", details: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));

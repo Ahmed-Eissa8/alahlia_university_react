@@ -211,7 +211,7 @@ const BookListPage = () => {
     window.clearTimeout(showToast._t);
     showToast._t = window.setTimeout(() => {
       setToast((p) => ({ ...p, open: false }));
-    }, 2500);
+    }, 4000);
   }, []);
 
   const fetchBooks = async () => {

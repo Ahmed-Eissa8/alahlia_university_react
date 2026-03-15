@@ -21,7 +21,7 @@ const GradeEntry = () => {
   const [toast, setToast] = useState(null);
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
   const [faculties, setFaculties] = useState([]);
@@ -94,7 +94,7 @@ useEffect(() => {
       const res = await fetch(`${API_BASE}/grading-scale/${selectedFacultyId}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.scale)) {
-        console.log("مقياس الكلية جاي من الباك:", JSON.stringify(data.scale, null, 2));
+        // console.log("مقياس الكلية جاي من الباك:", JSON.stringify(data.scale, null, 2));
         setFacultyScale(data.scale);
       } else {
         setFacultyScale([]);
@@ -120,19 +120,19 @@ const getLetterAndPointsPreview = (total) => {
     return { ...rule, min_mark: min, max_mark: max };
   }).sort((a, b) => b.min_mark - a.min_mark);  
 
-  console.log("النطاقات بعد التصحيح:", sortedRules);
+  // console.log("النطاقات بعد التصحيح:", sortedRules);
 
   for (const rule of sortedRules) {
     const min = Number(rule.min_mark);
     const max = Number(rule.max_mark);
 
     if (total >= min && total <= max) { 
-      console.log(`طابق بعد تصحيح: ${rule.letter} (${min}-${max}) → نقاط ${rule.points}`);
+      // console.log(`طابق بعد تصحيح: ${rule.letter} (${min}-${max}) → نقاط ${rule.points}`);
       return { letter: rule.letter || 'F', points: Number(rule.points) || 0.0 };
     }
   }
 
-  console.log("ما طابقش بعد التصحيح → F");
+  // console.log("ما طابقش بعد التصحيح → F");
   return { letter: 'F', points: 0.0 };
 };
 

@@ -15,6 +15,8 @@ import UsersManagement from "./screens/UsersManagement";
 import Login from "./screens/Login";
 import Register from "./screens/Register";
 import Certificates from "./screens/Certificates";
+import AcademicRecord from "./screens/AcademicRecord";
+import Reports from "./screens/Reports";
 
 function App() {
   return (
@@ -34,6 +36,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/certificates" element={<Certificates />} />
+        <Route path="/academic-record" element={<AcademicRecord />} />
+        <Route path="/reports" element={<Reports />} />
       </Routes>
     </Router>
   );

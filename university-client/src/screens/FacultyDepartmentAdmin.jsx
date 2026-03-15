@@ -1218,7 +1218,7 @@ const FacultyDepartmentAdmin = () => {
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
 useEffect(() => {

@@ -17,6 +17,13 @@ const allPortalTitles = [
   "المستخدمين والصلاحيات",
 ];
 
+const registrationTabsList = [
+  { key: "promotion",       label: "بدء سنة/فصل جديد" },
+  { key: "single",          label: "تسجيل طالب" },
+  { key: "failed-courses",  label: "تسجيل المواد" },
+  { key: "fees",            label: "الرسوم" },
+];
+
 const ui = {
   page: {
     fontFamily: `"Cairo", "Tajawal", system-ui, -apple-system, "Segoe UI", Arial, sans-serif`,
@@ -88,16 +95,15 @@ const ui = {
     cursor: "pointer",
   },
 
-primaryBtn: {
-  background: "#0a3753",
-  color: "#fff",
-},
+  primaryBtn: {
+    background: "#0a3753",
+    color: "#fff",
+  },
 
-secondaryBtn: {
-  background: "#0f766e",
-  color: "#fff",
-},
-
+  secondaryBtn: {
+    background: "#0f766e",
+    color: "#fff",
+  },
 
   tableWrap: {
     overflowX: "auto",
@@ -129,49 +135,56 @@ secondaryBtn: {
   },
 
   btnRow: {
-  display: "flex",
-  gap: 10,
-  marginTop: 16,
-  flexWrap: "wrap",
-},
+    display: "flex",
+    gap: 10,
+    marginTop: 16,
+    flexWrap: "wrap",
+  },
 
-btnBase: {
-  padding: "10px 18px",
-  borderRadius: 10,
-  cursor: "pointer",
-  fontWeight: 800,
-  fontSize: 15,
-  border: "none",
-  fontFamily: `"Cairo", "Tajawal", Arial, sans-serif`,
-},
-btnHover: {
-  filter: "brightness(1.08)",
-  transform: "translateY(-1px)",
-},
+  btnBase: {
+    padding: "10px 18px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 800,
+    fontSize: 15,
+    border: "none",
+    fontFamily: `"Cairo", "Tajawal", Arial, sans-serif`,
+  },
+  btnHover: {
+    filter: "brightness(1.08)",
+    transform: "translateY(-1px)",
+  },
+  btnActive: {
+    transform: "translateY(0)",
+    filter: "brightness(0.95)",
+  },
 
-btnActive: {
-  transform: "translateY(0)",
-  filter: "brightness(0.95)",
-},
+  dangerBtn: {
+    background: "#dc2626",
+    color: "#fff",
+  },
 
+  ghostBtn: {
+    background: "#f1f5f9",
+    color: "#0a3753",
+    border: "1px solid #cbd5e1",
+  },
 
-dangerBtn: {
-  background: "#dc2626",
-  color: "#fff",
-},
+  smallBtn: {
+    padding: "6px 12px",
+    fontSize: 14,
+    borderRadius: 8,
+  },
 
-ghostBtn: {
-  background: "#f1f5f9",
-  color: "#0a3753",
-  border: "1px solid #cbd5e1",
-},
-
-smallBtn: {
-  padding: "6px 12px",
-  fontSize: 14,
-  borderRadius: 8,
-},
-
+  adminNotice: {
+    margin: '1.5rem 0',
+    padding: '16px',
+    background: '#ecfdf5',
+    borderRadius: 10,
+    border: '1px solid #10b981',
+    color: '#065f46',
+    fontSize: 15,
+  },
 };
 
 const getAuthHeaders = () => {
@@ -182,8 +195,8 @@ const getAuthHeaders = () => {
 export default function UsersManagement() {
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
-  const [form, setForm] = useState({ username: '', full_name: '', email: '', role: 'user', allowed_pages: [],allowed_faculties: [] });
-  const [newUserForm, setNewUserForm] = useState({ username: '', password: '', role: 'user', allowed_pages: [],allowed_faculties: [] });
+  const [form, setForm] = useState({ username: '', full_name: '', email: '', role: 'user', allowed_pages: [], allowed_faculties: [], registration_tab_permissions: {} });
+  const [newUserForm, setNewUserForm] = useState({ username: '', password: '', role: 'user', allowed_pages: [], allowed_faculties: [], registration_tab_permissions: {} });
   const [toast, setToast] = useState(null);
   const navigate = useNavigate();
   const [hoverBtn, setHoverBtn] = useState(null);
@@ -192,57 +205,57 @@ export default function UsersManagement() {
 
   const [faculties, setFaculties] = useState([]);
 
+  const isAdminModeEdit = editingUser && form.role === 'admin';
+  const isAdminModeNew  = !editingUser && newUserForm.role === 'admin';
 
   useEffect(() => {
-  const fetchFaculties = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/faculties-list`, {
-        headers: getAuthHeaders(),
-      });
-      if (!res.ok) throw new Error('فشل جلب الكليات');
-      const data = await res.json();
-      setFaculties(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error(err);
-      showToast('خطأ في جلب قائمة الكليات', 'error');
+    const fetchFaculties = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/faculties-list`, {
+          headers: getAuthHeaders(),
+        });
+        if (!res.ok) throw new Error('فشل جلب الكليات');
+        const data = await res.json();
+        setFaculties(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        showToast('خطأ في جلب قائمة الكليات', 'error');
+      }
+    };
+
+    fetchFaculties();
+  }, []);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+      navigate('/login', { replace: true });
     }
-  };
-
-  fetchFaculties();
-}, []);
-
-  useEffect(() => {
-  const token = sessionStorage.getItem('token');
-  if (!token) {
-    navigate('/login', { replace: true });
-  }
-}, [navigate]);
+  }, [navigate]);
 
   const filteredUsers = users.filter(u => {
-  const q = search.toLowerCase().trim();
-  if (!q) return true;
+    const q = search.toLowerCase().trim();
+    if (!q) return true;
 
-  return (
-    u.username?.toLowerCase().includes(q) ||
-    u.full_name?.toLowerCase().includes(q) ||
-    u.email?.toLowerCase().includes(q) ||
-    u.role?.toLowerCase().includes(q)
-  );
-});
-
-
+    return (
+      u.username?.toLowerCase().includes(q) ||
+      u.full_name?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
+      u.role?.toLowerCase().includes(q)
+    );
+  });
 
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
-useEffect(() => {
-  const token = sessionStorage.getItem('token');
-  if (token) {
-    fetchUsers();
-  }
-}, []);
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      fetchUsers();
+    }
+  }, []);
 
   const fetchUsers = async () => {
     try {
@@ -251,8 +264,8 @@ useEffect(() => {
       });
 
       if (res.status === 401) {
-sessionStorage.removeItem('token');
-sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/login');
         showToast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً', 'error');
         return;
@@ -276,6 +289,7 @@ sessionStorage.removeItem('user');
       role: user.role,
       allowed_pages: user.allowed_pages || [],
       allowed_faculties: user.allowed_faculties || [],
+      registration_tab_permissions: user.registration_tab_permissions || {},
     });
   };
 
@@ -291,8 +305,8 @@ sessionStorage.removeItem('user');
       });
 
       if (res.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/login');
         showToast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً', 'error');
         return;
@@ -324,8 +338,8 @@ sessionStorage.removeItem('user');
       });
 
       if (res.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/login');
         showToast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً', 'error');
         return;
@@ -363,8 +377,8 @@ sessionStorage.removeItem('user');
       });
 
       if (res.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         navigate('/login');
         showToast('انتهت الجلسة، يرجى تسجيل الدخول مجدداً', 'error');
         return;
@@ -406,9 +420,9 @@ sessionStorage.removeItem('user');
 
       <main className="library-main">
         <div className="library-container">
-          <h2 style={ui.titleH2}>إدارة المستخدمين والصلاحيات </h2>
+          <h2 style={ui.titleH2}>إدارة المستخدمين والصلاحيات</h2>
 
-          {/* إضافة مستخدم جديد */}
+          {/* ─────────────── إضافة مستخدم جديد ─────────────── */}
           <div style={ui.card}>
             <h3 style={ui.sectionTitle}>إضافة مستخدم جديد</h3>
             <div style={ui.grid}>
@@ -417,7 +431,7 @@ sessionStorage.removeItem('user');
                 <input
                   placeholder="اسم المستخدم"
                   value={newUserForm.username}
-                  onChange={e => setNewUserForm({...newUserForm, username: e.target.value})}
+                  onChange={e => setNewUserForm({ ...newUserForm, username: e.target.value })}
                   style={ui.input}
                 />
               </div>
@@ -427,15 +441,15 @@ sessionStorage.removeItem('user');
                   type="password"
                   placeholder="كلمة المرور"
                   value={newUserForm.password}
-                  onChange={e => setNewUserForm({...newUserForm, password: e.target.value})}
+                  onChange={e => setNewUserForm({ ...newUserForm, password: e.target.value })}
                   style={ui.input}
                 />
               </div>
               <div style={ui.field}>
-                <label style={ui.label}>وصف المستخدم</label>
+                <label style={ui.label}>الدور / وصف المستخدم</label>
                 <select
                   value={newUserForm.role}
-                  onChange={e => setNewUserForm({...newUserForm, role: e.target.value})}
+                  onChange={e => setNewUserForm({ ...newUserForm, role: e.target.value })}
                   style={ui.select}
                 >
                   <option value="user">مستخدم عادي</option>
@@ -446,79 +460,133 @@ sessionStorage.removeItem('user');
               </div>
             </div>
 
-<div style={{ margin: '1.5rem 0' }}>
-  <strong>الكليات المسموح الوصول إليها:</strong><br />
-  {faculties.length === 0 ? (
-    <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
-  ) : (
-    faculties.map(fac => (
-      <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-        <input
-          type="checkbox"
-          checked={newUserForm.allowed_faculties.includes(fac.id)}
-          onChange={() => {
-            setNewUserForm(prev => ({
-              ...prev,
-              allowed_faculties: prev.allowed_faculties.includes(fac.id)
-                ? prev.allowed_faculties.filter(id => id !== fac.id)
-                : [...prev.allowed_faculties, fac.id]
-            }));
+            {isAdminModeNew ? (
+              <div style={ui.adminNotice}>
+                <strong>ملاحظة هامة:</strong><br /> 
+                عند اختيار دور <strong>"إداري" </strong>،<br />
+                يحصل المستخدم على <strong>صلاحيات كاملة</strong> على<br />
+                • جميع الكليات<br />
+                • جميع الصفحات  <br />
+                (لا داعي لتحديد كليات أو شاشات معينة)
+              </div>
+            ) : (
+              <>
+                <div style={{ margin: '1.5rem 0' }}>
+                  <strong>الكليات المسموح الوصول إليها:</strong><br />
+                  {faculties.length === 0 ? (
+                    <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
+                  ) : (
+                    faculties.map(fac => (
+                      <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={newUserForm.allowed_faculties.includes(fac.id)}
+                          onChange={() => {
+                            setNewUserForm(prev => ({
+                              ...prev,
+                              allowed_faculties: prev.allowed_faculties.includes(fac.id)
+                                ? prev.allowed_faculties.filter(id => id !== fac.id)
+                                : [...prev.allowed_faculties, fac.id]
+                            }));
+                          }}
+                        />
+                        {fac.faculty_name}
+                      </label>
+                    ))
+                  )}
+                </div>
+
+                <div style={{ margin: '1.5rem 0' }}>
+                  <strong>الصفحات المسموحة:</strong><br />
+                  {allPortalTitles.map(title => (
+                    <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={newUserForm.allowed_pages.includes(title)}
+                        onChange={() => togglePage(title, true)}
+                      />
+                      {title}
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+{!isAdminModeNew && newUserForm.allowed_pages.includes("القبول والتسجيل") && (
+  <div style={{
+    margin: '1.5rem 0',
+    padding: '1rem 1.5rem',
+    background: '#f8fafc',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0'
+  }}>
+    <strong style={{ display: 'block', marginBottom: '12px', color: '#0a3753' }}>
+      التبويبات المسموح بها داخل صفحة القبول والتسجيل:
+    </strong>
+
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {registrationTabsList.map(tab => (
+        <label 
+          key={tab.key}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '15px',
+            color: '#334155'
           }}
-        />
-        {fac.faculty_name}
-      </label>
-    ))
-  )}
-</div>
-
-            <div style={{ margin: '1.5rem 0' }}>
-              <strong>الصفحات المسموحة:</strong><br />
-              {allPortalTitles.map(title => (
-                <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-                  <input
-                    type="checkbox"
-                    checked={newUserForm.allowed_pages.includes(title)}
-                    onChange={() => togglePage(title, true)}
-                  />
-                  {title}
-                </label>
-              ))}
-            </div>
-
+        >
+          <input
+            type="checkbox"
+            checked={newUserForm.registration_tab_permissions?.[tab.key] ?? false}
+            onChange={() => {
+              setNewUserForm(prev => ({
+                ...prev,
+                registration_tab_permissions: {
+                  ...(prev.registration_tab_permissions || {}),
+                  [tab.key]: !prev.registration_tab_permissions?.[tab.key]
+                }
+              }));
+            }}
+          />
+          {tab.label}
+        </label>
+      ))}
+    </div>
+  </div>
+)}
             <button
-  onClick={handleAddUser}
-  onMouseEnter={() => setHoverBtn("add")}
-  onMouseLeave={() => setHoverBtn(null)}
-  onMouseDown={() => setActiveBtn("add")}
-  onMouseUp={() => setActiveBtn(null)}
-  style={{
-    ...ui.btnBase,
-    ...ui.primaryBtn,
-    marginTop: 16,
-    ...(hoverBtn === "add" ? ui.btnHover : {}),
-    ...(activeBtn === "add" ? ui.btnActive : {}),
-  }}
->
-  إضافة المستخدم
-</button>
-
+              onClick={handleAddUser}
+              onMouseEnter={() => setHoverBtn("add")}
+              onMouseLeave={() => setHoverBtn(null)}
+              onMouseDown={() => setActiveBtn("add")}
+              onMouseUp={() => setActiveBtn(null)}
+              style={{
+                ...ui.btnBase,
+                ...ui.primaryBtn,
+                marginTop: 16,
+                ...(hoverBtn === "add" ? ui.btnHover : {}),
+                ...(activeBtn === "add" ? ui.btnActive : {}),
+              }}
+            >
+              إضافة المستخدم
+            </button>
           </div>
 
-          {/* قائمة المستخدمين */}
+          {/* ─────────────── قائمة المستخدمين ─────────────── */}
           <div style={ui.card}>
             <h3 style={ui.sectionTitle}>قائمة المستخدمين</h3>
             <div style={{ marginBottom: 12 }}>
-  <input
-    type="text"
-    placeholder=" ابحث باسم المستخدم، الاسم الكامل،..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    style={{
-      ...ui.input,
-      maxWidth: 420,
-    }}
-  />
-</div>
+              <input
+                type="text"
+                placeholder="ابحث باسم المستخدم، الاسم الكامل،..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  ...ui.input,
+                  maxWidth: 420,
+                }}
+              />
+            </div>
 
             <div style={ui.tableWrap}>
               <table style={ui.table}>
@@ -526,7 +594,7 @@ sessionStorage.removeItem('user');
                   <tr>
                     <th style={ui.th}>اسم المستخدم</th>
                     <th style={ui.th}>الاسم الكامل</th>
-                    <th style={ui.th}>وصف المستخدم</th>
+                    <th style={ui.th}>الدور</th>
                     <th style={ui.th}>الصفحات المسموحة</th>
                     <th style={ui.th}>الكليات المسموحة</th>
                     <th style={ui.th}>إجراء</th>
@@ -539,76 +607,70 @@ sessionStorage.removeItem('user');
                       <td style={ui.td}>{u.full_name || '—'}</td>
                       <td style={ui.td}>{u.role}</td>
                       <td style={ui.td}>
-                        {(u.allowed_pages || []).length === 0 ? 'لا يوجد' : u.allowed_pages.join(' • ')}
+                        {(u.allowed_pages || []).length === 0 ? 'كل الصفحات' : u.allowed_pages.join(' • ')}
                       </td>
                       <td style={ui.td}>
-  {(u.allowed_faculties || []).length === 0 
-    ? 'لا يوجد' 
-    : u.allowed_faculties.map(id => {
-        const f = faculties.find(fac => fac.id === id);
-        return f ? f.faculty_name : id;
-      }).join(' • ')
-  }
-</td>
+                        {(u.allowed_faculties || []).length === 0
+                          ? 'كل الكليات'
+                          : u.allowed_faculties.map(id => {
+                              const f = faculties.find(fac => fac.id === id);
+                              return f ? f.faculty_name : id;
+                            }).join(' • ')
+                        }
+                      </td>
                       <td style={ui.td}>
-<div style={{ display: "flex", gap: 8 }}>
-  <button
-  onClick={() => handleEdit(u)}
-  onMouseEnter={() => setHoverBtn(`edit-${u.id}`)}
-  onMouseLeave={() => setHoverBtn(null)}
-  onMouseDown={() => setActiveBtn(`edit-${u.id}`)}
-  onMouseUp={() => setActiveBtn(null)}
-  style={{
-    ...ui.btnBase,
-    ...ui.primaryBtn,
-    ...ui.smallBtn,
-    ...(hoverBtn === `edit-${u.id}` ? ui.btnHover : {}),
-    ...(activeBtn === `edit-${u.id}` ? ui.btnActive : {}),
-  }}
->
-  تعديل
-</button>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button
+                            onClick={() => handleEdit(u)}
+                            onMouseEnter={() => setHoverBtn(`edit-${u.id}`)}
+                            onMouseLeave={() => setHoverBtn(null)}
+                            onMouseDown={() => setActiveBtn(`edit-${u.id}`)}
+                            onMouseUp={() => setActiveBtn(null)}
+                            style={{
+                              ...ui.btnBase,
+                              ...ui.primaryBtn,
+                              ...ui.smallBtn,
+                              ...(hoverBtn === `edit-${u.id}` ? ui.btnHover : {}),
+                              ...(activeBtn === `edit-${u.id}` ? ui.btnActive : {}),
+                            }}
+                          >
+                            تعديل
+                          </button>
 
-
-<button
-  onClick={() => handleDelete(u.id)}
-  onMouseEnter={() => setHoverBtn(`delete-${u.id}`)}
-  onMouseLeave={() => setHoverBtn(null)}
-  onMouseDown={() => setActiveBtn(`delete-${u.id}`)}
-  onMouseUp={() => setActiveBtn(null)}
-  style={{
-    ...ui.btnBase,
-    ...ui.dangerBtn,
-    ...ui.smallBtn,
-    ...(hoverBtn === `delete-${u.id}` ? ui.btnHover : {}),
-    ...(activeBtn === `delete-${u.id}` ? ui.btnActive : {}),
-  }}
->
-  حذف
-</button>
-
-</div>
-
+                          <button
+                            onClick={() => handleDelete(u.id)}
+                            onMouseEnter={() => setHoverBtn(`delete-${u.id}`)}
+                            onMouseLeave={() => setHoverBtn(null)}
+                            onMouseDown={() => setActiveBtn(`delete-${u.id}`)}
+                            onMouseUp={() => setActiveBtn(null)}
+                            style={{
+                              ...ui.btnBase,
+                              ...ui.dangerBtn,
+                              ...ui.smallBtn,
+                              ...(hoverBtn === `delete-${u.id}` ? ui.btnHover : {}),
+                              ...(activeBtn === `delete-${u.id}` ? ui.btnActive : {}),
+                            }}
+                          >
+                            حذف
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
 
-                {filteredUsers.length === 0 && (
-  <tr>
-    <td colSpan="5" style={{ ...ui.td, textAlign: "center", padding: 20 }}>
-      لا توجد نتائج مطابقة 
-    </td>
-  </tr>
-)}
-
+                  {filteredUsers.length === 0 && (
+                    <tr>
+                      <td colSpan="6" style={{ ...ui.td, textAlign: "center", padding: 20 }}>
+                        لا توجد نتائج مطابقة
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
-
-
               </table>
             </div>
           </div>
 
-          {/* تعديل مستخدم */}
+          {/* ─────────────── تعديل مستخدم ─────────────── */}
           {editingUser && (
             <div style={ui.card}>
               <h3 style={ui.sectionTitle}>تعديل مستخدم: {editingUser.username}</h3>
@@ -617,7 +679,7 @@ sessionStorage.removeItem('user');
                   <label style={ui.label}>اسم المستخدم</label>
                   <input
                     value={form.username}
-                    onChange={e => setForm({...form, username: e.target.value})}
+                    onChange={e => setForm({ ...form, username: e.target.value })}
                     style={ui.input}
                   />
                 </div>
@@ -625,7 +687,7 @@ sessionStorage.removeItem('user');
                   <label style={ui.label}>الاسم الكامل</label>
                   <input
                     value={form.full_name}
-                    onChange={e => setForm({...form, full_name: e.target.value})}
+                    onChange={e => setForm({ ...form, full_name: e.target.value })}
                     style={ui.input}
                   />
                 </div>
@@ -633,13 +695,13 @@ sessionStorage.removeItem('user');
                   <label style={ui.label}>الإيميل</label>
                   <input
                     value={form.email}
-                    onChange={e => setForm({...form, email: e.target.value})}
+                    onChange={e => setForm({ ...form, email: e.target.value })}
                     style={ui.input}
                   />
                 </div>
                 <div style={ui.field}>
-                  <label style={ui.label}>وصف المستخدم</label>
-                  <select value={form.role} onChange={e => setForm({...form, role: e.target.value})} style={ui.select}>
+                  <label style={ui.label}>الدور / الوصف</label>
+                  <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={ui.select}>
                     <option value="user">مستخدم عادي</option>
                     <option value="admin">إداري</option>
                     <option value="registrar">مسجل</option>
@@ -647,79 +709,134 @@ sessionStorage.removeItem('user');
                   </select>
                 </div>
               </div>
-<div style={{ margin: '1.5rem 0' }}>
-  <strong>الكليات المسموح الوصول إليها:</strong><br />
-  {faculties.length === 0 ? (
-    <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
-  ) : (
-    faculties.map(fac => (
-      <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-        <input
-          type="checkbox"
-          checked={form.allowed_faculties.includes(fac.id)}
-          onChange={() => {
-            setForm(prev => ({
-              ...prev,
-              allowed_faculties: prev.allowed_faculties.includes(fac.id)
-                ? prev.allowed_faculties.filter(id => id !== fac.id)
-                : [...prev.allowed_faculties, fac.id]
-            }));
+
+              {isAdminModeEdit ? (
+                <div style={ui.adminNotice}>
+                  <strong>هذا المستخدم إداري </strong><br />
+                  يملك <strong>صلاحيات كاملة</strong> على:<br />
+                  • جميع الكليات<br />
+                  • جميع الصفحات  <br />
+                  (لا حاجة لتحديد كليات أو صفحات معينة)
+                </div>
+              ) : (
+                <>
+                  <div style={{ margin: '1.5rem 0' }}>
+                    <strong>الكليات المسموح الوصول إليها:</strong><br />
+                    {faculties.length === 0 ? (
+                      <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
+                    ) : (
+                      faculties.map(fac => (
+                        <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+                          <input
+                            type="checkbox"
+                            checked={form.allowed_faculties.includes(fac.id)}
+                            onChange={() => {
+                              setForm(prev => ({
+                                ...prev,
+                                allowed_faculties: prev.allowed_faculties.includes(fac.id)
+                                  ? prev.allowed_faculties.filter(id => id !== fac.id)
+                                  : [...prev.allowed_faculties, fac.id]
+                              }));
+                            }}
+                          />
+                          {fac.faculty_name}
+                        </label>
+                      ))
+                    )}
+                  </div>
+
+                  <div style={{ margin: '1.5rem 0' }}>
+                    <strong>الصفحات المسموحة:</strong><br />
+                    {allPortalTitles.map(title => (
+                      <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={form.allowed_pages.includes(title)}
+                          onChange={() => togglePage(title)}
+                        />
+                        {title}
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
+{!isAdminModeEdit && form.allowed_pages.includes("القبول والتسجيل") && (
+  <div style={{
+    margin: '1.5rem 0',
+    padding: '1rem 1.5rem',
+    background: '#f8fafc',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0'
+  }}>
+    <strong style={{ display: 'block', marginBottom: '12px', color: '#0a3753' }}>
+      التبويبات المسموح بها داخل صفحة القبول والتسجيل:
+    </strong>
+
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {registrationTabsList.map(tab => (
+        <label 
+          key={tab.key}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '15px',
+            color: '#334155'
           }}
-        />
-        {fac.faculty_name}
-      </label>
-    ))
-  )}
-</div>
-              <div style={{ margin: '1.5rem 0' }}>
-                <strong> الصفحات المسموحة: </strong><br />
-                {allPortalTitles.map(title => (
-                  <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-                    <input
-                      type="checkbox"
-                      checked={form.allowed_pages.includes(title)}
-                      onChange={() => togglePage(title)}
-                    />
-                    {title}
-                  </label>
-                ))}
+        >
+          <input
+            type="checkbox"
+            checked={form.registration_tab_permissions?.[tab.key] ?? false}
+            onChange={() => {
+              setForm(prev => ({
+                ...prev,
+                registration_tab_permissions: {
+                  ...(prev.registration_tab_permissions || {}),
+                  [tab.key]: !prev.registration_tab_permissions?.[tab.key]
+                }
+              }));
+            }}
+          />
+          {tab.label}
+        </label>
+      ))}
+    </div>
+  </div>
+)}
+
+              <div style={ui.btnRow}>
+                <button
+                  onClick={handleSaveEdit}
+                  onMouseEnter={() => setHoverBtn("save")}
+                  onMouseLeave={() => setHoverBtn(null)}
+                  onMouseDown={() => setActiveBtn("save")}
+                  onMouseUp={() => setActiveBtn(null)}
+                  style={{
+                    ...ui.btnBase,
+                    ...ui.primaryBtn,
+                    ...(hoverBtn === "save" ? ui.btnHover : {}),
+                    ...(activeBtn === "save" ? ui.btnActive : {}),
+                  }}
+                >
+                  حفظ التعديلات
+                </button>
+
+                <button
+                  onClick={() => setEditingUser(null)}
+                  onMouseEnter={() => setHoverBtn("cancel")}
+                  onMouseLeave={() => setHoverBtn(null)}
+                  onMouseDown={() => setActiveBtn("cancel")}
+                  onMouseUp={() => setActiveBtn(null)}
+                  style={{
+                    ...ui.btnBase,
+                    ...ui.ghostBtn,
+                    ...(hoverBtn === "cancel" ? ui.btnHover : {}),
+                    ...(activeBtn === "cancel" ? ui.btnActive : {}),
+                  }}
+                >
+                  إلغاء
+                </button>
               </div>
-
-<div style={ui.btnRow}>
-<button
-  onClick={handleSaveEdit}
-  onMouseEnter={() => setHoverBtn("save")}
-  onMouseLeave={() => setHoverBtn(null)}
-  onMouseDown={() => setActiveBtn("save")}
-  onMouseUp={() => setActiveBtn(null)}
-  style={{
-    ...ui.btnBase,
-    ...ui.primaryBtn,
-    ...(hoverBtn === "save" ? ui.btnHover : {}),
-    ...(activeBtn === "save" ? ui.btnActive : {}),
-  }}
->
-  حفظ التعديلات
-</button>
-
-
-<button
-  onClick={() => setEditingUser(null)}
-  onMouseEnter={() => setHoverBtn("cancel")}
-  onMouseLeave={() => setHoverBtn(null)}
-  onMouseDown={() => setActiveBtn("cancel")}
-  onMouseUp={() => setActiveBtn(null)}
-  style={{
-    ...ui.btnBase,
-    ...ui.ghostBtn,
-    ...(hoverBtn === "cancel" ? ui.btnHover : {}),
-    ...(activeBtn === "cancel" ? ui.btnActive : {}),
-  }}
->
-  إلغاء
-</button>
-</div>
-
             </div>
           )}
 

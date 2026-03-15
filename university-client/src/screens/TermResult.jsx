@@ -22,7 +22,7 @@ const TermResult = () => {
   const [toast, setToast] = useState(null);
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
   // ===== Lists
@@ -385,7 +385,7 @@ const computeAndSaveResult = async () => {
       setSkippedRows(Array.isArray(data.skipped) ? data.skipped : []);
       setHasSavedResults(true);   
 
-      showToast(data.message || "تم حساب وتخزين النتائج", "success");
+      showToast(data.message || "تم حساب النتائج", "success");
     } catch (e) {
       console.error(e);
       showToast(e.message || "مشكلة في حساب النتيجة", "error");
@@ -535,6 +535,7 @@ const printResults = () => {
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">#</th>
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الاسم</th>
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الرقم الجامعي</th>
+              <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الموقف الأكاديمي</th>
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">GPA فصلي</th>
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">GPA تراكمي</th>
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">التصنيف</th>
@@ -546,6 +547,7 @@ const printResults = () => {
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
                 <td style="padding: 11px; border: 1px solid #ddd;">${r.full_name}</td>
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.university_id}</td>
+                <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.academic_status || 'غير محدد'}</td>
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${Number(r.term_gpa || 0).toFixed(2)}</td>
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${Number(r.cumulative_gpa || 0).toFixed(2)}</td>
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.classification_label || '—'}</td>
@@ -570,6 +572,7 @@ const printResults = () => {
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">#</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الاسم</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الرقم الجامعي</th>
+            <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الموقف الأكاديمي</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">GPA فصلي</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">GPA تراكمي</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">التصنيف</th>
@@ -581,6 +584,7 @@ const printResults = () => {
               <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
               <td style="padding: 11px; border: 1px solid #ddd;">${r.full_name}</td>
               <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.university_id}</td>
+              <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.academic_status || 'غير محدد'}</td>
               <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${Number(r.term_gpa || 0).toFixed(2)}</td>
               <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${Number(r.cumulative_gpa || 0).toFixed(2)}</td>
               <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.classification_label || '—'}</td>
@@ -618,6 +622,7 @@ const printResults = () => {
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">#</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الاسم</th>
             <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الرقم الجامعي</th>
+            <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">الموقف الأكاديمي</th>
             ${uniqueCourses.map(courseName => `
               <th style="padding: 12px; border: 1px solid #ccc; font-size: 13px;">${courseName}</th>
             `).join('')}
@@ -658,6 +663,7 @@ const printResults = () => {
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
                 <td style="padding: 11px; border: 1px solid #ddd;">${r.full_name}</td>
                 <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.university_id}</td>
+                <td style="padding: 11px; border: 1px solid #ddd; text-align: center;">${r.academic_status || 'غير محدد'}</td>
                 ${uniqueCourses.map(courseName => {
                   const grade = gradesMap[courseName];
                   return `
@@ -945,6 +951,7 @@ const printResults = () => {
                       <th>#</th>
                       <th>الطالب</th>
                       <th>الرقم الجامعي</th>
+                      <th>الموقف الأكاديمي</th>
                       <th>عدد المواد الناقصة</th>
                       <th>السبب</th>
                     </tr>
@@ -955,6 +962,7 @@ const printResults = () => {
                         <td>{idx + 1}</td>
                         <td>{m.full_name}</td>
                         <td>{m.university_id}</td>
+                        <td>{m.academic_status}</td>
                         <td>{m.missing_courses}</td>
                         <td>{m.reason}</td>
                       </tr>
@@ -978,6 +986,7 @@ const printResults = () => {
                       <th>#</th>
                       <th>الاسم</th>
                       <th>الرقم الجامعي</th>
+                      <th>الموقف الأكاديمي</th>
                       <th>GPA فصلي</th>
                       <th>GPA تراكمي</th>
                       <th>التصنيف</th>
@@ -991,6 +1000,7 @@ const printResults = () => {
                         <td>{idx + 1}</td>
                         <td>{r.full_name}</td>
                         <td>{r.university_id}</td>
+                        <td>{r.academic_status}</td>
                         <td>{r.term_gpa ?? "—"}</td>
                         <td>{r.cumulative_gpa ?? "—"}</td>
                         <td>{r.classification_label ?? "—"}</td>

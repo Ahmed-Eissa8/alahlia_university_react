@@ -142,7 +142,7 @@ const Certificates = () => {
   const [toast, setToast] = useState(null);
   const showToast = (message, type = "success") => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), 4000);
   };
 
   
@@ -962,7 +962,7 @@ const generateCertificate = () => {
   disabled={
     borrowedBooks.length > 0 || 
     !isPassedLastTerm || 
-    !isAllFeesPaid ||           // ← ده موجود في disabled بس مش في opacity
+    !isAllFeesPaid ||           
     failedCourses.length > 0   
   }
   onMouseEnter={() => setIsHovered(true)}
@@ -971,11 +971,10 @@ const generateCertificate = () => {
     ...ui.primaryBtn,
     padding: "14px 40px",
     fontSize: 17,
-    // هنا الشرط الكامل عشان الزر يبقى باهت في كل الحالات الممنوعة
     opacity: (
       borrowedBooks.length > 0 || 
       !isPassedLastTerm || 
-      !isAllFeesPaid ||           // ← أضفناه هنا
+      !isAllFeesPaid ||          
       failedCourses.length > 0   
     ) ? 0.6 : 1,
     backgroundColor: isHovered ? "#0c4a6e" : "#0a3753",
@@ -1005,7 +1004,6 @@ const generateCertificate = () => {
         </div>
       </main>
 
-      {/* Toast بنفس الستايل */}
       {toast && (
         <div
           style={{

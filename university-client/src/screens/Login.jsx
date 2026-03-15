@@ -139,7 +139,8 @@ sessionStorage.setItem('user', JSON.stringify({
   email: data.email || '',
   role: data.role,
   allowed_pages: data.allowed_pages || [],
-  allowed_faculties: data.allowed_faculties || []
+  allowed_faculties: data.allowed_faculties || [],
+  registration_tab_permissions: data.registration_tab_permissions || {},
   
 }));
 

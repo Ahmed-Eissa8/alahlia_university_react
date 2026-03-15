@@ -13,6 +13,7 @@ import {
   FaUserCog,
   FaCalendarAlt,
   FaGraduationCap ,
+ FaClipboardList,      
 } from "react-icons/fa";
 
 
@@ -30,6 +31,8 @@ const portalLinks = [
   { title: "أعضاء هيئة التدريس", icon: <FaChalkboardTeacher />, path: "/StaffMembers", tone: "green" },
   { title: "الجداول الدراسية", icon: <FaCalendarAlt />, path: "/schedule", tone: "cyan" },
   { title: " الشهادات", icon: <FaGraduationCap  />, path: "/certificates", tone: "pink" },
+  { title: "السجل الأكاديمي", icon: <FaClipboardList />, path: "/academic-record", tone: "red" },
+  { title: "التقارير", icon: <FaChartPie />, path: "/reports", tone: "orange" },
   { title: "المستخدمين والصلاحيات", icon: <FaUserCog />, path: "/UsersManagement", tone: "gray" },
 ];
 
@@ -86,6 +89,8 @@ useEffect(() => {
   const stats = useMemo(
     () => [
       { label: "الطلاب", value: summary?.students, icon: <FaUsers /> },
+      { label: "الذكور", value: summary?.male_count, icon: <FaUsers /> },
+      { label: "الإناث", value: summary?.female_count, icon: <FaUsers /> },
       { label: "التسجيلات", value: summary?.registrations, icon: <FaUniversity /> },
       { label: "المواد", value: summary?.courses, icon: <FaClipboardCheck /> },
       { label: "نتائج الفصول", value: summary?.term_results, icon: <FaCalculator /> },
@@ -211,10 +216,9 @@ const handleLogout = () => {
             ))}
           </div>
 
-          <div className="card" style={{ marginTop: 14 }}>
+                   <div className="card" style={{ marginTop: 14 }}>
             <h2 className="card-title">أنظمة الكلية</h2>
             <div className="dash-subtitle" style={{ marginBottom: 10 }}>
-              {/* لو عايزة تضيفي وصف هنا */}
             </div>
 
             <div className="dash-links-grid">
@@ -235,6 +239,21 @@ const handleLogout = () => {
             </div>
           </div>
 
+          {/* ==================== FOOTER ==================== */}
+          <div style={{
+            marginTop: "auto",                  
+            padding: "40px 0 60px",              
+            textAlign: "center",
+            borderTop: "1px solid #e6e8ee",
+            color: "#64748b",
+            fontSize: "14px",
+            fontWeight: "700",
+            letterSpacing: "0.5px",
+            lineHeight: "1.6"
+          }}>
+            جامعة بورتسودان الأهلية - النظام الأكاديمي<br />
+            كل الحقوق محفوظة © kian 2024
+          </div>
           {toast && (
             <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>
               {toast.message}
