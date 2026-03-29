@@ -4,7 +4,7 @@ import { IoArrowBack } from "react-icons/io5";
 import html2pdf from 'html2pdf.js';
 
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 const DEFAULT_REGISTRAR = "";
 
 const TERM_OPTIONS = ["الفصل الأول", "الفصل الثاني"];

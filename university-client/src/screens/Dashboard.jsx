@@ -19,7 +19,7 @@ import {
 
 import "./Dashboard.css";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const portalLinks = [
   { title: "المكتبة", icon: <FaBookOpen />, path: "/books", tone: "purple" },
@@ -228,37 +228,13 @@ const handleLogout = () => {
                   className={`dash-link dash-link--${x.tone}`}
                   onClick={() => navigate(x.path)}
                   role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && navigate(x.path)}
                 >
                   <div className="dash-link-icon">{x.icon}</div>
                   <div className="dash-link-title">{x.title}</div>
-                  <div className="dash-link-hint">فتح</div>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* ==================== FOOTER ==================== */}
-          <div style={{
-            marginTop: "auto",                  
-            padding: "40px 0 60px",              
-            textAlign: "center",
-            borderTop: "1px solid #e6e8ee",
-            color: "#64748b",
-            fontSize: "14px",
-            fontWeight: "700",
-            letterSpacing: "0.5px",
-            lineHeight: "1.6"
-          }}>
-            جامعة بورتسودان الأهلية - النظام الأكاديمي<br />
-            كل الحقوق محفوظة © kian 2024
-          </div>
-          {toast && (
-            <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>
-              {toast.message}
-            </div>
-          )}
         </div>
       </main>
     </div>

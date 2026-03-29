@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const getAllowedFaculties = () => {
   try {
@@ -888,27 +888,23 @@ const saveGrades = async () => {
           <input
             className="input-field"
             type="number"
-            value={s.coursework_mark ?? ""}
-            onChange={(e) =>
-              onChangeMark(s.student_id, "coursework_mark", e.target.value)
-            }
-            placeholder="0"
+            value={s.coursework_mark}
+            onChange={(e) => onChangeMark(s.student_id, "coursework_mark", e.target.value)}
           />
         </td>
         <td>
           <input
             className="input-field"
             type="number"
-            value={s.final_exam_mark ?? ""}
-            onChange={(e) =>
-              onChangeMark(s.student_id, "final_exam_mark", e.target.value)
-            }
-            placeholder="0"
+            value={s.final_exam_mark}
+            onChange={(e) => onChangeMark(s.student_id, "final_exam_mark", e.target.value)}
           />
         </td>
-        <td>{s.total_mark ?? "—"}</td>
-        <td>{s.letter ?? "—"}</td>
-        <td>{s.points ?? "—"}</td>
+        <td style={{ fontWeight: 800 }}>{s.total_mark ?? "—"}</td>
+        <td style={{ fontWeight: 800, color: s.letter === 'F' ? '#dc2626' : '#0a3753' }}>
+          {s.letter || "—"}
+        </td>
+        <td style={{ fontWeight: 800 }}>{s.points ?? "—"}</td>
       </tr>
     ))}
   </tbody>
@@ -920,7 +916,7 @@ const saveGrades = async () => {
       </main>
 
       {toast && (
-        <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>
+        <div className={`toast toast-${toast.type}`}>
           {toast.message}
         </div>
       )}

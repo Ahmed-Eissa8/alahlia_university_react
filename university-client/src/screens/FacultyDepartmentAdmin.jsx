@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const getAllowedFaculties = () => {
   try {
@@ -1728,28 +1728,13 @@ const handleEditDepartment = (dept) => {
           >
             تعديل
           </button>
-
-          {/* <button
+          <button
             type="button"
             className="btn btn-danger"
             onClick={() => handleDeleteDepartment(d)}
           >
             حذف
-          </button> */}
-
-          {editingDepartmentId === d.id && (
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={() => {
-                setEditingDepartmentId(null);
-                setDepartmentName("");
-                setLevelsCount(4);
-              }}
-            >
-              إلغاء
-            </button>
-          )}
+          </button>
         </div>
       </td>
     </tr>
@@ -1764,19 +1749,24 @@ const handleEditDepartment = (dept) => {
             </>
           )}
 
-{/* ✅ تاب 2 */}
-{activeTab === "grading" && <GradeRulesAdmin showToast={showToast} faculties={faculties} />}
+          {activeTab === "grading" && (
+            <GradeRulesAdmin showToast={showToast} faculties={faculties} />
+          )}
 
-{/* ✅ تاب 3 */}
-{activeTab === "courses" && <CoursesAdmin showToast={showToast} faculties={faculties} />}
-
-
+          {activeTab === "courses" && (
+            <CoursesAdmin showToast={showToast} faculties={faculties} />
+          )}
         </div>
       </main>
 
-      {toast && <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>{toast.message}</div>}
+      {toast && (
+        <div className={`toast toast-${toast.type}`}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
 
 export default FacultyDepartmentAdmin;
+          

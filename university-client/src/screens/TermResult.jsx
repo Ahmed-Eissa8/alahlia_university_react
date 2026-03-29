@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import html2pdf from 'html2pdf.js';
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const getAllowedFaculties = () => {
   try {
@@ -976,9 +976,9 @@ const printResults = () => {
               {!canComputeTerm ? (
                 <p style={{ color: "#6b7280" }}>كمّل اختيار الفصل أولاً.</p>
               ) : computingResult || loadingResult ? (
-                <p>جارٍ التحميل...</p>
+                <p>جارٍ المعالجة...</p>
               ) : savedRows.length === 0 ? (
-                <p style={{ color: "#6b7280" }}>لا توجد نتيجة محفوظة/محسوبة لهذا الفصل بعد.</p>
+                <p>لا توجد نتائج محفوظة للعرض.</p>
               ) : (
                 <table className="simple-table" style={{ width: "100%" }}>
                   <thead>
@@ -986,27 +986,20 @@ const printResults = () => {
                       <th>#</th>
                       <th>الاسم</th>
                       <th>الرقم الجامعي</th>
-                      <th>الموقف الأكاديمي</th>
                       <th>GPA فصلي</th>
                       <th>GPA تراكمي</th>
                       <th>التصنيف</th>
-                      <th>نقاط الفصل</th>
-                      <th>ساعات الفصل</th>
                     </tr>
                   </thead>
                   <tbody>
                     {savedRows.map((r, idx) => (
-                      <tr key={`${r.student_id}-${idx}`}>
+                      <tr key={r.student_id}>
                         <td>{idx + 1}</td>
-                        <td>{r.full_name}</td>
+                        <td style={{ fontWeight: 800 }}>{r.full_name}</td>
                         <td>{r.university_id}</td>
-                        <td>{r.academic_status}</td>
-                        <td>{r.term_gpa ?? "—"}</td>
-                        <td>{r.cumulative_gpa ?? "—"}</td>
-                        <td>{r.classification_label ?? "—"}</td>
-                        <td>{r.term_total_points ?? "—"}</td>
-                        <td>{r.term_total_hours ?? "—"}</td>
-
+                        <td style={{ fontWeight: 800 }}>{Number(r.term_gpa || 0).toFixed(2)}</td>
+                        <td style={{ fontWeight: 800 }}>{Number(r.cumulative_gpa || 0).toFixed(2)}</td>
+                        <td>{r.classification_label || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1018,7 +1011,7 @@ const printResults = () => {
       </main>
 
       {toast && (
-        <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>
+        <div className={`toast toast-${toast.type}`}>
           {toast.message}
         </div>
       )}

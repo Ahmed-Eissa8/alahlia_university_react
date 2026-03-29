@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const allPortalTitles = [
   "المكتبة",
@@ -601,55 +601,32 @@ export default function UsersManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(u => (
+                  {filteredUsers.map((u) => (
                     <tr key={u.id}>
                       <td style={ui.td}>{u.username}</td>
-                      <td style={ui.td}>{u.full_name || '—'}</td>
+                      <td style={ui.td}>{u.full_name || "—"}</td>
                       <td style={ui.td}>{u.role}</td>
                       <td style={ui.td}>
-                        {(u.allowed_pages || []).length === 0 ? 'كل الصفحات' : u.allowed_pages.join(' • ')}
+                        <div style={{ fontSize: 13, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {u.allowed_pages.join("، ") || "لا يوجد"}
+                        </div>
                       </td>
                       <td style={ui.td}>
-                        {(u.allowed_faculties || []).length === 0
-                          ? 'كل الكليات'
-                          : u.allowed_faculties.map(id => {
-                              const f = faculties.find(fac => fac.id === id);
-                              return f ? f.faculty_name : id;
-                            }).join(' • ')
-                        }
+                        <div style={{ fontSize: 13 }}>
+                          {u.allowed_faculties.length > 0 ? `${u.allowed_faculties.length} كليات` : "الكل"}
+                        </div>
                       </td>
                       <td style={ui.td}>
-                        <div style={{ display: "flex", gap: 8 }}>
-                          <button
-                            onClick={() => handleEdit(u)}
-                            onMouseEnter={() => setHoverBtn(`edit-${u.id}`)}
-                            onMouseLeave={() => setHoverBtn(null)}
-                            onMouseDown={() => setActiveBtn(`edit-${u.id}`)}
-                            onMouseUp={() => setActiveBtn(null)}
-                            style={{
-                              ...ui.btnBase,
-                              ...ui.primaryBtn,
-                              ...ui.smallBtn,
-                              ...(hoverBtn === `edit-${u.id}` ? ui.btnHover : {}),
-                              ...(activeBtn === `edit-${u.id}` ? ui.btnActive : {}),
-                            }}
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button 
+                            onClick={() => handleEdit(u)} 
+                            style={{ ...ui.btnBase, ...ui.ghostBtn, ...ui.smallBtn }}
                           >
                             تعديل
                           </button>
-
-                          <button
-                            onClick={() => handleDelete(u.id)}
-                            onMouseEnter={() => setHoverBtn(`delete-${u.id}`)}
-                            onMouseLeave={() => setHoverBtn(null)}
-                            onMouseDown={() => setActiveBtn(`delete-${u.id}`)}
-                            onMouseUp={() => setActiveBtn(null)}
-                            style={{
-                              ...ui.btnBase,
-                              ...ui.dangerBtn,
-                              ...ui.smallBtn,
-                              ...(hoverBtn === `delete-${u.id}` ? ui.btnHover : {}),
-                              ...(activeBtn === `delete-${u.id}` ? ui.btnActive : {}),
-                            }}
+                          <button 
+                            onClick={() => handleDelete(u.id)} 
+                            style={{ ...ui.btnBase, ...ui.dangerBtn, ...ui.smallBtn }}
                           >
                             حذف
                           </button>
@@ -657,196 +634,18 @@ export default function UsersManagement() {
                       </td>
                     </tr>
                   ))}
-
-                  {filteredUsers.length === 0 && (
-                    <tr>
-                      <td colSpan="6" style={{ ...ui.td, textAlign: "center", padding: 20 }}>
-                        لا توجد نتائج مطابقة
-                      </td>
-                    </tr>
-                  )}
                 </tbody>
               </table>
             </div>
           </div>
-
-          {/* ─────────────── تعديل مستخدم ─────────────── */}
-          {editingUser && (
-            <div style={ui.card}>
-              <h3 style={ui.sectionTitle}>تعديل مستخدم: {editingUser.username}</h3>
-              <div style={ui.grid}>
-                <div style={ui.field}>
-                  <label style={ui.label}>اسم المستخدم</label>
-                  <input
-                    value={form.username}
-                    onChange={e => setForm({ ...form, username: e.target.value })}
-                    style={ui.input}
-                  />
-                </div>
-                <div style={ui.field}>
-                  <label style={ui.label}>الاسم الكامل</label>
-                  <input
-                    value={form.full_name}
-                    onChange={e => setForm({ ...form, full_name: e.target.value })}
-                    style={ui.input}
-                  />
-                </div>
-                <div style={ui.field}>
-                  <label style={ui.label}>الإيميل</label>
-                  <input
-                    value={form.email}
-                    onChange={e => setForm({ ...form, email: e.target.value })}
-                    style={ui.input}
-                  />
-                </div>
-                <div style={ui.field}>
-                  <label style={ui.label}>الدور / الوصف</label>
-                  <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} style={ui.select}>
-                    <option value="user">مستخدم عادي</option>
-                    <option value="admin">إداري</option>
-                    <option value="registrar">مسجل</option>
-                    <option value="instructor">مدرس</option>
-                  </select>
-                </div>
-              </div>
-
-              {isAdminModeEdit ? (
-                <div style={ui.adminNotice}>
-                  <strong>هذا المستخدم إداري </strong><br />
-                  يملك <strong>صلاحيات كاملة</strong> على:<br />
-                  • جميع الكليات<br />
-                  • جميع الصفحات  <br />
-                  (لا حاجة لتحديد كليات أو صفحات معينة)
-                </div>
-              ) : (
-                <>
-                  <div style={{ margin: '1.5rem 0' }}>
-                    <strong>الكليات المسموح الوصول إليها:</strong><br />
-                    {faculties.length === 0 ? (
-                      <div style={{ color: '#64748b', marginTop: 8 }}>جاري تحميل الكليات...</div>
-                    ) : (
-                      faculties.map(fac => (
-                        <label key={fac.id} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-                          <input
-                            type="checkbox"
-                            checked={form.allowed_faculties.includes(fac.id)}
-                            onChange={() => {
-                              setForm(prev => ({
-                                ...prev,
-                                allowed_faculties: prev.allowed_faculties.includes(fac.id)
-                                  ? prev.allowed_faculties.filter(id => id !== fac.id)
-                                  : [...prev.allowed_faculties, fac.id]
-                              }));
-                            }}
-                          />
-                          {fac.faculty_name}
-                        </label>
-                      ))
-                    )}
-                  </div>
-
-                  <div style={{ margin: '1.5rem 0' }}>
-                    <strong>الصفحات المسموحة:</strong><br />
-                    {allPortalTitles.map(title => (
-                      <label key={title} style={{ display: 'inline-block', margin: '0.4rem 1.2rem' }}>
-                        <input
-                          type="checkbox"
-                          checked={form.allowed_pages.includes(title)}
-                          onChange={() => togglePage(title)}
-                        />
-                        {title}
-                      </label>
-                    ))}
-                  </div>
-                </>
-              )}
-{!isAdminModeEdit && form.allowed_pages.includes("القبول والتسجيل") && (
-  <div style={{
-    margin: '1.5rem 0',
-    padding: '1rem 1.5rem',
-    background: '#f8fafc',
-    borderRadius: '10px',
-    border: '1px solid #e2e8f0'
-  }}>
-    <strong style={{ display: 'block', marginBottom: '12px', color: '#0a3753' }}>
-      التبويبات المسموح بها داخل صفحة القبول والتسجيل:
-    </strong>
-
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {registrationTabsList.map(tab => (
-        <label 
-          key={tab.key}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            fontSize: '15px',
-            color: '#334155'
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={form.registration_tab_permissions?.[tab.key] ?? false}
-            onChange={() => {
-              setForm(prev => ({
-                ...prev,
-                registration_tab_permissions: {
-                  ...(prev.registration_tab_permissions || {}),
-                  [tab.key]: !prev.registration_tab_permissions?.[tab.key]
-                }
-              }));
-            }}
-          />
-          {tab.label}
-        </label>
-      ))}
-    </div>
-  </div>
-)}
-
-              <div style={ui.btnRow}>
-                <button
-                  onClick={handleSaveEdit}
-                  onMouseEnter={() => setHoverBtn("save")}
-                  onMouseLeave={() => setHoverBtn(null)}
-                  onMouseDown={() => setActiveBtn("save")}
-                  onMouseUp={() => setActiveBtn(null)}
-                  style={{
-                    ...ui.btnBase,
-                    ...ui.primaryBtn,
-                    ...(hoverBtn === "save" ? ui.btnHover : {}),
-                    ...(activeBtn === "save" ? ui.btnActive : {}),
-                  }}
-                >
-                  حفظ التعديلات
-                </button>
-
-                <button
-                  onClick={() => setEditingUser(null)}
-                  onMouseEnter={() => setHoverBtn("cancel")}
-                  onMouseLeave={() => setHoverBtn(null)}
-                  onMouseDown={() => setActiveBtn("cancel")}
-                  onMouseUp={() => setActiveBtn(null)}
-                  style={{
-                    ...ui.btnBase,
-                    ...ui.ghostBtn,
-                    ...(hoverBtn === "cancel" ? ui.btnHover : {}),
-                    ...(activeBtn === "cancel" ? ui.btnActive : {}),
-                  }}
-                >
-                  إلغاء
-                </button>
-              </div>
-            </div>
-          )}
-
-          {toast && (
-            <div className={"toast " + (toast.type === "error" ? "toast-error" : "toast-success")}>
-              {toast.message}
-            </div>
-          )}
         </div>
       </main>
+
+      {toast && (
+        <div style={{ ...ui.toast, background: toast.type === 'error' ? '#dc2626' : '#059669' }}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
-}
+ }

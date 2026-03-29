@@ -3,7 +3,7 @@ import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import html2pdf from 'html2pdf.js';
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 const DAYS = ["السبت", "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس"];
 
 const ui = {
@@ -1401,45 +1401,32 @@ const saveSession = async () => {
                       placeholder="ابحث باسم القاعة..."
                       value={roomSearch}
                       onChange={(e) => setRoomSearch(e.target.value)}
-                      style={{ minWidth: 260}}
                     />
                   </div>
                 </div>
 
-                <div style={{ marginTop: 12 }}>
-                  {loadingRooms ? (
-                    <p>جارٍ تحميل القاعات...</p>
-                  ) : roomsFiltered?.length ? (
-                    <div style={{ overflowX: "auto" }}>
-                      <table className="simple-table" style={{ width: "100%" }}>
-                        <thead>
-                          <tr>
-                            <th style={{ width: 70 }}>#</th>
-                            <th>اسم القاعة</th>
-                            <th style={{ width: 220 }}>إجراء</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {roomsFiltered.map((r, idx) => (
-                            <RoomRow
-                              key={r.id}
-                              r={r}
-                              idx={idx}
-                              savingId={savingRoomId}
-                              onDelete={deleteRoom}
-                              onSaveEdit={saveRoomEdit}
-                            />
-                          ))}
-                        </tbody>
-                      </table>
-
-                      <div style={{ marginTop: 10, color: "#6b7280", fontWeight: 700 }}>
-                        العدد: {roomsFiltered.length} {roomSearch.trim() ? "(بعد البحث)" : ""}
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ color: "#6b7280", fontWeight: 700 }}>لا توجد قاعات.</div>
-                  )}
+                <div className="table-wrap" style={{ marginTop: 16 }}>
+                  <table className="simple-table" style={{ width: "100%" }}>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>اسم القاعة</th>
+                        <th>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {roomsFiltered.map((r, idx) => (
+                        <RoomRow
+                          key={r.id}
+                          r={r}
+                          idx={idx}
+                          onDelete={deleteRoom}
+                          onSaveEdit={saveRoomEdit}
+                          savingId={savingRoomId}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -1449,3 +1436,4 @@ const saveSession = async () => {
     </div>
   );
 }
+                    

@@ -19,7 +19,7 @@ function createBookFromJson(json) {
   };
 }
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
 const ui = {
   page: {
