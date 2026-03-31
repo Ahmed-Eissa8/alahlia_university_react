@@ -1,20 +1,21 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.2.2
--- http://www.phpmyadmin.net
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 14, 2026 at 02:02 PM
--- Server version: 5.5.27
--- PHP Version: 5.4.7
+-- Generation Time: Mar 30, 2026 at 02:22 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `university_db`
@@ -26,32 +27,15 @@ SET time_zone = "+00:00";
 -- Table structure for table `academic_periods`
 --
 
-CREATE TABLE IF NOT EXISTS `academic_periods` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `academic_periods` (
+  `id` int(11) NOT NULL,
   `academic_year` varchar(20) NOT NULL,
   `level_name` varchar(60) NOT NULL,
   `term_name` varchar(30) NOT NULL,
   `program_type` enum('diploma','bachelor','postgraduate') NOT NULL DEFAULT 'bachelor',
   `postgraduate_program` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_period` (`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
-  KEY `idx_academic_periods_academic_year` (`academic_year`),
-  KEY `idx_academic_periods_level_name` (`level_name`),
-  KEY `idx_academic_periods_term_name` (`term_name`),
-  KEY `idx_academic_periods_program_type` (`program_type`),
-  KEY `idx_academic_periods_postgraduate_program` (`postgraduate_program`),
-  KEY `idx_academic_periods_program_type_postgraduate_program` (`program_type`,`postgraduate_program`),
-  KEY `idx_ap_year` (`academic_year`),
-  KEY `idx_ap_level` (`level_name`),
-  KEY `idx_ap_term` (`term_name`),
-  KEY `idx_ap_prog_type` (`program_type`),
-  KEY `idx_ap_pg_program` (`postgraduate_program`),
-  KEY `idx_ap_prog_pg` (`program_type`,`postgraduate_program`),
-  KEY `idx_ap_year_prog_pg` (`academic_year`,`program_type`,`postgraduate_program`),
-  KEY `idx_ap_year_level_prog` (`academic_year`,`level_name`,`program_type`),
-  KEY `idx_academic_periods_year_level_term` (`academic_year`,`level_name`,`term_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=268 ;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `academic_periods`
@@ -322,7 +306,12 @@ INSERT INTO `academic_periods` (`id`, `academic_year`, `level_name`, `term_name`
 (264, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-12 10:12:48'),
 (265, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-12 13:34:49'),
 (266, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'diploma', NULL, '2026-03-12 13:36:26'),
-(267, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'diploma', NULL, '2026-03-12 13:36:27');
+(267, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'diploma', NULL, '2026-03-12 13:36:27'),
+(268, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-15 14:32:16'),
+(269, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-15 14:32:16'),
+(270, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-15 14:58:43'),
+(271, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-15 14:59:52'),
+(272, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'bachelor', NULL, '2026-03-15 14:59:53');
 
 -- --------------------------------------------------------
 
@@ -330,26 +319,24 @@ INSERT INTO `academic_periods` (`id`, `academic_year`, `level_name`, `term_name`
 -- Table structure for table `books`
 --
 
-CREATE TABLE IF NOT EXISTS `books` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `description` text CHARACTER SET utf8,
-  `author` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `faculty` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `pdf_url` varchar(500) CHARACTER SET utf8 DEFAULT NULL,
-  `is_pdf` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_borrowed` tinyint(1) DEFAULT '0',
-  `borrower_name` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `borrower_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+CREATE TABLE `books` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `description` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `author` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `faculty` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `pdf_url` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `is_pdf` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_borrowed` tinyint(1) DEFAULT 0,
+  `borrower_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `borrower_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `borrowed_at` datetime DEFAULT NULL,
   `returned_at` datetime DEFAULT NULL,
-  `copies` int(11) DEFAULT '1',
-  `location` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `faculty_id` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_books_faculty` (`faculty_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=23 ;
+  `copies` int(11) DEFAULT 1,
+  `location` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `faculty_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `books`
@@ -384,17 +371,15 @@ INSERT INTO `books` (`id`, `title`, `description`, `author`, `faculty`, `pdf_url
 -- Table structure for table `borrowed_books`
 --
 
-CREATE TABLE IF NOT EXISTS `borrowed_books` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `borrowed_books` (
+  `id` int(11) NOT NULL,
   `book_id` int(11) NOT NULL,
-  `student_id` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `student_name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `faculty` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `borrowed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `returned_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+  `student_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `student_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `faculty` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `borrowed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `returned_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `borrowed_books`
@@ -410,8 +395,8 @@ INSERT INTO `borrowed_books` (`id`, `book_id`, `student_id`, `student_name`, `fa
 -- Table structure for table `courses`
 --
 
-CREATE TABLE IF NOT EXISTS `courses` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `courses` (
+  `id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `department_id` int(11) NOT NULL,
   `academic_year` varchar(20) NOT NULL,
@@ -420,38 +405,14 @@ CREATE TABLE IF NOT EXISTS `courses` (
   `course_name` varchar(255) NOT NULL,
   `instructor` varchar(255) DEFAULT NULL,
   `credit_hours` decimal(5,2) DEFAULT NULL,
-  `total_mark` int(11) NOT NULL DEFAULT '100',
-  `coursework_max` int(11) NOT NULL DEFAULT '40',
-  `final_exam_max` int(11) NOT NULL DEFAULT '60',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `total_mark` int(11) NOT NULL DEFAULT 100,
+  `coursework_max` int(11) NOT NULL DEFAULT 40,
+  `final_exam_max` int(11) NOT NULL DEFAULT 60,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `program_type` varchar(20) NOT NULL DEFAULT 'bachelor',
-  `postgraduate_program` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_courses_filter` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`),
-  KEY `fk_courses_department` (`department_id`),
-  KEY `idx_courses_faculty_id` (`faculty_id`),
-  KEY `idx_courses_department_id` (`department_id`),
-  KEY `idx_courses_academic_year` (`academic_year`),
-  KEY `idx_courses_level_name` (`level_name`),
-  KEY `idx_courses_term_name` (`term_name`),
-  KEY `idx_courses_program_type` (`program_type`),
-  KEY `idx_courses_postgraduate_program` (`postgraduate_program`),
-  KEY `idx_courses_course_name` (`course_name`),
-  KEY `idx_crs_faculty` (`faculty_id`),
-  KEY `idx_crs_dept` (`department_id`),
-  KEY `idx_crs_year` (`academic_year`),
-  KEY `idx_crs_level` (`level_name`),
-  KEY `idx_crs_term` (`term_name`),
-  KEY `idx_crs_prog` (`program_type`),
-  KEY `idx_crs_pg` (`postgraduate_program`),
-  KEY `idx_crs_name` (`course_name`),
-  KEY `idx_crs_fac_dept` (`faculty_id`,`department_id`),
-  KEY `idx_crs_period` (`academic_year`,`level_name`,`term_name`),
-  KEY `idx_crs_prog_pg` (`program_type`,`postgraduate_program`),
-  KEY `idx_crs_yr_lvl_term` (`academic_year`,`level_name`,`term_name`),
-  KEY `idx_crs_fac_yr_lvl` (`faculty_id`,`academic_year`,`level_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=65 ;
+  `postgraduate_program` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `courses`
@@ -529,32 +490,20 @@ INSERT INTO `courses` (`id`, `faculty_id`, `department_id`, `academic_year`, `le
 -- Table structure for table `course_grades`
 --
 
-CREATE TABLE IF NOT EXISTS `course_grades` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `course_grades` (
+  `id` int(11) NOT NULL,
   `course_id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
-  `attempt_number` tinyint(3) unsigned NOT NULL DEFAULT '1',
+  `attempt_number` tinyint(3) UNSIGNED NOT NULL DEFAULT 1,
   `coursework_mark` decimal(6,2) DEFAULT NULL,
   `final_exam_mark` decimal(6,2) DEFAULT NULL,
   `total_mark` decimal(6,2) DEFAULT NULL,
   `letter` varchar(10) DEFAULT NULL,
   `points` decimal(4,2) DEFAULT NULL,
-  `is_repeat` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_student_course_attempt` (`student_id`,`course_id`,`attempt_number`),
-  KEY `fk_course_grades_student` (`student_id`),
-  KEY `fk_course_grades_course` (`course_id`),
-  KEY `idx_course_grades_student_id` (`student_id`),
-  KEY `idx_course_grades_course_id` (`course_id`),
-  KEY `idx_course_grades_attempt_number` (`attempt_number`),
-  KEY `idx_course_grades_student_id_course_id` (`student_id`,`course_id`),
-  KEY `idx_grd_std_course` (`student_id`,`course_id`),
-  KEY `idx_grd_attempt` (`attempt_number`),
-  KEY `idx_course_grades_student_course` (`student_id`,`course_id`),
-  KEY `idx_course_grades_course` (`course_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=186 ;
+  `is_repeat` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `course_grades`
@@ -698,16 +647,12 @@ INSERT INTO `course_grades` (`id`, `course_id`, `student_id`, `attempt_number`, 
 -- Table structure for table `departments`
 --
 
-CREATE TABLE IF NOT EXISTS `departments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `departments` (
+  `id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
-  `department_name` varchar(200) CHARACTER SET utf8 NOT NULL,
-  `levels_count` int(11) DEFAULT '4',
-  PRIMARY KEY (`id`),
-  KEY `faculty_id` (`faculty_id`),
-  KEY `idx_departments_faculty_id` (`faculty_id`),
-  KEY `idx_departments_department_name` (`department_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
+  `department_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `levels_count` int(11) DEFAULT 4
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `departments`
@@ -733,13 +678,11 @@ INSERT INTO `departments` (`id`, `faculty_id`, `department_name`, `levels_count`
 -- Table structure for table `faculties`
 --
 
-CREATE TABLE IF NOT EXISTS `faculties` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `faculty_name` varchar(200) CHARACTER SET utf8 NOT NULL,
-  `faculty_type` enum('theoretical','practical') NOT NULL DEFAULT 'theoretical',
-  PRIMARY KEY (`id`),
-  KEY `idx_faculties_faculty_name` (`faculty_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
+CREATE TABLE `faculties` (
+  `id` int(11) NOT NULL,
+  `faculty_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `faculty_type` enum('theoretical','practical') NOT NULL DEFAULT 'theoretical'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `faculties`
@@ -759,11 +702,12 @@ INSERT INTO `faculties` (`id`, `faculty_name`, `faculty_type`) VALUES
 -- Table structure for table `fees`
 --
 
-CREATE TABLE IF NOT EXISTS `fees` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `fees` (
+  `id` int(11) NOT NULL,
   `student_id` int(11) DEFAULT NULL,
   `academic_year` varchar(20) NOT NULL,
   `level_name` varchar(60) NOT NULL,
+  `currency` enum('SDG','USD') NOT NULL DEFAULT 'SDG',
   `term_name` varchar(30) NOT NULL,
   `program_type` enum('diploma','bachelor','postgraduate') NOT NULL DEFAULT 'bachelor',
   `postgraduate_program` varchar(100) DEFAULT NULL,
@@ -772,91 +716,84 @@ CREATE TABLE IF NOT EXISTS `fees` (
   `tuition_fee` decimal(10,2) DEFAULT NULL,
   `late_fee` decimal(10,2) DEFAULT NULL,
   `scholarship_type` varchar(100) DEFAULT 'لا منحة',
-  `scholarship_percentage` decimal(5,2) DEFAULT '0.00' COMMENT 'نسبة الخصم',
+  `scholarship_percentage` decimal(5,2) DEFAULT 0.00 COMMENT 'نسبة الخصم',
   `scholarship_granted_by` varchar(150) DEFAULT NULL,
   `payment_start_date` date DEFAULT NULL,
   `payment_end_date` date DEFAULT NULL,
   `installment_1` decimal(10,2) DEFAULT NULL,
   `installment_1_start` date DEFAULT NULL,
   `installment_1_end` date DEFAULT NULL,
-  `installment_1_paid` tinyint(1) DEFAULT '0',
+  `installment_1_paid` tinyint(1) DEFAULT 0,
   `installment_1_paid_at` date DEFAULT NULL,
   `installment_2` decimal(10,2) DEFAULT NULL,
   `installment_2_start` date DEFAULT NULL,
   `installment_2_end` date DEFAULT NULL,
-  `installment_2_paid` tinyint(1) DEFAULT '0',
+  `installment_2_paid` tinyint(1) DEFAULT 0,
   `installment_2_paid_at` date DEFAULT NULL,
   `installment_3` decimal(10,2) DEFAULT NULL,
   `installment_3_start` date DEFAULT NULL,
   `installment_3_end` date DEFAULT NULL,
-  `installment_3_paid` tinyint(1) DEFAULT '0',
+  `installment_3_paid` tinyint(1) DEFAULT 0,
   `installment_3_paid_at` date DEFAULT NULL,
   `installment_4` decimal(10,2) DEFAULT NULL,
   `installment_4_start` date DEFAULT NULL,
   `installment_4_end` date DEFAULT NULL,
-  `installment_4_paid` tinyint(1) DEFAULT '0',
+  `installment_4_paid` tinyint(1) DEFAULT 0,
   `installment_4_paid_at` date DEFAULT NULL,
   `installment_5` decimal(10,2) DEFAULT NULL,
   `installment_5_start` date DEFAULT NULL,
   `installment_5_end` date DEFAULT NULL,
-  `installment_5_paid` tinyint(1) DEFAULT '0',
+  `installment_5_paid` tinyint(1) DEFAULT 0,
   `installment_5_paid_at` date DEFAULT NULL,
   `installment_6` decimal(10,2) DEFAULT NULL,
   `installment_6_start` date DEFAULT NULL,
   `installment_6_end` date DEFAULT NULL,
-  `installment_6_paid` tinyint(1) DEFAULT '0',
+  `installment_6_paid` tinyint(1) DEFAULT 0,
   `installment_6_paid_at` date DEFAULT NULL,
   `registrar` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `freeze_fee` decimal(10,2) DEFAULT '0.00',
-  `unfreeze_fee` decimal(10,2) DEFAULT '0.00',
-  `repeat_discount` int(11) DEFAULT '50',
-  `is_paid` tinyint(1) DEFAULT '0' COMMENT '0 = غير مدفوع, 1 = مدفوع',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
-  UNIQUE KEY `uq_default_period` (`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
-  KEY `fk_fees_student` (`student_id`),
-  KEY `fk_fees_department` (`department_id`),
-  KEY `idx_fees_student_year_level` (`student_id`,`academic_year`,`level_name`),
-  KEY `idx_fees_year_level` (`academic_year`,`level_name`),
-  KEY `idx_fees_dept_year_level` (`department_id`,`academic_year`,`level_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=35 ;
+  `freeze_fee` decimal(10,2) DEFAULT 0.00,
+  `unfreeze_fee` decimal(10,2) DEFAULT 0.00,
+  `repeat_discount` int(11) DEFAULT 50,
+  `is_paid` tinyint(1) DEFAULT 0 COMMENT '0 = غير مدفوع, 1 = مدفوع'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `fees`
 --
 
-INSERT INTO `fees` (`id`, `student_id`, `academic_year`, `level_name`, `term_name`, `program_type`, `postgraduate_program`, `department_id`, `registration_fee`, `tuition_fee`, `late_fee`, `scholarship_type`, `scholarship_percentage`, `scholarship_granted_by`, `payment_start_date`, `payment_end_date`, `installment_1`, `installment_1_start`, `installment_1_end`, `installment_1_paid`, `installment_1_paid_at`, `installment_2`, `installment_2_start`, `installment_2_end`, `installment_2_paid`, `installment_2_paid_at`, `installment_3`, `installment_3_start`, `installment_3_end`, `installment_3_paid`, `installment_3_paid_at`, `installment_4`, `installment_4_start`, `installment_4_end`, `installment_4_paid`, `installment_4_paid_at`, `installment_5`, `installment_5_start`, `installment_5_end`, `installment_5_paid`, `installment_5_paid_at`, `installment_6`, `installment_6_start`, `installment_6_end`, `installment_6_paid`, `installment_6_paid_at`, `registrar`, `created_at`, `updated_at`, `freeze_fee`, `unfreeze_fee`, `repeat_discount`, `is_paid`) VALUES
-(1, NULL, '2026/2027', 'المستوى الأول', '', 'bachelor', NULL, 8, 2500.00, 3500.00, 500.00, 'لا منحة', 0.00, NULL, '2026-04-04', '2026-05-05', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-19 11:49:07', '2026-02-21 12:58:00', 0.00, 0.00, 50, 0),
-(3, 12, '2026/2027', 'المستوى الأول', '', 'bachelor', NULL, NULL, 2500.00, 3500.00, 500.00, 'منحة أشقاء', 0.00, NULL, '2026-02-22', '2026-03-31', 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, '', '2026-02-22 12:17:23', '2026-02-22 12:17:23', 0.00, 0.00, 50, 0),
-(4, NULL, '2026/2027', 'المستوى الأول', '', 'bachelor', NULL, 5, 55000.00, 60000.00, 0.00, 'لا منحة', 0.00, NULL, '2026-02-23', '2026-03-23', 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, '', '2026-02-23 10:58:34', '2026-02-23 10:58:34', 0.00, 0.00, 50, 0),
-(5, NULL, '2025/2026', 'المستوى الثاني', '', 'bachelor', NULL, 5, 1500.00, 3500.00, 0.00, 'لا منحة', 0.00, NULL, '2026-02-23', '2026-02-28', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-23 12:55:35', '2026-02-23 12:55:35', 0.00, 0.00, 50, 0),
-(6, 3, '2025/2026', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 1500.00, 1750.00, 0.00, 'أخرى', 50.00, NULL, '2026-02-22', '2026-02-27', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 11:09:13', '2026-02-25 11:09:13', 0.00, 0.00, 50, 0),
-(7, 2, '2025/2026', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'منحة أبناء عاملين', 75.00, NULL, '2026-02-22', '2026-02-27', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 11:59:50', '2026-02-25 11:59:50', 0.00, 0.00, 50, 0),
-(9, 9, '2025/2026', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 2375.00, '2026-02-22', '2026-03-22', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 12:51:07', '2026-02-26 10:37:52', 0.00, 0.00, 50, 0),
-(10, NULL, '2026/2027', 'المستوى الأول', '', 'bachelor', NULL, 10, 15000.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-26 11:03:49', '2026-02-26 11:03:49', 0.00, 0.00, 50, 0),
-(11, NULL, '2026/2027', 'المستوى الثاني', '', 'bachelor', NULL, 2, 15000.00, 5000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 07:53:13', '2026-03-01 07:53:13', 0.00, 0.00, 50, 0),
-(12, 3, '2026/2027', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 15000.00, 1750.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 8375.00, '2026-03-02', '2026-03-30', 1, '2026-03-01', 8375.00, '2026-04-01', '2026-04-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 07:56:40', '2026-03-01 07:58:24', 0.00, 0.00, 50, 0),
-(13, 6, '2026/2027', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 15000.00, 2450.00, 0.00, 'منحة أشقاء', 30.00, NULL, NULL, NULL, 17450.00, '2026-03-02', '2026-04-02', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 11:11:13', '2026-03-01 11:31:45', 0.00, 0.00, 50, 0),
-(14, NULL, '2027/2028', 'المستوى الثالث', '', 'bachelor', NULL, 1, 24000.00, 16000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 11:36:53', '2026-03-01 11:36:53', 0.00, 0.00, 50, 0),
-(16, 6, '2027/2028', 'المستوى الثالث', '', 'bachelor', NULL, NULL, 24000.00, 11200.00, 0.00, 'منحة أشقاء', 30.00, NULL, NULL, NULL, 17600.00, '2026-03-02', '2026-04-02', 0, NULL, 17600.00, '2026-05-02', '2026-06-02', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 12:53:29', '2026-03-01 12:53:29', 0.00, 0.00, 50, 0),
-(17, 83, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15000.00, 15040.00, 0.00, 'أخرى', 20.00, 'الوكيل (محمد خالد)', NULL, NULL, 30040.00, '2026-02-01', '2026-02-14', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-02 14:09:42', '2026-03-10 12:54:34', 0.00, 0.00, 50, 0),
-(18, NULL, '2025/2026', 'المستوى الخامس', '', 'bachelor', NULL, 5, 25000.00, 15000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-03 09:37:40', '2026-03-03 09:37:40', 0.00, 0.00, 50, 0),
-(19, 17, '2025/2026', 'المستوى الخامس', '', 'bachelor', NULL, NULL, 25000.00, 15000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 20000.00, '2026-02-02', '2026-02-28', 1, NULL, 20000.00, '2026-03-02', '2026-03-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-03 09:39:32', '2026-03-03 09:39:32', 0.00, 0.00, 50, 0),
-(20, NULL, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, 8, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:15:06', '2026-03-04 11:15:06', 0.00, 0.00, 50, 0),
-(21, 86, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'منحة أشقاء', 50.00, 'المدير', NULL, NULL, 17000.00, '2026-03-04', '2026-03-25', 1, '2026-03-12', 8500.00, '2026-04-04', '2026-04-25', 0, NULL, 8500.00, '2026-05-07', '2026-05-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:16:15', '2026-03-07 13:38:06', 0.00, 0.00, 50, 0),
-(23, 85, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-04', '2026-03-25', 0, NULL, 17000.00, '2026-04-04', '2026-04-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:24:33', '2026-03-04 11:24:33', 0.00, 0.00, 50, 0),
-(24, 84, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 11333.34, '2026-03-04', '2026-03-25', 0, NULL, 11333.33, '2026-04-04', '2026-04-25', 0, NULL, 11333.33, '2026-05-04', '2026-05-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:30:59', '2026-03-04 12:02:38', 0.00, 0.00, 50, 0),
-(25, 87, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-07', '2026-03-28', 1, NULL, 17000.00, '2026-04-07', '2026-04-28', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 11:53:49', '2026-03-07 11:53:49', 0.00, 0.00, 50, 0),
-(26, 88, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 11333.34, '2026-03-07', '2026-03-25', 1, NULL, 11333.33, '2026-04-07', '2026-04-25', 1, NULL, 5666.67, '2026-05-07', '2026-05-25', 0, NULL, 5666.66, '2026-06-07', '2026-06-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 12:07:01', '2026-03-07 12:09:10', 0.00, 0.00, 50, 0),
-(27, 89, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-07', '2026-03-25', 0, NULL, 17000.00, '2026-04-07', '2026-04-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 13:05:11', '2026-03-07 13:05:11', 0.00, 0.00, 50, 0),
-(28, NULL, '2026/2027', 'المستوى الأول', '', 'postgraduate', 'ماجستير البرمجيات المدمجة', 3, 5500.00, 500.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 08:21:15', '2026-03-12 08:21:15', 0.00, 0.00, 50, 0),
-(30, 90, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 12100.00, '2026-03-12', '2026-03-26', 0, NULL, 12100.00, '2026-04-12', '2026-04-26', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 10:15:26', '2026-03-12 10:15:26', 0.00, 0.00, 50, 0),
-(31, 2, '2026/2027', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 15000.00, 5000.00, 0.00, 'منحة أبناء عاملين', 75.00, 'المدير محمد  خالد', NULL, NULL, 10000.00, '2026-03-12', '2026-04-26', 0, NULL, 10000.00, '2026-04-12', '2026-04-26', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 10:46:57', '2026-03-12 10:46:57', 0.00, 0.00, 50, 0),
-(32, 20, '2026/2027', 'المستوى الثاني', '', 'bachelor', NULL, NULL, 15000.00, 5000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 10000.00, '2026-03-12', '2026-03-28', 1, NULL, 10000.00, '2026-04-12', '2026-04-28', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 12:49:44', '2026-03-12 12:49:44', 0.00, 0.00, 50, 0),
-(33, 76, '2025/2026', 'المستوى الأول', '', 'bachelor', NULL, NULL, 15200.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 12100.00, '2026-03-12', '2026-03-27', 0, NULL, 12100.00, '2026-04-12', '2026-04-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 13:29:24', '2026-03-12 13:29:24', 0.00, 0.00, 50, 0),
-(34, 91, '2025/2026', 'المستوى الأول', '', 'diploma', NULL, NULL, 500.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 4750.00, '2026-03-13', '2026-03-30', 1, NULL, 2375.00, '2026-05-12', '2026-05-30', 0, NULL, 2375.00, '2026-06-12', '2026-06-27', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 13:37:32', '2026-03-12 13:42:40', 0.00, 0.00, 50, 0);
+INSERT INTO `fees` (`id`, `student_id`, `academic_year`, `level_name`, `currency`, `term_name`, `program_type`, `postgraduate_program`, `department_id`, `registration_fee`, `tuition_fee`, `late_fee`, `scholarship_type`, `scholarship_percentage`, `scholarship_granted_by`, `payment_start_date`, `payment_end_date`, `installment_1`, `installment_1_start`, `installment_1_end`, `installment_1_paid`, `installment_1_paid_at`, `installment_2`, `installment_2_start`, `installment_2_end`, `installment_2_paid`, `installment_2_paid_at`, `installment_3`, `installment_3_start`, `installment_3_end`, `installment_3_paid`, `installment_3_paid_at`, `installment_4`, `installment_4_start`, `installment_4_end`, `installment_4_paid`, `installment_4_paid_at`, `installment_5`, `installment_5_start`, `installment_5_end`, `installment_5_paid`, `installment_5_paid_at`, `installment_6`, `installment_6_start`, `installment_6_end`, `installment_6_paid`, `installment_6_paid_at`, `registrar`, `created_at`, `updated_at`, `freeze_fee`, `unfreeze_fee`, `repeat_discount`, `is_paid`) VALUES
+(1, NULL, '2026/2027', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, 8, 2500.00, 3500.00, 500.00, 'لا منحة', 0.00, NULL, '2026-04-04', '2026-05-05', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-19 11:49:07', '2026-02-21 12:58:00', 0.00, 0.00, 50, 0),
+(3, 12, '2026/2027', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 2500.00, 3500.00, 500.00, 'منحة أشقاء', 0.00, NULL, '2026-02-22', '2026-03-31', 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, '', '2026-02-22 12:17:23', '2026-02-22 12:17:23', 0.00, 0.00, 50, 0),
+(4, NULL, '2026/2027', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, 5, 55000.00, 60000.00, 0.00, 'لا منحة', 0.00, NULL, '2026-02-23', '2026-03-23', 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, 0.00, NULL, NULL, 0, NULL, '', '2026-02-23 10:58:34', '2026-02-23 10:58:34', 0.00, 0.00, 50, 0),
+(5, NULL, '2025/2026', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, 5, 1500.00, 3500.00, 0.00, 'لا منحة', 0.00, NULL, '2026-02-23', '2026-02-28', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-23 12:55:35', '2026-02-23 12:55:35', 0.00, 0.00, 50, 0),
+(6, 3, '2025/2026', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 1500.00, 1750.00, 0.00, 'أخرى', 50.00, NULL, '2026-02-22', '2026-02-27', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 11:09:13', '2026-02-25 11:09:13', 0.00, 0.00, 50, 0),
+(7, 2, '2025/2026', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'منحة أبناء عاملين', 75.00, NULL, '2026-02-22', '2026-02-27', NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 11:59:50', '2026-02-25 11:59:50', 0.00, 0.00, 50, 0),
+(9, 9, '2025/2026', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 1500.00, 875.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 2375.00, '2026-02-22', '2026-03-22', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-25 12:51:07', '2026-02-26 10:37:52', 0.00, 0.00, 50, 0),
+(10, NULL, '2026/2027', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, 10, 15000.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-02-26 11:03:49', '2026-02-26 11:03:49', 0.00, 0.00, 50, 0),
+(11, NULL, '2026/2027', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, 2, 15000.00, 5000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 07:53:13', '2026-03-01 07:53:13', 0.00, 0.00, 50, 0),
+(12, 3, '2026/2027', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 15000.00, 1750.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 8375.00, '2026-03-02', '2026-03-30', 1, '2026-03-01', 8375.00, '2026-04-01', '2026-04-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 07:56:40', '2026-03-01 07:58:24', 0.00, 0.00, 50, 0),
+(13, 6, '2026/2027', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 15000.00, 2450.00, 0.00, 'منحة أشقاء', 30.00, NULL, NULL, NULL, 17450.00, '2026-03-02', '2026-04-02', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 11:11:13', '2026-03-01 11:31:45', 0.00, 0.00, 50, 0),
+(14, NULL, '2027/2028', 'المستوى الثالث', 'SDG', '', 'bachelor', NULL, 1, 24000.00, 16000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 11:36:53', '2026-03-01 11:36:53', 0.00, 0.00, 50, 0),
+(16, 6, '2027/2028', 'المستوى الثالث', 'SDG', '', 'bachelor', NULL, NULL, 24000.00, 11200.00, 0.00, 'منحة أشقاء', 30.00, NULL, NULL, NULL, 17600.00, '2026-03-02', '2026-04-02', 0, NULL, 17600.00, '2026-05-02', '2026-06-02', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-01 12:53:29', '2026-03-01 12:53:29', 0.00, 0.00, 50, 0),
+(17, 83, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15000.00, 15040.00, 0.00, 'أخرى', 20.00, 'الوكيل (محمد خالد)', NULL, NULL, 30040.00, '2026-02-01', '2026-02-14', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-02 14:09:42', '2026-03-10 12:54:34', 0.00, 0.00, 50, 0),
+(18, NULL, '2025/2026', 'المستوى الخامس', 'SDG', '', 'bachelor', NULL, 5, 25000.00, 15000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-03 09:37:40', '2026-03-03 09:37:40', 0.00, 0.00, 50, 0),
+(19, 17, '2025/2026', 'المستوى الخامس', 'SDG', '', 'bachelor', NULL, NULL, 25000.00, 15000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 20000.00, '2026-02-02', '2026-02-28', 1, '2026-03-03', 20000.00, '2026-03-02', '2026-03-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-03 09:39:32', '2026-03-03 09:39:32', 0.00, 0.00, 50, 0),
+(20, NULL, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, 8, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:15:06', '2026-03-04 11:15:06', 0.00, 0.00, 50, 0),
+(21, 86, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'منحة أشقاء', 50.00, 'المدير', NULL, NULL, 17000.00, '2026-03-04', '2026-03-25', 1, '2026-03-12', 8500.00, '2026-04-04', '2026-04-25', 0, NULL, 8500.00, '2026-05-07', '2026-05-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:16:15', '2026-03-15 15:32:04', 0.00, 0.00, 50, 0),
+(23, 85, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-04', '2026-03-25', 0, NULL, 17000.00, '2026-04-04', '2026-04-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:24:33', '2026-03-04 11:24:33', 0.00, 0.00, 50, 0),
+(24, 84, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 11333.34, '2026-03-04', '2026-03-25', 0, NULL, 11333.33, '2026-04-04', '2026-04-25', 0, NULL, 11333.33, '2026-05-04', '2026-05-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-04 11:30:59', '2026-03-04 12:02:38', 0.00, 0.00, 50, 0),
+(25, 87, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-07', '2026-03-28', 1, NULL, 17000.00, '2026-04-07', '2026-04-28', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 11:53:49', '2026-03-07 11:53:49', 0.00, 0.00, 50, 0),
+(26, 88, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 11333.34, '2026-03-07', '2026-03-25', 1, NULL, 11333.33, '2026-04-07', '2026-04-25', 1, NULL, 5666.67, '2026-05-07', '2026-05-25', 0, NULL, 5666.66, '2026-06-07', '2026-06-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 12:07:01', '2026-03-07 12:09:10', 0.00, 0.00, 50, 0),
+(27, 89, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-07', '2026-03-25', 0, NULL, 17000.00, '2026-04-07', '2026-04-25', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-07 13:05:11', '2026-03-07 13:05:11', 0.00, 0.00, 50, 0),
+(28, NULL, '2026/2027', 'المستوى الأول', 'SDG', '', 'postgraduate', 'ماجستير البرمجيات المدمجة', 3, 5500.00, 500.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 08:21:15', '2026-03-12 08:21:15', 0.00, 0.00, 50, 0),
+(30, 90, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 12100.00, '2026-03-12', '2026-03-26', 0, NULL, 12100.00, '2026-04-12', '2026-04-26', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 10:15:26', '2026-03-12 10:15:26', 0.00, 0.00, 50, 0),
+(31, 2, '2026/2027', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 15000.00, 5000.00, 0.00, 'منحة أبناء عاملين', 75.00, 'المدير محمد  خالد', NULL, NULL, 10000.00, '2026-03-12', '2026-04-26', 0, NULL, 10000.00, '2026-04-12', '2026-04-26', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 10:46:57', '2026-03-12 10:46:57', 0.00, 0.00, 50, 0),
+(32, 20, '2026/2027', 'المستوى الثاني', 'SDG', '', 'bachelor', NULL, NULL, 15000.00, 5000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 10000.00, '2026-03-12', '2026-03-28', 1, NULL, 10000.00, '2026-04-12', '2026-04-28', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 12:49:44', '2026-03-12 12:49:44', 0.00, 0.00, 50, 0),
+(33, 76, '2025/2026', 'المستوى الأول', 'SDG', '', 'bachelor', NULL, NULL, 15200.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 12100.00, '2026-03-12', '2026-03-27', 0, NULL, 12100.00, '2026-04-12', '2026-04-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 13:29:24', '2026-03-12 13:29:24', 0.00, 0.00, 50, 0),
+(34, 91, '2025/2026', 'المستوى الأول', 'SDG', '', 'diploma', NULL, NULL, 500.00, 9000.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 4750.00, '2026-03-13', '2026-03-30', 1, NULL, 2375.00, '2026-05-12', '2026-05-30', 0, NULL, 2375.00, '2026-06-12', '2026-06-27', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-12 13:37:32', '2026-03-12 13:42:40', 0.00, 0.00, 50, 0),
+(35, 93, '2025/2026', 'المستوى الأول', 'USD', '', 'bachelor', NULL, NULL, 15200.00, 18800.00, 0.00, 'لا منحة', 0.00, NULL, NULL, NULL, 17000.00, '2026-03-15', '2026-03-31', 0, NULL, 17000.00, '2026-04-15', '2026-04-30', 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, NULL, '', '2026-03-15 15:26:11', '2026-03-15 16:12:30', 0.00, 0.00, 50, 0);
 
 -- --------------------------------------------------------
 
@@ -864,8 +801,8 @@ INSERT INTO `fees` (`id`, `student_id`, `academic_year`, `level_name`, `term_nam
 -- Table structure for table `grading_rules`
 --
 
-CREATE TABLE IF NOT EXISTS `grading_rules` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `grading_rules` (
+  `id` int(11) NOT NULL,
   `rule_type` varchar(30) NOT NULL,
   `program_mode` varchar(20) DEFAULT NULL,
   `label` varchar(255) NOT NULL,
@@ -875,24 +812,18 @@ CREATE TABLE IF NOT EXISTS `grading_rules` (
   `term_calc_mode` enum('percentage','courses') DEFAULT NULL,
   `gpa_max` decimal(4,2) DEFAULT NULL,
   `cumulative_calc_mode` enum('simple_avg','weighted_avg') DEFAULT NULL,
-  `sort_order` int(11) NOT NULL DEFAULT '0',
+  `sort_order` int(11) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_grading_rules_faculty` (`faculty_id`),
-  KEY `idx_grading_rules_faculty_id` (`faculty_id`),
-  KEY `idx_grading_rules_rule_type` (`rule_type`),
-  KEY `idx_grading_rules_faculty_id_rule_type` (`faculty_id`,`rule_type`),
-  KEY `idx_grd_fac_type` (`faculty_id`,`rule_type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=196 ;
+  `faculty_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `grading_rules`
 --
 
 INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_value`, `max_value`, `points`, `term_calc_mode`, `gpa_max`, `cumulative_calc_mode`, `sort_order`, `created_at`, `updated_at`, `faculty_id`) VALUES
-(53, 'gpa_settings', NULL, '{"total_mark":100,"final_exam_max":60,"coursework_max":40,"rounding_decimals":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
+(53, 'gpa_settings', NULL, '{\"total_mark\":100,\"final_exam_max\":60,\"coursework_max\":40,\"rounding_decimals\":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
 (56, 'grade_scale', NULL, 'A', 80.00, 100.00, 4.00, NULL, NULL, NULL, 1, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
 (59, 'grade_scale', NULL, 'B+', 75.00, 79.99, 3.50, NULL, NULL, NULL, 2, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
 (62, 'grade_scale', NULL, 'B', 70.00, 74.99, 3.00, NULL, NULL, NULL, 3, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
@@ -908,7 +839,7 @@ INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_va
 (108, 'gpa_classification', 'general', 'جيد جداً', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
 (111, 'gpa_classification', 'general', 'جيد', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
 (114, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2025-12-28 13:29:04', '2025-12-28 13:29:04', 2),
-(148, 'gpa_settings', NULL, '{"total_mark":100,"final_exam_max":60,"coursework_max":40,"rounding_decimals":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
+(148, 'gpa_settings', NULL, '{\"total_mark\":100,\"final_exam_max\":60,\"coursework_max\":40,\"rounding_decimals\":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (149, 'grade_scale', NULL, 'A', 85.00, 100.00, 4.00, NULL, NULL, NULL, 1, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (150, 'grade_scale', NULL, 'B+', 75.00, 85.00, 3.50, NULL, NULL, NULL, 2, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (151, 'grade_scale', NULL, 'B', 65.00, 75.00, 3.00, NULL, NULL, NULL, 3, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
@@ -924,7 +855,7 @@ INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_va
 (161, 'gpa_classification', 'general', 'جيد جداً', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (162, 'gpa_classification', 'general', 'جيد', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
 (163, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-03 13:58:46', '2026-02-03 13:58:46', 1),
-(164, 'gpa_settings', NULL, '{"total_mark":100,"final_exam_max":60,"coursework_max":40,"rounding_decimals":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
+(164, 'gpa_settings', NULL, '{\"total_mark\":100,\"final_exam_max\":60,\"coursework_max\":40,\"rounding_decimals\":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
 (165, 'grade_scale', NULL, 'A', 85.00, 100.00, 4.00, NULL, NULL, NULL, 1, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
 (166, 'grade_scale', NULL, 'B+', 75.00, 85.00, 3.50, NULL, NULL, NULL, 2, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
 (167, 'grade_scale', NULL, 'B', 65.00, 75.00, 3.00, NULL, NULL, NULL, 3, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
@@ -940,7 +871,7 @@ INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_va
 (177, 'gpa_classification', 'general', 'جيد جداً', 3.00, 3.49, NULL, NULL, NULL, NULL, 2, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
 (178, 'gpa_classification', 'general', 'جيد', 2.50, 2.99, NULL, NULL, NULL, NULL, 3, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
 (179, 'gpa_classification', 'general', 'مقبول', 2.00, 2.49, NULL, NULL, NULL, NULL, 4, '2026-02-07 17:47:20', '2026-02-07 17:47:20', 4),
-(180, 'gpa_settings', NULL, '{"total_mark":100,"final_exam_max":60,"coursework_max":40,"rounding_decimals":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-03-02 13:27:46', '2026-03-02 13:27:46', 3),
+(180, 'gpa_settings', NULL, '{\"total_mark\":100,\"final_exam_max\":60,\"coursework_max\":40,\"rounding_decimals\":2}', 0.00, 0.00, NULL, 'courses', 4.00, 'weighted_avg', 0, '2026-03-02 13:27:46', '2026-03-02 13:27:46', 3),
 (181, 'grade_scale', NULL, 'A', 80.00, 100.00, 4.00, NULL, NULL, NULL, 1, '2026-03-02 13:27:46', '2026-03-02 13:27:46', 3),
 (182, 'grade_scale', NULL, 'B+', 75.00, 79.99, 3.50, NULL, NULL, NULL, 2, '2026-03-02 13:27:46', '2026-03-02 13:27:46', 3),
 (183, 'grade_scale', NULL, 'B', 70.00, 74.99, 3.00, NULL, NULL, NULL, 3, '2026-03-02 13:27:46', '2026-03-02 13:27:46', 3),
@@ -963,14 +894,11 @@ INSERT INTO `grading_rules` (`id`, `rule_type`, `program_mode`, `label`, `min_va
 -- Table structure for table `rooms`
 --
 
-CREATE TABLE IF NOT EXISTS `rooms` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `rooms` (
+  `id` int(11) NOT NULL,
   `room_name` varchar(100) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_room_name` (`room_name`),
-  KEY `room_name` (`room_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5 ;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `rooms`
@@ -988,8 +916,8 @@ INSERT INTO `rooms` (`id`, `room_name`, `created_at`) VALUES
 -- Table structure for table `staff_members`
 --
 
-CREATE TABLE IF NOT EXISTS `staff_members` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `staff_members` (
+  `id` int(11) NOT NULL,
   `full_name` varchar(255) NOT NULL,
   `staff_code` varchar(50) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
@@ -999,14 +927,9 @@ CREATE TABLE IF NOT EXISTS `staff_members` (
   `academic_rank` varchar(100) DEFAULT NULL,
   `specialization` varchar(255) DEFAULT NULL,
   `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_staff_code` (`staff_code`),
-  UNIQUE KEY `uq_staff_email` (`email`),
-  KEY `idx_staff_faculty` (`faculty_id`),
-  KEY `idx_staff_department` (`department_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `staff_members`
@@ -1030,127 +953,123 @@ INSERT INTO `staff_members` (`id`, `full_name`, `staff_code`, `email`, `phone`, 
 -- Table structure for table `students`
 --
 
-CREATE TABLE IF NOT EXISTS `students` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `full_name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `university_id` varchar(30) CHARACTER SET utf8 NOT NULL DEFAULT '0',
-  `phone` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `receipt_number` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
+CREATE TABLE `students` (
+  `id` int(11) NOT NULL,
+  `full_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `nationality` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT 'الجنسية',
+  `gender` enum('male','female') CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `status` enum('active','inactive') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'active',
+  `university_id` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '0',
+  `phone` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `receipt_number` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
   `department_id` int(11) DEFAULT NULL,
-  `college` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `level` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `academic_year` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `academic_status` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `registration_status` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `notes` text CHARACTER SET utf8,
-  `registrar` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_students_university_id_unique` (`university_id`),
-  UNIQUE KEY `uniq_students_full_name` (`full_name`),
-  KEY `fk_students_department` (`department_id`),
-  KEY `idx_students_university_id` (`university_id`),
-  KEY `idx_std_univ_name` (`university_id`,`full_name`),
-  KEY `idx_std_dept_name` (`department_id`,`full_name`),
-  KEY `idx_std_univ_dept` (`university_id`,`department_id`),
-  KEY `idx_students_dept_status` (`department_id`,`academic_status`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=92 ;
+  `college` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `level` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `academic_year` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `academic_status` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `registration_status` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `notes` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `registrar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`id`, `full_name`, `university_id`, `phone`, `receipt_number`, `department_id`, `college`, `level`, `academic_year`, `academic_status`, `registration_status`, `notes`, `registrar`, `created_at`) VALUES
-(1, 'أحمد محمد', '240001', '0978901234', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(2, 'سارة علي', '240002', '0945678901', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(3, 'عمر حسن', '240003', '0912345678', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(4, 'مريم عثمان', '240004', '0989012345', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(5, 'خالد يوسف', '240005', '0956789012', NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(6, 'هبة أحمد', '240006', '0923456789', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(7, 'محمد عبدالسلام', '240007', '0901122334', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(8, 'آلاء عمر', '240008', '0902233445', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(9, 'ريم خالد', '240009', '0903344556', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(10, 'مصطفى عادل', '240010', '0904455667', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(11, 'نهى حسن', '240011', '0905566778', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(12, 'ضياء أحمد', '240012', '0906677889', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(13, 'رنا يوسف', '240013', '0907788990', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(14, 'إيهاب عثمان', '240014', '0908899001', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(15, 'سلمى محمد', '240015', '0909900112', NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
-(16, 'عبير عبده ادم صالح', '201822000313', '090123456', NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 13:50:37'),
-(17, 'عبير عبده', '123456789', '09552288', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 06:13:04'),
-(19, 'علي هاشم', '147852369', '0987456321', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 08:08:11'),
-(20, 'منعم احمد', '250003', '0905050545', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-05 12:32:20'),
-(21, 's1', 's0001', '122334', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:18'),
-(22, 's2', 's0002', '321232', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:44'),
-(23, 's3', 's0003', '32456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:18'),
-(24, 's4', 's0004', '213456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:49'),
-(25, 's5', 's0005', '123456', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:20:15'),
-(26, 'أحمد محمد علي', 'MED-250001', '0912345678', 'REC-2501', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(27, 'سارة حسن عمر', 'MED-250002', '0923456789', 'REC-2502', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(28, 'عمر خالد يوسف', 'MED-250003', '0934567890', 'REC-2503', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(29, 'مريم عثمان أحمد', 'MED-250004', '0945678901', 'REC-2504', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(30, 'خالد محمد حسن', 'MED-250005', '0956789012', 'REC-2505', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(31, 'هبة علي عبدالله', 'MED-250006', '0967890123', 'REC-2506', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(32, 'محمد يوسف عمر', 'MED-250007', '0978901234', 'REC-2507', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(33, 'آلاء أحمد خالد', 'MED-250008', '0989012345', 'REC-2508', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(34, 'ريم حسن محمد', 'MED-250009', '0990123456', 'REC-2509', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(35, 'مصطفى عثمان علي', 'MED-250010', '0901234567', 'REC-2510', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(36, 'نهى خالد يوسف', 'MED-250011', '0912345679', 'REC-2511', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(37, 'ضياء محمد حسن', 'MED-250012', '0923456790', 'REC-2512', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(38, 'رنا علي عمر', 'MED-250013', '0934567901', 'REC-2513', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(39, 'إيهاب يوسف أحمد', 'MED-250014', '0945679012', 'REC-2514', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(40, 'سلمى حسن خالد', 'MED-250015', '0956789123', 'REC-2515', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(41, 'عبير محمد عثمان', 'MED-250016', '0967891234', 'REC-2516', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(42, 'علي أحمد حسن', 'MED-250017', '0978901345', 'REC-2517', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(43, 'منعم يوسف محمد', 'MED-250018', '0989013456', 'REC-2518', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(44, 'فاطمة عمر خالد', 'MED-250019', '0990124567', 'REC-2519', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(45, 'حسن عثمان علي', 'MED-250020', '0901235678', 'REC-2520', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(46, 'يوسف محمد حسن', 'MED-250021', '0912346789', 'REC-2521', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(47, 'خالد علي يوسف', 'MED-250022', '0923457890', 'REC-2522', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(48, 'لينا محمود عبدالله', 'MED-250023', '0934568901', 'REC-2523', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(49, 'زينب عمر محمد', 'MED-250024', '0945679012', 'REC-2524', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(50, 'بدر الدين خالد', 'MED-250025', '0956780123', 'REC-2525', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(51, 'نورا حسن يوسف', 'MED-250026', '0967891234', 'REC-2526', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(52, 'أيمن علي عثمان', 'MED-250027', '0978902345', 'REC-2527', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(53, 'سمية محمد أحمد', 'MED-250028', '0989013456', 'REC-2528', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(54, 'طارق يوسف عمر', 'MED-250029', '0990124567', 'REC-2529', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(55, 'رقية حسن خالد', 'MED-250030', '0901235678', 'REC-2530', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(56, 'إبراهيم عثمان علي', 'MED-250031', '0912346789', 'REC-2531', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(57, 'أمل محمد حسن', 'MED-250032', '0923457890', 'REC-2532', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(58, 'جمال خالد يوسف', 'MED-250033', '0934568901', 'REC-2533', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(59, 'لطيفة علي عمر', 'MED-250034', '0945679012', 'REC-2534', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(60, 'صلاح أحمد محمد', 'MED-250035', '0956780123', 'REC-2535', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(61, 'هند حسن عثمان', 'MED-250036', '0967891234', 'REC-2536', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(62, 'عبدالله يوسف خالد', 'MED-250037', '0978902345', 'REC-2537', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(63, 'مريم علي أحمد', 'MED-250038', '0989013456', 'REC-2538', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(64, 'فهد محمد عمر', 'MED-250039', '0990124567', 'REC-2539', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(65, 'سجود حسن يوسف', 'MED-250040', '0901235678', 'REC-2540', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(66, 'بلال خالد عثمان', 'MED-250041', '0912346789', 'REC-2541', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(67, 'نوال أحمد محمد', 'MED-250042', '0923457890', 'REC-2542', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(68, 'عادل علي حسن', 'MED-250043', '0934568901', 'REC-2543', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(69, 'شيماء يوسف عمر', 'MED-250044', '0945679012', 'REC-2544', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(70, 'مازن محمد خالد', 'MED-250045', '0956780123', 'REC-2545', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(71, 'روان حسن أحمد', 'MED-250046', '0967891234', 'REC-2546', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(72, 'عمار عثمان يوسف', 'MED-250047', '0978902345', 'REC-2547', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(73, 'لمعان علي محمد', 'MED-250048', '0989013456', 'REC-2548', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(74, 'بسمة خالد عمر', 'MED-250049', '0990124567', 'REC-2549', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(75, 'زياد أحمد حسن', 'MED-250050', '0901235679', 'REC-2550', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
-(76, 'فاطمه احمد', '260003', '123456789', NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-09 07:30:08'),
-(77, 'عبدالرحمن', '260001', '0123456789', NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-11 06:43:34'),
-(78, 'وليد', '260004', '3346658', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:12:01'),
-(79, 'عواطف عاطف', '250007', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:14:58'),
-(80, 'ابتهال عاطف', '250008', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:16:48'),
-(81, 'هاله', '260002', '952352', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:17:57'),
-(82, 'عاليه', '357000', '542864', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:21:47'),
-(83, 'احمد محمد', '2500001', '09052487', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-02 14:06:34'),
-(84, 'خالد احمد', '2500002', '0904580950', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 08:44:27'),
-(85, 'ابراهيم محمد', '2500003', '095863987', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 08:49:26'),
-(86, 'عبدالرحمن محمد', '2500004', '0114879632', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 09:05:02'),
-(87, 'محسن خالد', '2500005', '0118896352', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 09:08:57'),
-(88, 'منذر محمد', '2500006', '0115639874', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 11:46:11'),
-(89, 'مازن محمد', '2500007', '0114806967', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 13:14:43'),
-(90, 'هاشم محمد', '2500010', '0902587412', NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 10:12:48'),
-(91, 'ساره خالد', '260012', '0908542158', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 13:36:27');
+INSERT INTO `students` (`id`, `full_name`, `nationality`, `gender`, `status`, `university_id`, `phone`, `receipt_number`, `department_id`, `college`, `level`, `academic_year`, `academic_status`, `registration_status`, `notes`, `registrar`, `created_at`) VALUES
+(1, 'أحمد محمد', NULL, NULL, 'active', '240001', '0978901234', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(2, 'سارة علي', NULL, NULL, 'active', '240002', '0945678901', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(3, 'عمر حسن', 'سوداني', 'male', 'active', '240003', '0912345678', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(4, 'مريم عثمان', NULL, NULL, 'active', '240004', '0989012345', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(5, 'خالد يوسف', NULL, NULL, 'active', '240005', '0956789012', NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(6, 'هبة أحمد', NULL, NULL, 'active', '240006', '0923456789', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(7, 'محمد عبدالسلام', NULL, NULL, 'active', '240007', '0901122334', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(8, 'آلاء عمر', NULL, NULL, 'active', '240008', '0902233445', NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(9, 'ريم خالد', NULL, NULL, 'active', '240009', '0903344556', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(10, 'مصطفى عادل', NULL, NULL, 'active', '240010', '0904455667', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(11, 'نهى حسن', NULL, NULL, 'active', '240011', '0905566778', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(12, 'ضياء أحمد', NULL, NULL, 'active', '240012', '0906677889', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(13, 'رنا يوسف', NULL, NULL, 'active', '240013', '0907788990', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(14, 'إيهاب عثمان', NULL, NULL, 'active', '240014', '0908899001', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(15, 'سلمى محمد', NULL, NULL, 'active', '240015', '0909900112', NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-28 11:20:32'),
+(16, 'عبير عبده ادم صالح', NULL, NULL, 'active', '201822000313', '090123456', NULL, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 13:50:37'),
+(17, 'عبير عبده', NULL, NULL, 'active', '123456789', '09552288', NULL, 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 06:13:04'),
+(19, 'علي هاشم', NULL, NULL, 'active', '147852369', '0987456321', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-14 08:08:11'),
+(20, 'منعم احمد', NULL, NULL, 'active', '250003', '0905050545', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-05 12:32:20'),
+(21, 's1', NULL, NULL, 'active', 's0001', '122334', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:18'),
+(22, 's2', NULL, NULL, 'active', 's0002', '321232', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:18:44'),
+(23, 's3', NULL, NULL, 'active', 's0003', '32456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:18'),
+(24, 's4', NULL, NULL, 'active', 's0004', '213456789', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:19:49'),
+(25, 's5', NULL, NULL, 'active', 's0005', '123456', NULL, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-07 15:20:15'),
+(26, 'أحمد محمد علي', NULL, NULL, 'active', 'MED-250001', '0912345678', 'REC-2501', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(27, 'سارة حسن عمر', NULL, NULL, 'active', 'MED-250002', '0923456789', 'REC-2502', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(28, 'عمر خالد يوسف', NULL, NULL, 'active', 'MED-250003', '0934567890', 'REC-2503', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(29, 'مريم عثمان أحمد', NULL, NULL, 'active', 'MED-250004', '0945678901', 'REC-2504', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(30, 'خالد محمد حسن', NULL, NULL, 'active', 'MED-250005', '0956789012', 'REC-2505', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(31, 'هبة علي عبدالله', NULL, NULL, 'active', 'MED-250006', '0967890123', 'REC-2506', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(32, 'محمد يوسف عمر', NULL, NULL, 'active', 'MED-250007', '0978901234', 'REC-2507', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(33, 'آلاء أحمد خالد', NULL, NULL, 'active', 'MED-250008', '0989012345', 'REC-2508', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(34, 'ريم حسن محمد', NULL, NULL, 'active', 'MED-250009', '0990123456', 'REC-2509', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(35, 'مصطفى عثمان علي', NULL, NULL, 'active', 'MED-250010', '0901234567', 'REC-2510', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(36, 'نهى خالد يوسف', NULL, NULL, 'active', 'MED-250011', '0912345679', 'REC-2511', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(37, 'ضياء محمد حسن', NULL, NULL, 'active', 'MED-250012', '0923456790', 'REC-2512', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(38, 'رنا علي عمر', NULL, NULL, 'active', 'MED-250013', '0934567901', 'REC-2513', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(39, 'إيهاب يوسف أحمد', NULL, NULL, 'active', 'MED-250014', '0945679012', 'REC-2514', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(40, 'سلمى حسن خالد', NULL, NULL, 'active', 'MED-250015', '0956789123', 'REC-2515', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(41, 'عبير محمد عثمان', NULL, NULL, 'active', 'MED-250016', '0967891234', 'REC-2516', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(42, 'علي أحمد حسن', NULL, NULL, 'active', 'MED-250017', '0978901345', 'REC-2517', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(43, 'منعم يوسف محمد', NULL, NULL, 'active', 'MED-250018', '0989013456', 'REC-2518', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(44, 'فاطمة عمر خالد', NULL, NULL, 'active', 'MED-250019', '0990124567', 'REC-2519', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(45, 'حسن عثمان علي', NULL, NULL, 'active', 'MED-250020', '0901235678', 'REC-2520', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(46, 'يوسف محمد حسن', NULL, NULL, 'active', 'MED-250021', '0912346789', 'REC-2521', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(47, 'خالد علي يوسف', NULL, NULL, 'active', 'MED-250022', '0923457890', 'REC-2522', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(48, 'لينا محمود عبدالله', NULL, NULL, 'active', 'MED-250023', '0934568901', 'REC-2523', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(49, 'زينب عمر محمد', NULL, NULL, 'active', 'MED-250024', '0945679012', 'REC-2524', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(50, 'بدر الدين خالد', NULL, NULL, 'active', 'MED-250025', '0956780123', 'REC-2525', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(51, 'نورا حسن يوسف', NULL, NULL, 'active', 'MED-250026', '0967891234', 'REC-2526', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(52, 'أيمن علي عثمان', NULL, NULL, 'active', 'MED-250027', '0978902345', 'REC-2527', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(53, 'سمية محمد أحمد', NULL, NULL, 'active', 'MED-250028', '0989013456', 'REC-2528', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(54, 'طارق يوسف عمر', NULL, NULL, 'active', 'MED-250029', '0990124567', 'REC-2529', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(55, 'رقية حسن خالد', NULL, NULL, 'active', 'MED-250030', '0901235678', 'REC-2530', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(56, 'إبراهيم عثمان علي', NULL, NULL, 'active', 'MED-250031', '0912346789', 'REC-2531', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(57, 'أمل محمد حسن', NULL, NULL, 'active', 'MED-250032', '0923457890', 'REC-2532', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(58, 'جمال خالد يوسف', NULL, NULL, 'active', 'MED-250033', '0934568901', 'REC-2533', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(59, 'لطيفة علي عمر', NULL, NULL, 'active', 'MED-250034', '0945679012', 'REC-2534', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(60, 'صلاح أحمد محمد', NULL, NULL, 'active', 'MED-250035', '0956780123', 'REC-2535', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(61, 'هند حسن عثمان', NULL, NULL, 'active', 'MED-250036', '0967891234', 'REC-2536', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(62, 'عبدالله يوسف خالد', NULL, NULL, 'active', 'MED-250037', '0978902345', 'REC-2537', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(63, 'مريم علي أحمد', NULL, NULL, 'active', 'MED-250038', '0989013456', 'REC-2538', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(64, 'فهد محمد عمر', NULL, NULL, 'active', 'MED-250039', '0990124567', 'REC-2539', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(65, 'سجود حسن يوسف', NULL, NULL, 'active', 'MED-250040', '0901235678', 'REC-2540', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(66, 'بلال خالد عثمان', NULL, NULL, 'active', 'MED-250041', '0912346789', 'REC-2541', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(67, 'نوال أحمد محمد', NULL, NULL, 'active', 'MED-250042', '0923457890', 'REC-2542', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(68, 'عادل علي حسن', NULL, NULL, 'active', 'MED-250043', '0934568901', 'REC-2543', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(69, 'شيماء يوسف عمر', NULL, NULL, 'active', 'MED-250044', '0945679012', 'REC-2544', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(70, 'مازن محمد خالد', NULL, NULL, 'active', 'MED-250045', '0956780123', 'REC-2545', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(71, 'روان حسن أحمد', NULL, NULL, 'active', 'MED-250046', '0967891234', 'REC-2546', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(72, 'عمار عثمان يوسف', NULL, NULL, 'active', 'MED-250047', '0978902345', 'REC-2547', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(73, 'لمعان علي محمد', NULL, NULL, 'active', 'MED-250048', '0989013456', 'REC-2548', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(74, 'بسمة خالد عمر', NULL, NULL, 'active', 'MED-250049', '0990124567', 'REC-2549', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(75, 'زياد أحمد حسن', NULL, NULL, 'active', 'MED-250050', '0901235679', 'REC-2550', 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-02-08 11:25:30'),
+(76, 'فاطمه احمد', NULL, NULL, 'active', '260003', '123456789', NULL, 12, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-09 07:30:08'),
+(77, 'عبدالرحمن', NULL, NULL, 'active', '260001', '0123456789', NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-11 06:43:34'),
+(78, 'وليد', NULL, NULL, 'active', '260004', '3346658', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:12:01'),
+(79, 'عواطف عاطف', NULL, NULL, 'active', '250007', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:14:58'),
+(80, 'ابتهال عاطف', NULL, NULL, 'active', '250008', '325', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:16:48'),
+(81, 'هاله', NULL, NULL, 'active', '260002', '952352', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:17:57'),
+(82, 'عاليه', NULL, NULL, 'active', '357000', '542864', NULL, 11, NULL, NULL, NULL, NULL, NULL, NULL, 'المسجل', '2026-02-14 12:21:47'),
+(83, 'احمد محمد', NULL, NULL, 'active', '2500001', '09052487', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-02 14:06:34'),
+(84, 'خالد احمد', NULL, NULL, 'active', '2500002', '0904580950', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 08:44:27'),
+(85, 'ابراهيم محمد', NULL, NULL, 'active', '2500003', '095863987', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 08:49:26'),
+(86, 'عبدالرحمن محمد', NULL, NULL, 'active', '2500004', '0114879632', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 09:05:02'),
+(87, 'محسن خالد', NULL, NULL, 'active', '2500005', '0118896352', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 09:08:57'),
+(88, 'منذر محمد', NULL, NULL, 'active', '2500006', '0115639874', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 11:46:11'),
+(89, 'مازن محمد', NULL, NULL, 'active', '2500007', '0114806967', NULL, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-04 13:14:43'),
+(90, 'هاشم محمد', NULL, NULL, 'active', '2500010', '0902587412', NULL, 7, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 10:12:48'),
+(91, 'ساره خالد', NULL, NULL, 'active', '260012', '0908542158', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-12 13:36:27'),
+(92, 'ابراهيم يوسف', 'سوداني', 'male', '', '2025/123456', '098574123', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-15 14:32:16'),
+(93, 'ايه محمد', 'سوداني', 'female', 'active', '2025/23456', '0902580910', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-03-15 14:59:53');
 
 -- --------------------------------------------------------
 
@@ -1158,48 +1077,25 @@ INSERT INTO `students` (`id`, `full_name`, `university_id`, `phone`, `receipt_nu
 -- Table structure for table `student_registrations`
 --
 
-CREATE TABLE IF NOT EXISTS `student_registrations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `student_registrations` (
+  `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
   `academic_year` varchar(20) NOT NULL,
   `level_name` varchar(100) NOT NULL,
   `term_name` varchar(50) DEFAULT NULL,
   `academic_status` varchar(50) NOT NULL DEFAULT 'منتظم',
   `registration_status` varchar(50) NOT NULL DEFAULT 'مسجّل',
-  `receipt_number` varchar(100) CHARACTER SET utf8 DEFAULT NULL,
-  `notes` text CHARACTER SET utf8,
-  `repeated_courses` text,
-  `registrar` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `receipt_number` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `notes` text CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `repeated_courses` text DEFAULT NULL,
+  `registrar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `result_status` tinyint(1) DEFAULT NULL COMMENT '1 = ناجح, 0 = راسب',
   `program_type` enum('diploma','bachelor','postgraduate') NOT NULL DEFAULT 'bachelor',
-  `postgraduate_data` longtext,
+  `postgraduate_data` longtext DEFAULT NULL,
   `postgraduate_program` varchar(255) DEFAULT NULL,
-  `repeat_count` int(11) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `fk_reg_student` (`student_id`),
-  KEY `idx_student_registrations_student_id` (`student_id`),
-  KEY `idx_student_registrations_academic_year` (`academic_year`),
-  KEY `idx_student_registrations_level_name` (`level_name`),
-  KEY `idx_student_registrations_term_name` (`term_name`),
-  KEY `idx_student_registrations_program_type` (`program_type`),
-  KEY `idx_student_registrations_postgraduate_program` (`postgraduate_program`(191)),
-  KEY `idx_student_registrations_registration_status` (`registration_status`),
-  KEY `idx_reg_student` (`student_id`),
-  KEY `idx_reg_year` (`academic_year`),
-  KEY `idx_reg_level` (`level_name`),
-  KEY `idx_reg_term` (`term_name`),
-  KEY `idx_reg_prog` (`program_type`),
-  KEY `idx_reg_pg` (`postgraduate_program`(191)),
-  KEY `idx_reg_status` (`registration_status`),
-  KEY `idx_reg_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`),
-  KEY `idx_reg_prog_pg` (`program_type`,`postgraduate_program`(191)),
-  KEY `idx_reg_year_prog` (`academic_year`,`program_type`,`postgraduate_program`(191)),
-  KEY `idx_reg_status_year` (`registration_status`,`academic_year`),
-  KEY `idx_reg_std_yr_lvl` (`student_id`,`academic_year`,`level_name`),
-  KEY `idx_reg_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`),
-  KEY `idx_registrations_student_year_level_term` (`student_id`,`academic_year`,`level_name`,`term_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=272 ;
+  `repeat_count` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `student_registrations`
@@ -1221,7 +1117,7 @@ INSERT INTO `student_registrations` (`id`, `student_id`, `academic_year`, `level
 (13, 13, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025013', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
 (14, 14, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025014', NULL, NULL, 'seed', '2025-12-28 09:20:32', 1, 'bachelor', NULL, NULL, 0),
 (15, 15, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'منتظم', 'مسجّل', 'REG-2025015', NULL, NULL, 'seed', '2025-12-28 09:20:32', NULL, 'bachelor', NULL, NULL, 0),
-(16, 16, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'مجمّد', 'مسجّل', NULL, NULL, NULL, 'admin', '2025-12-31 11:50:37', NULL, 'postgraduate', '{"prev_degree":"بكالوريوس","prev_university":"السودان","prev_grad_year":"2025","study_type":"بالبحث"}', 'ماجستير البرمجيات المدمجة', 0),
+(16, 16, '2026/2027', 'المستوى الأول', 'الفصل الأول', 'مجمّد', 'مسجّل', NULL, NULL, NULL, 'admin', '2025-12-31 11:50:37', NULL, 'postgraduate', '{\"prev_degree\":\"بكالوريوس\",\"prev_university\":\"السودان\",\"prev_grad_year\":\"2025\",\"study_type\":\"بالبحث\"}', 'ماجستير البرمجيات المدمجة', 0),
 (32, 12, '2025/2026', 'المستوى الثاني', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-01 08:36:31', NULL, 'bachelor', NULL, NULL, 0),
 (33, 13, '2025/2026', 'المستوى الثاني', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-01 08:36:31', NULL, 'bachelor', NULL, NULL, 0),
 (34, 14, '2025/2026', 'المستوى الثاني', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'admin', '2026-02-01 08:36:31', NULL, 'bachelor', NULL, NULL, 0),
@@ -1411,11 +1307,13 @@ INSERT INTO `student_registrations` (`id`, `student_id`, `academic_year`, `level
 (264, 7, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:54:48', 1, 'bachelor', NULL, NULL, 0),
 (265, 4, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:54:48', 0, 'bachelor', NULL, NULL, 0),
 (266, 1, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:57:30', 1, 'bachelor', NULL, NULL, 0),
-(267, 3, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:57:30', 1, 'bachelor', NULL, NULL, 0),
+(267, 3, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:57:30', 1, 'bachelor', NULL, NULL, 0),
 (268, 7, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, NULL, NULL, 'kian', '2026-03-09 11:57:30', 1, 'bachelor', NULL, NULL, 0),
 (269, 4, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'منتظم', 'مسجّل', NULL, 'إعادة مادة راسبة', '58', 'kian', '2026-03-09 11:57:30', 0, 'bachelor', NULL, NULL, 0),
 (270, 90, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-12 10:12:48', NULL, 'bachelor', NULL, NULL, 0),
-(271, 91, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-12 13:36:27', NULL, 'diploma', NULL, NULL, 0);
+(271, 91, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-12 13:36:27', NULL, 'diploma', NULL, NULL, 0),
+(272, 92, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-15 14:32:16', NULL, 'bachelor', NULL, NULL, 0),
+(273, 93, '2025/2026', 'المستوى الأول', 'الفصل الأول', 'منتظم', 'غير مسجّل', NULL, NULL, NULL, 'kian', '2026-03-15 14:59:53', NULL, 'bachelor', NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -1423,8 +1321,8 @@ INSERT INTO `student_registrations` (`id`, `student_id`, `academic_year`, `level
 -- Table structure for table `term_results`
 --
 
-CREATE TABLE IF NOT EXISTS `term_results` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `term_results` (
+  `id` int(11) NOT NULL,
   `student_id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `department_id` int(11) NOT NULL,
@@ -1438,26 +1336,22 @@ CREATE TABLE IF NOT EXISTS `term_results` (
   `term_total_points` decimal(10,2) DEFAULT NULL,
   `term_total_hours` decimal(10,2) DEFAULT NULL,
   `classification_label` varchar(255) DEFAULT NULL,
-  `courses_count` int(11) DEFAULT '0',
-  `completed_courses` int(11) DEFAULT '0',
-  `missing_courses` int(11) DEFAULT '0',
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `courses_count` int(11) DEFAULT 0,
+  `completed_courses` int(11) DEFAULT 0,
+  `missing_courses` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `postgraduate_program` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_term_result` (`student_id`,`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`program_mode`),
-  KEY `idx_term_results_student` (`student_id`),
-  KEY `idx_res_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=58 ;
+  `postgraduate_program` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `term_results`
 --
 
 INSERT INTO `term_results` (`id`, `student_id`, `faculty_id`, `department_id`, `academic_year`, `level_name`, `term_name`, `program_type`, `program_mode`, `term_gpa`, `cumulative_gpa`, `term_total_points`, `term_total_hours`, `classification_label`, `courses_count`, `completed_courses`, `missing_courses`, `created_at`, `updated_at`, `postgraduate_program`) VALUES
-(10, 14, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 2.50, 2.50, 15.00, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-07 13:59:49', NULL),
-(11, 13, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 3.75, 3.75, 22.50, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-07 13:59:49', NULL),
-(12, 12, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 2.00, 2.00, 12.00, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-07 13:59:49', NULL),
+(10, 14, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 2.50, 2.50, 15.00, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-14 16:51:51', NULL),
+(11, 13, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 3.75, 3.75, 22.50, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-14 16:51:51', NULL),
+(12, 12, 3, 8, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 2.00, 2.00, 12.00, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-01-14 14:43:00', '2026-03-14 16:51:51', NULL),
 (13, 9, 2, 5, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 3.00, 3.00, 18.00, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-01-17 12:05:10', '0000-00-00 00:00:00', NULL),
 (14, 10, 2, 5, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 2.50, 2.50, 15.00, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-01-17 12:05:10', '0000-00-00 00:00:00', NULL),
 (15, 11, 2, 5, '2025/2026', 'المستوى الثاني', 'الفصل الأول', 'bachelor', 'honors', 1.75, 1.75, 10.50, 6.00, NULL, 2, 2, 0, '2026-01-17 12:05:10', '0000-00-00 00:00:00', NULL),
@@ -1493,14 +1387,14 @@ INSERT INTO `term_results` (`id`, `student_id`, `faculty_id`, `department_id`, `
 (47, 3, 1, 2, '2026/2027', 'المستوى الثاني', 'الفصل الثاني', 'bachelor', 'honors', 2.75, 2.66, 16.50, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-03-09 11:54:16', '2026-03-09 11:54:20', NULL),
 (48, 7, 1, 2, '2026/2027', 'المستوى الثاني', 'الفصل الثاني', 'bachelor', 'honors', 2.50, 3.03, 15.00, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-03-09 11:54:16', '2026-03-09 11:54:20', NULL),
 (49, 4, 1, 2, '2026/2027', 'المستوى الثاني', 'الفصل الثاني', 'bachelor', 'honors', 3.00, 2.89, 18.00, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-03-09 11:54:16', '2026-03-09 11:54:20', NULL),
-(50, 1, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 1.00, 2.46, 6.00, 6.00, NULL, 2, 2, 0, '2026-03-09 11:56:30', '2026-03-09 11:56:35', NULL),
-(51, 3, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 3.25, 2.74, 19.50, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-03-09 11:56:30', '2026-03-09 11:56:35', NULL),
-(52, 7, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 2.75, 2.99, 16.50, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-03-09 11:56:30', '2026-03-09 11:56:35', NULL),
-(53, 4, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 1.00, 2.58, 6.00, 6.00, NULL, 2, 2, 0, '2026-03-09 11:56:30', '2026-03-09 11:56:35', NULL),
-(54, 1, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 2.00, 2.40, 12.00, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-09 12:00:38', NULL),
-(55, 3, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 3.50, 2.84, 21.00, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-09 12:00:38', NULL),
-(56, 7, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 2.25, 2.88, 13.50, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-09 12:00:38', NULL),
-(57, 4, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 1.50, 2.43, 9.00, 6.00, NULL, 2, 2, 0, '2026-03-09 12:00:35', '2026-03-09 12:00:38', NULL);
+(50, 1, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 1.00, 2.40, 6.00, 6.00, NULL, 2, 2, 0, '2026-03-09 11:56:30', '2026-03-14 16:38:51', NULL),
+(51, 3, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 3.25, 2.84, 19.50, 6.00, 'مرتبة الشرف الثانية (القسم الأول)', 2, 2, 0, '2026-03-09 11:56:30', '2026-03-14 16:38:51', NULL),
+(52, 7, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 2.75, 2.88, 16.50, 6.00, 'مرتبة الشرف الثانية (القسم الثاني)', 2, 2, 0, '2026-03-09 11:56:30', '2026-03-14 16:38:52', NULL),
+(53, 4, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الأول', 'bachelor', 'honors', 1.00, 2.43, 6.00, 6.00, NULL, 2, 2, 0, '2026-03-09 11:56:30', '2026-03-14 16:38:52', NULL),
+(54, 1, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 2.00, 2.40, 12.00, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-14 16:38:28', NULL),
+(55, 3, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 3.50, 2.84, 21.00, 6.00, 'مرتبة الشرف الأولى', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-14 16:38:28', NULL),
+(56, 7, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 2.25, 2.88, 13.50, 6.00, 'مرتبة الشرف الثالثة', 2, 2, 0, '2026-03-09 12:00:35', '2026-03-14 16:38:28', NULL),
+(57, 4, 1, 2, '2027/2028', 'المستوى الثالث', 'الفصل الثاني', 'bachelor', 'honors', 1.50, 2.43, 9.00, 6.00, NULL, 2, 2, 0, '2026-03-09 12:00:35', '2026-03-14 16:38:28', NULL);
 
 -- --------------------------------------------------------
 
@@ -1508,8 +1402,8 @@ INSERT INTO `term_results` (`id`, `student_id`, `faculty_id`, `department_id`, `
 -- Table structure for table `timetable_sessions`
 --
 
-CREATE TABLE IF NOT EXISTS `timetable_sessions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `timetable_sessions` (
+  `id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `department_id` int(11) NOT NULL,
   `academic_year` varchar(20) NOT NULL,
@@ -1524,16 +1418,8 @@ CREATE TABLE IF NOT EXISTS `timetable_sessions` (
   `day_of_week` varchar(20) NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `idx_room_day_time` (`room_id`,`day_of_week`,`start_time`,`end_time`),
-  KEY `idx_instructor_day_time` (`instructor_staff_id`,`day_of_week`,`start_time`,`end_time`),
-  KEY `idx_scope` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`),
-  KEY `idx_ts_room_time` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`room_id`,`start_time`,`end_time`),
-  KEY `idx_ts_instructor_time` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`instructor_staff_id`,`start_time`,`end_time`),
-  KEY `idx_ts_dept_time` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`start_time`,`end_time`),
-  KEY `idx_instructor_time` (`instructor_staff_id`,`academic_year`,`term_name`,`program_type`,`day_of_week`,`start_time`,`end_time`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `timetable_sessions`
@@ -1554,10 +1440,8 @@ INSERT INTO `timetable_sessions` (`id`, `faculty_id`, `department_id`, `academic
 --
 -- Triggers `timetable_sessions`
 --
-DROP TRIGGER IF EXISTS `trg_timetable_no_conflicts`;
-DELIMITER //
-CREATE TRIGGER `trg_timetable_no_conflicts` BEFORE INSERT ON `timetable_sessions`
- FOR EACH ROW BEGIN
+DELIMITER $$
+CREATE TRIGGER `trg_timetable_no_conflicts` BEFORE INSERT ON `timetable_sessions` FOR EACH ROW BEGIN
     -- 1. Instructor conflict → مقيد بالسنة الدراسية فقط (بدون term_name)
     IF NEW.instructor_name IS NOT NULL THEN
         IF EXISTS (
@@ -1603,12 +1487,10 @@ CREATE TRIGGER `trg_timetable_no_conflicts` BEFORE INSERT ON `timetable_sessions
     END IF;
 
 END
-//
+$$
 DELIMITER ;
-DROP TRIGGER IF EXISTS `trg_timetable_no_conflicts_update`;
-DELIMITER //
-CREATE TRIGGER `trg_timetable_no_conflicts_update` BEFORE UPDATE ON `timetable_sessions`
- FOR EACH ROW BEGIN
+DELIMITER $$
+CREATE TRIGGER `trg_timetable_no_conflicts_update` BEFORE UPDATE ON `timetable_sessions` FOR EACH ROW BEGIN
     -- 1. Instructor conflict 
     IF NEW.instructor_name IS NOT NULL THEN
         IF EXISTS (
@@ -1657,7 +1539,7 @@ CREATE TRIGGER `trg_timetable_no_conflicts_update` BEFORE UPDATE ON `timetable_s
     END IF;
 
 END
-//
+$$
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -1666,40 +1548,353 @@ DELIMITER ;
 -- Table structure for table `users`
 --
 
-CREATE TABLE IF NOT EXISTS `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password_hash` varchar(255) NOT NULL,
   `full_name` varchar(150) DEFAULT NULL,
   `email` varchar(150) DEFAULT NULL,
   `role` varchar(50) DEFAULT 'user',
-  `is_active` tinyint(1) DEFAULT '1',
-  `allowed_pages` text,
-  `allowed_faculties` text,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_active` tinyint(1) DEFAULT 1,
+  `allowed_pages` text DEFAULT NULL,
+  `allowed_faculties` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `last_login` datetime DEFAULT NULL,
-  `registration_tab_permissions` text NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  KEY `idx_users_username` (`username`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=16 ;
+  `registration_tab_permissions` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `username`, `password_hash`, `full_name`, `email`, `role`, `is_active`, `allowed_pages`, `allowed_faculties`, `created_at`, `updated_at`, `last_login`, `registration_tab_permissions`) VALUES
-(3, 'ahdi', '$2b$10$yX4rDI01wHzOyviHBF13MeQssEMxZcLtkIM/pr/CSPg4CXwvKL9gO', 'ahdi mohamed', '', 'registrar', 1, '["الشهادات","القبول والتسجيل"]', '[3,6]', '2026-01-15 10:53:16', '0000-00-00 00:00:00', NULL, '{}'),
-(4, 'ahmed', '$2b$10$jkTtj5fJ0tTHPnCBAJeSCu8V4fsczSPPxVGiO6kx79650aWS6gfLG', 'ahmed adel', '', 'instructor', 1, '["إعدادات النظام الأكاديمي","إدخال الدرجات","حساب النتائج","قوائم الطلاب"]', '[2]', '2026-01-15 10:53:52', '0000-00-00 00:00:00', NULL, '{}'),
-(5, 'منعم', '$2b$10$CY7u8awvnU30oYFzPPAHse/HxYXEEodE3N8swvztD7MIh73vN0mo.', '', '', 'user', 1, '["القبول والتسجيل","المكتبة"]', '[1,4]', '2026-02-05 13:25:11', '0000-00-00 00:00:00', NULL, '{}'),
-(7, 'عبدالله ', '$2b$10$99k8e/EDi.g9CtxWoza10umQk60RXDMNi5viCG/gQqkhvdvgPyiHi', NULL, NULL, 'user', 1, '["المكتبة","القبول والتسجيل","إعدادات النظام الأكاديمي"]', '[3]', '2026-03-02 09:11:29', '0000-00-00 00:00:00', NULL, '{}'),
+(3, 'ahdi', '$2b$10$yX4rDI01wHzOyviHBF13MeQssEMxZcLtkIM/pr/CSPg4CXwvKL9gO', 'ahdi mohamed', '', 'registrar', 1, '[\"الشهادات\",\"القبول والتسجيل\"]', '[3,6]', '2026-01-15 10:53:16', '0000-00-00 00:00:00', NULL, '{}'),
+(4, 'ahmed', '$2b$10$jkTtj5fJ0tTHPnCBAJeSCu8V4fsczSPPxVGiO6kx79650aWS6gfLG', 'ahmed adel', '', 'instructor', 1, '[\"إعدادات النظام الأكاديمي\",\"إدخال الدرجات\",\"حساب النتائج\",\"قوائم الطلاب\"]', '[2]', '2026-01-15 10:53:52', '0000-00-00 00:00:00', NULL, '{}'),
+(5, 'منعم', '$2b$10$CY7u8awvnU30oYFzPPAHse/HxYXEEodE3N8swvztD7MIh73vN0mo.', '', '', 'user', 1, '[\"القبول والتسجيل\",\"المكتبة\"]', '[1,4]', '2026-02-05 13:25:11', '0000-00-00 00:00:00', NULL, '{}'),
+(7, 'عبدالله ', '$2b$10$99k8e/EDi.g9CtxWoza10umQk60RXDMNi5viCG/gQqkhvdvgPyiHi', NULL, NULL, 'user', 1, '[\"المكتبة\",\"القبول والتسجيل\",\"إعدادات النظام الأكاديمي\"]', '[3]', '2026-03-02 09:11:29', '0000-00-00 00:00:00', NULL, '{}'),
 (9, 'kian', '$2b$10$Bl660NaJXSv5FbVHQ8Lv4eOtVj4A0TG33Ec2wS23glIXU2E0WgZRi', '', '', 'admin', 1, '[]', '[]', '2026-03-04 08:25:53', '0000-00-00 00:00:00', NULL, '{}'),
-(10, 'abeer', '$2b$10$M59U4RLntDpsC/AQM/oqdeTPwgg8O1L1B7Po.t317DujKUz8Hymo2', '', '', 'user', 1, '["القبول والتسجيل","إدخال الدرجات"]', '[2,1]', '2026-03-04 08:28:11', '0000-00-00 00:00:00', NULL, '{"single":true,"fees":true}'),
-(11, 'mohmed', '$2b$10$5bKj.QMKtP6JpXQczCvAT.ViyJhq8UxchrCpAoxDGYT63GwHdbf7G', '', '', 'registrar', 1, '["القبول والتسجيل"]', '[3]', '2026-03-04 08:33:15', '0000-00-00 00:00:00', NULL, '{"single":false,"fees":false,"promotion":true,"failed-courses":true}'),
+(10, 'abeer', '$2b$10$M59U4RLntDpsC/AQM/oqdeTPwgg8O1L1B7Po.t317DujKUz8Hymo2', '', '', 'user', 1, '[\"القبول والتسجيل\",\"إدخال الدرجات\"]', '[2,1]', '2026-03-04 08:28:11', '0000-00-00 00:00:00', NULL, '{\"single\":true,\"fees\":true}'),
+(11, 'mohmed', '$2b$10$5bKj.QMKtP6JpXQczCvAT.ViyJhq8UxchrCpAoxDGYT63GwHdbf7G', '', '', 'registrar', 1, '[\"القبول والتسجيل\"]', '[3]', '2026-03-04 08:33:15', '0000-00-00 00:00:00', NULL, '{\"single\":false,\"fees\":false,\"promotion\":true,\"failed-courses\":true}'),
 (12, 'علي', '$2b$10$zqAaycPtPxY5.OY08MUckO9k4aheksI53XsvK9FvXqETljf8pauwK', '', '', 'admin', 1, '[]', '[]', '2026-03-05 10:56:00', '0000-00-00 00:00:00', NULL, '{}'),
-(13, 'سهى', '$2b$10$LgXoJoulNBhFypfVyGq6e./4zYu74YTO6N8FZxwSqhd8TMOo0WSb.', NULL, NULL, 'user', 1, '["القبول والتسجيل"]', '[3]', '2026-03-08 12:07:02', '0000-00-00 00:00:00', NULL, '{"single":true,"fees":true}'),
-(15, 'ابراهيم محمد ', '$2b$10$2uZcFFEJFXhdP.xRUE.DreQCAskkl9slcZzr4S1esJwJ23S6Ov6o.', NULL, NULL, 'user', 1, '["المكتبة"]', '[3]', '2026-03-08 12:15:35', '0000-00-00 00:00:00', NULL, '{}');
+(13, 'سهى', '$2b$10$LgXoJoulNBhFypfVyGq6e./4zYu74YTO6N8FZxwSqhd8TMOo0WSb.', NULL, NULL, 'user', 1, '[\"القبول والتسجيل\"]', '[3]', '2026-03-08 12:07:02', '0000-00-00 00:00:00', NULL, '{\"single\":true,\"fees\":true}'),
+(15, 'ابراهيم محمد ', '$2b$10$2uZcFFEJFXhdP.xRUE.DreQCAskkl9slcZzr4S1esJwJ23S6Ov6o.', NULL, NULL, 'user', 1, '[\"المكتبة\"]', '[3]', '2026-03-08 12:15:35', '0000-00-00 00:00:00', NULL, '{}');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `academic_periods`
+--
+ALTER TABLE `academic_periods`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_period` (`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  ADD KEY `idx_academic_periods_academic_year` (`academic_year`),
+  ADD KEY `idx_academic_periods_level_name` (`level_name`),
+  ADD KEY `idx_academic_periods_term_name` (`term_name`),
+  ADD KEY `idx_academic_periods_program_type` (`program_type`),
+  ADD KEY `idx_academic_periods_postgraduate_program` (`postgraduate_program`),
+  ADD KEY `idx_academic_periods_program_type_postgraduate_program` (`program_type`,`postgraduate_program`),
+  ADD KEY `idx_ap_year` (`academic_year`),
+  ADD KEY `idx_ap_level` (`level_name`),
+  ADD KEY `idx_ap_term` (`term_name`),
+  ADD KEY `idx_ap_prog_type` (`program_type`),
+  ADD KEY `idx_ap_pg_program` (`postgraduate_program`),
+  ADD KEY `idx_ap_prog_pg` (`program_type`,`postgraduate_program`),
+  ADD KEY `idx_ap_year_prog_pg` (`academic_year`,`program_type`,`postgraduate_program`),
+  ADD KEY `idx_ap_year_level_prog` (`academic_year`,`level_name`,`program_type`),
+  ADD KEY `idx_academic_periods_year_level_term` (`academic_year`,`level_name`,`term_name`);
+
+--
+-- Indexes for table `books`
+--
+ALTER TABLE `books`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_books_faculty` (`faculty_id`);
+
+--
+-- Indexes for table `borrowed_books`
+--
+ALTER TABLE `borrowed_books`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `book_id` (`book_id`);
+
+--
+-- Indexes for table `courses`
+--
+ALTER TABLE `courses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_courses_filter` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`),
+  ADD KEY `fk_courses_department` (`department_id`),
+  ADD KEY `idx_courses_faculty_id` (`faculty_id`),
+  ADD KEY `idx_courses_department_id` (`department_id`),
+  ADD KEY `idx_courses_academic_year` (`academic_year`),
+  ADD KEY `idx_courses_level_name` (`level_name`),
+  ADD KEY `idx_courses_term_name` (`term_name`),
+  ADD KEY `idx_courses_program_type` (`program_type`),
+  ADD KEY `idx_courses_postgraduate_program` (`postgraduate_program`),
+  ADD KEY `idx_courses_course_name` (`course_name`),
+  ADD KEY `idx_crs_faculty` (`faculty_id`),
+  ADD KEY `idx_crs_dept` (`department_id`),
+  ADD KEY `idx_crs_year` (`academic_year`),
+  ADD KEY `idx_crs_level` (`level_name`),
+  ADD KEY `idx_crs_term` (`term_name`),
+  ADD KEY `idx_crs_prog` (`program_type`),
+  ADD KEY `idx_crs_pg` (`postgraduate_program`),
+  ADD KEY `idx_crs_name` (`course_name`),
+  ADD KEY `idx_crs_fac_dept` (`faculty_id`,`department_id`),
+  ADD KEY `idx_crs_period` (`academic_year`,`level_name`,`term_name`),
+  ADD KEY `idx_crs_prog_pg` (`program_type`,`postgraduate_program`),
+  ADD KEY `idx_crs_yr_lvl_term` (`academic_year`,`level_name`,`term_name`),
+  ADD KEY `idx_crs_fac_yr_lvl` (`faculty_id`,`academic_year`,`level_name`);
+
+--
+-- Indexes for table `course_grades`
+--
+ALTER TABLE `course_grades`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_student_course_attempt` (`student_id`,`course_id`,`attempt_number`),
+  ADD KEY `fk_course_grades_student` (`student_id`),
+  ADD KEY `fk_course_grades_course` (`course_id`),
+  ADD KEY `idx_course_grades_student_id` (`student_id`),
+  ADD KEY `idx_course_grades_course_id` (`course_id`),
+  ADD KEY `idx_course_grades_attempt_number` (`attempt_number`),
+  ADD KEY `idx_course_grades_student_id_course_id` (`student_id`,`course_id`),
+  ADD KEY `idx_grd_std_course` (`student_id`,`course_id`),
+  ADD KEY `idx_grd_attempt` (`attempt_number`),
+  ADD KEY `idx_course_grades_student_course` (`student_id`,`course_id`),
+  ADD KEY `idx_course_grades_course` (`course_id`);
+
+--
+-- Indexes for table `departments`
+--
+ALTER TABLE `departments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `faculty_id` (`faculty_id`),
+  ADD KEY `idx_departments_faculty_id` (`faculty_id`),
+  ADD KEY `idx_departments_department_name` (`department_name`);
+
+--
+-- Indexes for table `faculties`
+--
+ALTER TABLE `faculties`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_faculties_faculty_name` (`faculty_name`);
+
+--
+-- Indexes for table `fees`
+--
+ALTER TABLE `fees`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  ADD UNIQUE KEY `uq_default_period` (`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`),
+  ADD KEY `fk_fees_student` (`student_id`),
+  ADD KEY `fk_fees_department` (`department_id`),
+  ADD KEY `idx_fees_student_year_level` (`student_id`,`academic_year`,`level_name`),
+  ADD KEY `idx_fees_year_level` (`academic_year`,`level_name`),
+  ADD KEY `idx_fees_dept_year_level` (`department_id`,`academic_year`,`level_name`);
+
+--
+-- Indexes for table `grading_rules`
+--
+ALTER TABLE `grading_rules`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_grading_rules_faculty` (`faculty_id`),
+  ADD KEY `idx_grading_rules_faculty_id` (`faculty_id`),
+  ADD KEY `idx_grading_rules_rule_type` (`rule_type`),
+  ADD KEY `idx_grading_rules_faculty_id_rule_type` (`faculty_id`,`rule_type`),
+  ADD KEY `idx_grd_fac_type` (`faculty_id`,`rule_type`);
+
+--
+-- Indexes for table `rooms`
+--
+ALTER TABLE `rooms`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_room_name` (`room_name`),
+  ADD KEY `room_name` (`room_name`);
+
+--
+-- Indexes for table `staff_members`
+--
+ALTER TABLE `staff_members`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_staff_code` (`staff_code`),
+  ADD UNIQUE KEY `uq_staff_email` (`email`),
+  ADD KEY `idx_staff_faculty` (`faculty_id`),
+  ADD KEY `idx_staff_department` (`department_id`);
+
+--
+-- Indexes for table `students`
+--
+ALTER TABLE `students`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `idx_students_university_id_unique` (`university_id`),
+  ADD UNIQUE KEY `uniq_students_full_name` (`full_name`),
+  ADD KEY `fk_students_department` (`department_id`),
+  ADD KEY `idx_students_university_id` (`university_id`),
+  ADD KEY `idx_std_univ_name` (`university_id`,`full_name`),
+  ADD KEY `idx_std_dept_name` (`department_id`,`full_name`),
+  ADD KEY `idx_std_univ_dept` (`university_id`,`department_id`),
+  ADD KEY `idx_students_dept_status` (`department_id`,`academic_status`);
+
+--
+-- Indexes for table `student_registrations`
+--
+ALTER TABLE `student_registrations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_reg_student` (`student_id`),
+  ADD KEY `idx_student_registrations_student_id` (`student_id`),
+  ADD KEY `idx_student_registrations_academic_year` (`academic_year`),
+  ADD KEY `idx_student_registrations_level_name` (`level_name`),
+  ADD KEY `idx_student_registrations_term_name` (`term_name`),
+  ADD KEY `idx_student_registrations_program_type` (`program_type`),
+  ADD KEY `idx_student_registrations_postgraduate_program` (`postgraduate_program`(191)),
+  ADD KEY `idx_student_registrations_registration_status` (`registration_status`),
+  ADD KEY `idx_reg_student` (`student_id`),
+  ADD KEY `idx_reg_year` (`academic_year`),
+  ADD KEY `idx_reg_level` (`level_name`),
+  ADD KEY `idx_reg_term` (`term_name`),
+  ADD KEY `idx_reg_prog` (`program_type`),
+  ADD KEY `idx_reg_pg` (`postgraduate_program`(191)),
+  ADD KEY `idx_reg_status` (`registration_status`),
+  ADD KEY `idx_reg_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`),
+  ADD KEY `idx_reg_prog_pg` (`program_type`,`postgraduate_program`(191)),
+  ADD KEY `idx_reg_year_prog` (`academic_year`,`program_type`,`postgraduate_program`(191)),
+  ADD KEY `idx_reg_status_year` (`registration_status`,`academic_year`),
+  ADD KEY `idx_reg_std_yr_lvl` (`student_id`,`academic_year`,`level_name`),
+  ADD KEY `idx_reg_student_period` (`student_id`,`academic_year`,`level_name`,`term_name`),
+  ADD KEY `idx_registrations_student_year_level_term` (`student_id`,`academic_year`,`level_name`,`term_name`);
+
+--
+-- Indexes for table `term_results`
+--
+ALTER TABLE `term_results`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_term_result` (`student_id`,`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`program_mode`),
+  ADD KEY `idx_term_results_student` (`student_id`),
+  ADD KEY `idx_res_std_period` (`student_id`,`academic_year`,`level_name`,`term_name`);
+
+--
+-- Indexes for table `timetable_sessions`
+--
+ALTER TABLE `timetable_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_room_day_time` (`room_id`,`day_of_week`,`start_time`,`end_time`),
+  ADD KEY `idx_instructor_day_time` (`instructor_staff_id`,`day_of_week`,`start_time`,`end_time`),
+  ADD KEY `idx_scope` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`),
+  ADD KEY `idx_ts_room_time` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`room_id`,`start_time`,`end_time`),
+  ADD KEY `idx_ts_instructor_time` (`academic_year`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`instructor_staff_id`,`start_time`,`end_time`),
+  ADD KEY `idx_ts_dept_time` (`faculty_id`,`department_id`,`academic_year`,`level_name`,`term_name`,`program_type`,`postgraduate_program`,`day_of_week`,`start_time`,`end_time`),
+  ADD KEY `idx_instructor_time` (`instructor_staff_id`,`academic_year`,`term_name`,`program_type`,`day_of_week`,`start_time`,`end_time`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `idx_users_username` (`username`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `academic_periods`
+--
+ALTER TABLE `academic_periods`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=273;
+
+--
+-- AUTO_INCREMENT for table `books`
+--
+ALTER TABLE `books`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `borrowed_books`
+--
+ALTER TABLE `borrowed_books`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `courses`
+--
+ALTER TABLE `courses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+
+--
+-- AUTO_INCREMENT for table `course_grades`
+--
+ALTER TABLE `course_grades`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=186;
+
+--
+-- AUTO_INCREMENT for table `departments`
+--
+ALTER TABLE `departments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `faculties`
+--
+ALTER TABLE `faculties`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `fees`
+--
+ALTER TABLE `fees`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+--
+-- AUTO_INCREMENT for table `grading_rules`
+--
+ALTER TABLE `grading_rules`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=196;
+
+--
+-- AUTO_INCREMENT for table `rooms`
+--
+ALTER TABLE `rooms`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `staff_members`
+--
+ALTER TABLE `staff_members`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `students`
+--
+ALTER TABLE `students`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+
+--
+-- AUTO_INCREMENT for table `student_registrations`
+--
+ALTER TABLE `student_registrations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=274;
+
+--
+-- AUTO_INCREMENT for table `term_results`
+--
+ALTER TABLE `term_results`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
+
+--
+-- AUTO_INCREMENT for table `timetable_sessions`
+--
+ALTER TABLE `timetable_sessions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- Constraints for dumped tables
@@ -1755,6 +1950,7 @@ ALTER TABLE `students`
 --
 ALTER TABLE `student_registrations`
   ADD CONSTRAINT `fk_reg_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

@@ -5,6 +5,7 @@ import html2pdf from 'html2pdf.js';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5000/api";
 
+
 const ui = {
   page: { fontFamily: `"Cairo", "Tajawal", system-ui, -apple-system, "Segoe UI", Arial, sans-serif`, fontSize: 16, background: "#f8fafc", minHeight: "100vh" },
   header: { background: "#0a3753", color: "#fff", padding: "16px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.15)" },
@@ -70,7 +71,7 @@ const Report = () => {
       .finally(() => setLoadingPeriods(false));
   }, []);
 
-  //  search
+  // search
   useEffect(() => {
     if (scope !== "student" || studentSearch.trim().length < 2) {
       setStudentSuggestions([]);
@@ -85,15 +86,15 @@ const Report = () => {
   }, [studentSearch, scope]);
 
   useEffect(() => {
-  setSelectedFacultyId("");
-  setSelectedDepartmentId("");
-  setStudentSearch("");
-  setStudentSuggestions([]);
-  setSelectedStudent(null);
-  setAcademicYear("");
-  setLevelName("");
-  setReportData(null);   
-}, [scope]);
+    setSelectedFacultyId("");
+    setSelectedDepartmentId("");
+    setStudentSearch("");
+    setStudentSuggestions([]);
+    setSelectedStudent(null);
+    setAcademicYear("");
+    setLevelName("");
+    setReportData(null);   
+  }, [scope]);
 
   // Fetch Report
   const fetchReport = async () => {
@@ -114,8 +115,12 @@ const Report = () => {
       const res = await fetch(`${API_BASE}/fees-report?${params}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "فشل");
-      setReportData(data);
-      // showToast("تم جلب التقرير بنجاح", "success");
+
+      setReportData({
+        ...data,
+        groupsByCurrency: data.by_currency || {}  
+      });
+      
     } catch (err) {
       showToast(err.message, "error");
     } finally {
@@ -124,235 +129,165 @@ const Report = () => {
   };
 
   // Print PDF 
-const printReport = () => {
-  if (!reportData) {
-    showToast("ما فيش بيانات للطباعة بعد", "error");
-    return;
-  }
+  const printReport = () => {
+    if (!reportData || !reportData.groupsByCurrency) {
+      showToast("ما فيش بيانات للطباعة بعد", "error");
+      return;
+    }
 
-  const universityName = "جامعة بورتسودان الأهلية";
+    const universityName = "جامعة بورتسودان الأهلية";
 
-  const facultyName =
-    scope !== "all" && selectedFacultyId
+    const facultyName = scope !== "all" && selectedFacultyId
       ? faculties.find(f => f.id === Number(selectedFacultyId))?.faculty_name || "غير محدد"
       : "";
 
-  const departmentName =
-    (scope === "department" || scope === "student") && selectedDepartmentId
+    const departmentName = (scope === "department" || scope === "student") && selectedDepartmentId
       ? departments.find(d => d.id === Number(selectedDepartmentId))?.department_name || "غير محدد"
       : "";
 
-  const studentName =
-    scope === "student" && selectedStudent
+    const studentName = scope === "student" && selectedStudent
       ? `${selectedStudent.university_id} - ${selectedStudent.full_name}`
       : "";
 
-  let subtitle = "";
-  if (scope === "all")        subtitle = "تقرير رسوم – كل الجامعة";
-  else if (scope === "faculty")  subtitle = `تقرير رسوم – ${facultyName}`;
-  else if (scope === "department") subtitle = `تقرير رسوم – ${departmentName}`;
-  else if (scope === "student")  subtitle = `تقرير رسوم الطالب – ${studentName}`;
+    let subtitle = "";
+    if (scope === "all") subtitle = "تقرير رسوم – كل الجامعة";
+    else if (scope === "faculty") subtitle = `تقرير رسوم – ${facultyName}`;
+    else if (scope === "department") subtitle = `تقرير رسوم – ${departmentName}`;
+    else if (scope === "student") subtitle = `تقرير رسوم الطالب – ${studentName}`;
 
-  const commonHeader = `
-    <div style="text-align: center; margin-bottom: 35px; padding-bottom: 20px; border-bottom: 2px solid #0a3753;">
-      <h1 style="margin: 0; color: #0a3753; font-size: 26px; font-weight: 900;">
-        ${universityName}
-      </h1>
-      
-      ${facultyName ? `
-        <p style="margin: 12px 0 6px; font-size: 18px; font-weight: bold;">
-          ${facultyName}
+    const commonHeader = `
+      <div style="text-align: center; margin-bottom: 35px; padding-bottom: 20px; border-bottom: 2px solid #0a3753;">
+        <h1 style="margin: 0; color: #0a3753; font-size: 26px; font-weight: 900;">
+          ${universityName}
+        </h1>
+        ${facultyName ? `<p style="margin: 12px 0 6px; font-size: 18px; font-weight: bold;">${facultyName}</p>` : ''}
+        ${departmentName ? `<p style="margin: 6px 0; font-size: 16px; font-weight: bold; color: #334155;">القسم: ${departmentName}</p>` : ''}
+        ${studentName ? `<p style="margin: 8px 0; font-size: 17px; font-weight: 700; color: #0f766e;">${studentName}</p>` : ''}
+        <p style="margin: 14px 0 4px; font-size: 15px; color: #444;">
+          السنة الدراسية: <strong>${academicYear}</strong> 
+          ${levelName ? ` | <strong>${levelName}</strong>` : ''}
         </p>
-      ` : ''}
-
-      ${departmentName ? `
-        <p style="margin: 6px 0; font-size: 16px; font-weight: bold; color: #334155;">
-          القسم: ${departmentName}
+        <p style="margin: 6px 0; font-size: 13px; color: #666;">
+          تاريخ الطباعة: ${new Date().toLocaleString('EG')}
         </p>
-      ` : ''}
-
-      ${studentName ? `
-        <p style="margin: 8px 0; font-size: 17px; font-weight: 700; color: #0f766e;">
-          ${studentName}
-        </p>
-      ` : ''}
-
-      <p style="margin: 14px 0 4px; font-size: 15px; color: #444;">
-        السنة الدراسية: <strong>${academicYear}</strong> 
-        ${levelName ? ` | <strong>${levelName}</strong>` : ''}
-      </p>
-
-      <p style="margin: 6px 0; font-size: 13px; color: #666;">
-        تاريخ الطباعة: ${new Date().toLocaleString('EG')}
-      </p>
-    </div>
-  `;
-
-  let content = `
-    <div style="direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; padding: 40px 25px; font-size: 14px; line-height: 1.5;">
-      ${commonHeader}
-      <h2 style="color: #0a3753; text-align: center; margin: 30px 0 25px; font-size: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
-        ${subtitle}
-      </h2>
-  `;
-
-if (reportData.groups && reportData.groups.length > 0) {
-  content += `
-    <table style="width: 100%; border-collapse: collapse; margin: 25px 0 35px;">
-      <thead>
-        <tr style="background: #e0f2fe; color: #0a3753;">
-          <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: right;">
-            الاسم
-          </th>
-          <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">
-            المستحق
-          </th>
-          <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">
-            المتحصل
-          </th>
-          <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">
-            المتبقي
-          </th>
-          <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">
-            نسبة التحصيل
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        ${reportData.groups.map((g, i) => `
-          <tr style="background: ${i % 2 === 0 ? '#f8fafc' : '#ffffff'};">
-            <td style="padding: 12px; border: 1px solid #ddd; font-weight: 600; text-align: right;">
-              ${g.name}
-            </td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
-              ${Number(g.total_due || 0).toLocaleString()} 
-            </td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
-              ${Number(g.total_paid || 0).toLocaleString()} 
-            </td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
-              ${Number(g.total_unpaid || 0).toLocaleString()}
-            </td>
-            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
-              ${g.percentage}%
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-if (reportData.grand_total) {
-  const gt = reportData.grand_total;
-
-  content += `
-    <div style="
-      padding: 24px 20px;
-      margin: 32px 0;
-      background: #f8fafc;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-      text-align: center;
-    ">
-      <div style="
-        font-size: 19px;
-        font-weight: 800;
-        color: #0a3753;
-        margin-bottom: 18px;
-      ">
-        الإجمالي الكلي لـ ${scope === "all" ? "الجامعة" : scope === "faculty" ? "الكلية" : scope === "department" ? "القسم" : "الطالب"}
       </div>
-      
-      <div style="
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        flex-wrap: wrap;
-        font-size: 15px;
-        color: #334155;
-      ">
-        <div>
-          المستحق: 
-          <strong style="color: #0a3753; font-size: 17px; font-weight: 700;">
-            ${Number(gt.total_due || 0).toLocaleString()} 
-          </strong>
-        </div>
-        
-        <div>
-          المتحصل: 
-          <strong style="color: #0a3753; font-size: 17px; font-weight: 700;">
-            ${Number(gt.total_paid || 0).toLocaleString()}
-          </strong>
-        </div>
-        
-        <div>
-          المتبقي: 
-          <strong style="color: ${Number(gt.total_unpaid || 0) > 0 ? '#0a3753' : '#0a3753'}; font-size: 17px; font-weight: 700;">
-            ${Number(gt.total_unpaid || 0).toLocaleString()}
-          </strong>
-        </div>
-        
-        <div>
-          نسبة التحصيل: 
-          <strong style="color: #0a3753; font-size: 18px; font-weight: 800;">
-            ${gt.percentage || 0}%
-          </strong>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-  if (reportData.student_details && reportData.student_details.length > 0) {
-    content += `
-      <h3 style="color: #0a3753; margin: 40px 0 20px; font-size: 18px; text-align: center;">
-        تفاصيل الأقساط
-      </h3>
-      <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-          <tr style="background: #e0f2fe;">
-            <th style="padding: 12px; border: 1px solid #bfdbfe;">القسط</th>
-            <th style="padding: 12px; border: 1px solid #bfdbfe;">المبلغ</th>
-            <th style="padding: 12px; border: 1px solid #bfdbfe;">الحالة</th>
-            <th style="padding: 12px; border: 1px solid #bfdbfe;">تاريخ الدفع</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${reportData.student_details.map(d => `
-            <tr>
-              <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${d.installment_no}</td>
-              <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${Number(d.amount||0).toLocaleString()}</td>
-              <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: ${d.paid === 1 ? '#16a34a' : '#dc2626'}; font-weight: bold;">
-                ${d.paid === 1 ? "مدفوع" : "غير مدفوع"}
-              </td>
-              <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${d.paid_at ? new Date(d.paid_at).toLocaleDateString('EG') : '—'}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
     `;
-  }
 
-  content += `</div>`;
+    let content = `
+      <div style="direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; padding: 40px 25px; font-size: 14px; line-height: 1.5;">
+        ${commonHeader}
+        <h2 style="color: #0a3753; text-align: center; margin: 30px 0 25px; font-size: 20px; border-bottom: 1px solid #ddd; padding-bottom: 10px;">
+          ${subtitle}
+        </h2>
+    `;
 
-  const element = document.createElement("div");
-  element.innerHTML = content;
+    // طباعة كل عملة على حدة
+    Object.entries(reportData.groupsByCurrency).forEach(([currency, currencyData]) => {
+      content += `
+        <h3 style="color: #0a3753; margin: 40px 0 15px; font-size: 19px;">
+          ${currency === "USD" ? "بالدولار الأمريكي (USD)" : "بالجنيه السوداني (SDG)"}
+        </h3>
+      `;
 
-  html2pdf()
-    .from(element)
-    .set({
-      margin: 12,
-      filename: `تقرير_رسوم_${scope}_${academicYear.replace("/", "-")}_${new Date().toISOString().slice(0,10)}.pdf`,
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css'] }
-    })
-    .save();
+      if (currencyData.groups && currencyData.groups.length > 0) {
+        content += `
+          <table style="width: 100%; border-collapse: collapse; margin: 25px 0 35px;">
+            <thead>
+              <tr style="background: #e0f2fe; color: #0a3753;">
+                <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: right;">الاسم</th>
+                <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">المستحق (${currency})</th>
+                <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">المتحصل (${currency})</th>
+                <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">المتبقي (${currency})</th>
+                <th style="padding: 14px; border: 1px solid #bfdbfe; font-size: 14px; font-weight: 700; text-align: center;">نسبة التحصيل</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${currencyData.groups.map((g, i) => `
+                <tr style="background: ${i % 2 === 0 ? '#f8fafc' : '#ffffff'};">
+                  <td style="padding: 12px; border: 1px solid #ddd; font-weight: 600; text-align: right;">${g.name}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${Number(g.total_due || 0).toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${Number(g.total_paid || 0).toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${Number(g.total_unpaid || 0).toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${g.percentage}%</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
 
-  showToast("جاري تحميل ملف الـ PDF...", "success");
-};
+      if (currencyData.grand_total) {
+        const gt = currencyData.grand_total;
+        content += `
+          <div style="padding: 24px 20px; margin: 32px 0; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 3px 10px rgba(0,0,0,0.05); text-align: center;">
+            <div style="font-size: 19px; font-weight: 800; color: #0a3753; margin-bottom: 18px;">
+              الإجمالي الكلي (${currency}) لـ ${scope === "all" ? "الجامعة" : scope === "faculty" ? "الكلية" : scope === "department" ? "القسم" : "الطالب"}
+            </div>
+            <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; font-size: 15px; color: #334155;">
+              <div>المستحق: <strong style="color: #0a3753; font-size: 17px; font-weight: 700;">${Number(gt.total_due || 0).toLocaleString()}</strong></div>
+              <div>المتحصل: <strong style="color: #16a34a; font-size: 17px; font-weight: 700;">${Number(gt.total_paid || 0).toLocaleString()}</strong></div>
+              <div>المتبقي: <strong style="color: ${Number(gt.total_unpaid || 0) > 0 ? '#dc2626' : '#16a34a'}; font-size: 17px; font-weight: 700;">${Number(gt.total_unpaid || 0).toLocaleString()}</strong></div>
+              <div>نسبة التحصيل: <strong style="color: #0a3753; font-size: 18px; font-weight: 800;">${gt.percentage || 0}%</strong></div>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    // تفاصيل الأقساط للطالب (إذا وجدت)
+    if (reportData.groupsByCurrency) {
+      const allInstallments = Object.values(reportData.groupsByCurrency)
+        .flatMap(c => c.student_details || []);
+
+      if (allInstallments.length > 0) {
+        content += `
+          <h3 style="color: #0a3753; margin: 40px 0 20px; font-size: 18px; text-align: center;">
+            تفاصيل الأقساط
+          </h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #e0f2fe;">
+                <th style="padding: 12px; border: 1px solid #bfdbfe;">القسط</th>
+                <th style="padding: 12px; border: 1px solid #bfdbfe;">المبلغ</th>
+                <th style="padding: 12px; border: 1px solid #bfdbfe;">الحالة</th>
+                <th style="padding: 12px; border: 1px solid #bfdbfe;">تاريخ الدفع</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${allInstallments.map(d => `
+                <tr>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${d.installment_no}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${Number(d.amount||0).toLocaleString()}</td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center; color: ${d.paid === 1 ? '#16a34a' : '#dc2626'}; font-weight: bold;">
+                    ${d.paid === 1 ? "مدفوع" : "غير مدفوع"}
+                  </td>
+                  <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">${d.paid_at ? new Date(d.paid_at).toLocaleDateString('EG') : '—'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    content += `</div>`;
+
+    const element = document.createElement("div");
+    element.innerHTML = content;
+
+    html2pdf()
+      .from(element)
+      .set({
+        margin: 12,
+        filename: `تقرير_رسوم_${scope}_${academicYear.replace("/", "-")}_${new Date().toISOString().slice(0,10)}.pdf`,
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all', 'css'] }
+      })
+      .save();
+
+    showToast("جاري تحميل ملف الـ PDF...", "success");
+  };
 
   return (
     <div dir="rtl" style={ui.page}>
@@ -437,98 +372,135 @@ if (reportData.grand_total) {
           </button>
         </div>
 
-        {reportData && (
+        {/* عرض التقرير حسب العملة */}
+        {reportData && reportData.groupsByCurrency && Object.keys(reportData.groupsByCurrency).length > 0 && (
           <div style={ui.card}>
             <h3 style={ui.sectionTitle}>
               {scope === "all" ? "كل الجامعة" : scope === "faculty" ? "الكلية" : scope === "department" ? "القسم" : "الطالب"}
             </h3>
 
-            {reportData.groups && reportData.groups.length > 0 && (
-              <div style={{ overflowX: "auto", marginBottom: 30 }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "#e0f2fe", color: "#0a3753" }}>
-                      <th style={{ padding: "12px" }}>الاسم</th>
-                      <th style={{ padding: "12px" }}>المستحق</th>
-                      <th style={{ padding: "12px" }}>المتحصل</th>
-                      <th style={{ padding: "12px" }}>المتبقي</th>
-                      <th style={{ padding: "12px" }}>النسبة</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reportData.groups.map((g, i) => (
-                      <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "#fff" }}>
-                        <td style={{ padding: "12px", fontWeight: 700 }}>{g.name}</td>
-                        <td style={{ padding: "12px" }}>{Number(g.total_due).toLocaleString()}</td>
-                        <td style={{ padding: "12px" }}>{Number(g.total_paid).toLocaleString()}</td>
-                        <td style={{ padding: "12px" }}>{Number(g.total_unpaid).toLocaleString()}</td>
-                        <td style={{ padding: "12px", fontWeight: 700 }}>{g.percentage}%</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {Object.entries(reportData.groupsByCurrency).map(([currency, currencyData]) => (
+              <div key={currency} style={{ marginBottom: 50 }}>
+                <h3 style={{ 
+                  color: "#0a3753", 
+                  fontSize: 21, 
+                  marginBottom: 18,
+                  borderBottom: "2px solid #e2e8f0",
+                  paddingBottom: 10 
+                }}>
+                  {currency === "USD" ? "بالدولار الأمريكي (USD)" : "بالجنيه السوداني (SDG)"}
+                </h3>
+
+                {currencyData.groups && currencyData.groups.length > 0 && (
+                  <div style={{ overflowX: "auto", marginBottom: 30 }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ background: "#e0f2fe", color: "#0a3753" }}>
+                          <th style={{ padding: "12px", textAlign: "right" }}>الاسم</th>
+                          <th style={{ padding: "12px", textAlign: "center" }}>المستحق ({currency})</th>
+                          <th style={{ padding: "12px", textAlign: "center" }}>المتحصل ({currency})</th>
+                          <th style={{ padding: "12px", textAlign: "center" }}>المتبقي ({currency})</th>
+                          <th style={{ padding: "12px", textAlign: "center" }}>نسبة التحصيل</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currencyData.groups.map((g, i) => (
+                          <tr key={i} style={{ background: i % 2 === 0 ? "#f8fafc" : "#fff" }}>
+                            <td style={{ padding: "12px", fontWeight: 700 }}>{g.name}</td>
+                            <td style={{ padding: "12px", textAlign: "center" }}>{Number(g.total_due).toLocaleString()}</td>
+                            <td style={{ padding: "12px", textAlign: "center" }}>{Number(g.total_paid).toLocaleString()}</td>
+                            <td style={{ padding: "12px", textAlign: "center" }}>{Number(g.total_unpaid).toLocaleString()}</td>
+                            <td style={{ padding: "12px", textAlign: "center", fontWeight: 700 }}>{g.percentage}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {currencyData.grand_total && (
+                  <div style={{
+                    padding: "28px 20px",
+                    margin: "20px 0",
+                    background: "#f8fafc",
+                    borderRadius: 16,
+                    border: "2px solid #e2e8f0",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
+                    textAlign: "center"
+                  }}>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: "#0a3753", marginBottom: 18 }}>
+                      الإجمالي الكلي ({currency}) — 
+                      {scope === "all" ? "الجامعة" : scope === "faculty" ? "الكلية" : scope === "department" ? "القسم" : "الطالب"}
+                    </div>
+                    
+                    <div style={{ 
+                      display: "flex", 
+                      justifyContent: "center", 
+                      gap: "70px", 
+                      flexWrap: "wrap", 
+                      fontSize: 20 
+                    }}>
+                      <div>المستحق: <strong>{Number(currencyData.grand_total.total_due).toLocaleString()}</strong></div>
+                      <div>المتحصل: <strong style={{color: "#16a34a"}}>{Number(currencyData.grand_total.total_paid).toLocaleString()}</strong></div>
+                      <div>المتبقي: <strong style={{color: currencyData.grand_total.total_unpaid > 0 ? "#dc2626" : "#16a34a"}}>
+                        {Number(currencyData.grand_total.total_unpaid).toLocaleString()}
+                      </strong></div>
+                      <div>نسبة التحصيل: <strong>{currencyData.grand_total.percentage}%</strong></div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-
-{reportData.grand_total && (
-  <div style={{
-    padding: "28px 20px",
-    margin: "32px 0",
-    background: "#f8fafc",
-    borderRadius: 16,
-    border: "2px solid #e2e8f0",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-    textAlign: "center"
-  }}>
-    <div style={{fontSize: 26, fontWeight: 900, color: "#0a3753", marginBottom: 16}}>
-      الإجمالي الكلي لـ {scope === "all" ? "الجامعة" : scope === "faculty" ? "الكلية" : scope === "department" ? "القسم" : "الطالب"}
-    </div>
-    
-    <div style={{display: "flex", justifyContent: "center", gap: "60px", flexWrap: "wrap", fontSize: 20}}>
-      <div>المستحق: <strong>{Number(reportData.grand_total.total_due).toLocaleString()}</strong></div>
-      <div>المتحصل: <strong style={{color: "#16a34a"}}>{Number(reportData.grand_total.total_paid).toLocaleString()}</strong></div>
-      <div>المتبقي: <strong style={{color: reportData.grand_total.total_unpaid > 0 ? "#dc2626" : "#16a34a"}}>{Number(reportData.grand_total.total_unpaid).toLocaleString()}</strong></div>
-      <div>نسبة التحصيل: <strong>{reportData.grand_total.percentage}%</strong></div>
-    </div>
-  </div>
-)}
-
-            {reportData.student_details && (
-              <div style={{ marginTop: 30 }}>
-                <h4 style={{ color: "#0a3753" }}>تفاصيل الأقساط</h4>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead><tr style={{ background: "#f1f5f9" }}><th>القسط</th><th>القيمة</th><th>الحالة</th><th>تاريخ الدفع</th></tr></thead>
-                  <tbody>
-                    {reportData.student_details.map((d, i) => (
-                      <tr key={i}>
-                        <td>القسط {d.installment_no}</td>
-                        <td>{Number(d.amount).toLocaleString()}</td>
-                        <td style={{ color: d.paid === 1 ? "#16a34a" : "#dc2626" }}>{d.paid === 1 ? "مدفوع" : "غير مدفوع"}</td>
-                        <td>{d.paid_at ? new Date(d.paid_at).toLocaleDateString("EG") : "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-<button
-  onClick={printReport}
-  style={{
-    ...ui.secondaryBtn,
-    display: "block",
-    width: "auto",
-    minWidth: "220px",
-    maxWidth: "320px",
-    margin: "30px auto 0",
-    padding: "12px 32px",
-    textAlign: "center",
-  }}
->
-  طباعة التقرير (PDF)
-</button>
+            ))}
           </div>
         )}
+
+        {/* تفاصيل الأقساط للطالب */}
+        {reportData && reportData.groupsByCurrency && 
+          Object.values(reportData.groupsByCurrency).some(c => c.student_details && c.student_details.length > 0) && (
+          <div style={ui.card}>
+            <h4 style={{ color: "#0a3753", marginBottom: 16 }}>تفاصيل الأقساط</h4>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#f1f5f9" }}>
+                  <th>القسط</th>
+                  <th>القيمة</th>
+                  <th>الحالة</th>
+                  <th>تاريخ الدفع</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.values(reportData.groupsByCurrency)
+                  .flatMap(c => c.student_details || [])
+                  .map((d, i) => (
+                    <tr key={i}>
+                      <td>القسط {d.installment_no}</td>
+                      <td>{Number(d.amount).toLocaleString()}</td>
+                      <td style={{ color: d.paid === 1 ? "#16a34a" : "#dc2626" }}>
+                        {d.paid === 1 ? "مدفوع" : "غير مدفوع"}
+                      </td>
+                      <td>{d.paid_at ? new Date(d.paid_at).toLocaleDateString("EG") : "—"}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <button
+          onClick={printReport}
+          style={{
+            ...ui.secondaryBtn,
+            display: "block",
+            width: "auto",
+            minWidth: "220px",
+            maxWidth: "320px",
+            margin: "30px auto 0",
+            padding: "12px 32px",
+            textAlign: "center",
+          }}
+        >
+          طباعة التقرير (PDF)
+        </button>
       </main>
 
       {toast && (

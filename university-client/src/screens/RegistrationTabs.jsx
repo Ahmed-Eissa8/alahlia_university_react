@@ -352,6 +352,8 @@ function RegistrationTabs() {
     installment_6: "",
     scholarship_type: "لا منحة",
     scholarship_percentage: 0,
+    scholarship_granted_by: "",
+    currency: "SDG",
     payment_start_date: "",
     payment_end_date: "",
   });
@@ -2762,7 +2764,7 @@ function FeesTab({ showToast }) {
 
   const today = new Date().toISOString().split("T")[0];
   const navigate = useNavigate();
-  const [currency, setCurrency] = useState("SDG");
+  // const [currency, setCurrency] = useState("SDG");
 
   const defaultFeesData = {
     registration_fee: "",
@@ -2775,6 +2777,7 @@ function FeesTab({ showToast }) {
     scholarship_type: "لا منحة",
     scholarship_percentage: 0,
     scholarship_granted_by: "",
+    currency: "SDG",
     installment_1: "", installment_1_start: "", installment_1_end: "",
     installment_2: "", installment_2_start: "", installment_2_end: "",
     installment_3: "", installment_3_start: "", installment_3_end: "",
@@ -2813,7 +2816,7 @@ const minAllowedInstallments = paidCount >= 6 ? 6 : paidCount + 1;
 
 const formatCurrency = (amount) => {
   const value = cleanNumber(amount);
-  const symbol = currency === "USD" ? " $" : " جنيه";
+  const symbol = feesData.currency === "USD" ? " $" : " ج.س";
   return value.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -3345,6 +3348,7 @@ useEffect(() => {
       scholarship_type: fees.scholarship_type || "لا منحة",
       scholarship_percentage: fees.scholarship_percentage || 0,
       scholarship_granted_by: fees.scholarship_granted_by || "",
+      currency: fees.currency || "SDG",
       installment_1: fees.installment_1?.toString() || "",
       installment_1_start: fees.installment_1_start || "",
       installment_1_end: fees.installment_1_end || "",
@@ -3491,7 +3495,7 @@ const saveFees = async () => {
       program_type: programType,
       postgraduate_program: programType === "postgraduate" ? postgradProgram || null : null,
       department_id: departmentId ? Number(departmentId) : null,
-      currency: currency || "SDG",
+      currency: feesData.currency || "SDG",
       registration_fee: Number(feesData.registration_fee) || 0,
       tuition_fee: Number(feesData.tuition_fee) || 0,
       late_fee: Number(feesData.late_fee) || 0,
@@ -4123,8 +4127,8 @@ const printFeesReport = async () => {
         type="radio"
         name="currency"
         value="SDG"
-        checked={currency === "SDG"}
-        onChange={() => setCurrency("SDG")}
+        checked={feesData.currency === "SDG"}           // ← صح
+        onChange={() => setFeesData(prev => ({ ...prev, currency: "SDG" }))}   // ← صح
       />
       جنيه سوداني (SDG)
     </label>
@@ -4134,8 +4138,8 @@ const printFeesReport = async () => {
         type="radio"
         name="currency"
         value="USD"
-        checked={currency === "USD"}
-        onChange={() => setCurrency("USD")}
+        checked={feesData.currency === "USD"}           // ← صح
+        onChange={() => setFeesData(prev => ({ ...prev, currency: "USD" }))}   // ← صح
       />
       دولار أمريكي (USD)
     </label>
